@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <functional>
+#include <string_view>
+#include <iomanip>
 
 std::string ReplaceString(std::string& currString,
 	const std::string& searchString, const std::string& replaceString)
@@ -11,21 +14,23 @@ std::string ReplaceString(std::string& currString,
 		return currString;
 	}
 
-	std::string result = "";
-	while (currString.length() > 0)
+	size_t currPos = 0;
+	std::string result = ""; 
+	while (currPos < currString.length())
 	{
-		const auto iterator = std::search(currString.begin(), currString.end(), searchString.begin(), searchString.end());
-		const auto currPos = iterator - currString.begin();
-		if (currPos == currString.length())
+		const auto it = std::search(currString.begin() + currPos, currString.end(), std::boyer_moore_horspool_searcher(searchString.begin(), searchString.end()));
+		if (it == currString.end())
 		{
-			result.append(currString);
-			currString.erase(currString.begin(), currString.end());
+			//result.append(currString, currPos, currString.length());
+			result.append(currString, currPos, it - currString.begin() - currPos);
+
+			currPos += it - currString.begin();
 		}
 		else
 		{
-			result.append(currString, 0, currPos);
+			result.append(currString, currPos, it - currString.begin() - currPos);
 			result.append(replaceString);
-			currString.erase(currString.begin(), currString.begin() + currPos + searchString.length());
+			currPos += it - currString.begin() - currPos + searchString.length();
 		}
 	}
 

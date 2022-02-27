@@ -6,15 +6,15 @@ rem set DIR="%CD%"
 %PROGRAM% > nul
 if NOT ERRORLEVEL 1 goto err
 
-%PROGRAM% input.txt "%DIR%\output.txt" 1231234 ABRACADABRA
+%PROGRAM% input.txt "%DIR%\output.txt" a bb
 if ERRORLEVEL 1 goto err
-fc.exe input.txt "%DIR%\output.txt"
+fc.exe input.txt "%DIR%\output.txt" >nul
 
 %PROGRAM% input1.txt "%DIR%\output1.txt" test ABRACADABRA
 if ERRORLEVEL 1 goto err
 fc.exe input1.txt "%DIR%\output1.txt"
 
-%PROGRAM% input3.txt "%DIR%\output3.txt" "" ""
+%PROGRAM% input3.txt "%DIR%\output3.txt" HELLO ABRACADABRA
 if ERRORLEVEL 1 goto err
 fc.exe input3.txt "%DIR%\output3.txt"
 
