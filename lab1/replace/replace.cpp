@@ -3,8 +3,6 @@
 #include <fstream>
 #include <string>
 #include <functional>
-#include <string_view>
-#include <iomanip>
 
 std::string ReplaceString(std::string& currString,
 	const std::string& searchString, const std::string& replaceString)
@@ -19,16 +17,13 @@ std::string ReplaceString(std::string& currString,
 	while (currPos < currString.length())
 	{
 		const auto it = std::search(currString.begin() + currPos, currString.end(), std::boyer_moore_horspool_searcher(searchString.begin(), searchString.end()));
+		result.append(currString, currPos, it - currString.begin() - currPos);
 		if (it == currString.end())
 		{
-			//result.append(currString, currPos, currString.length());
-			result.append(currString, currPos, it - currString.begin() - currPos);
-
-			currPos += it - currString.begin();
+			break;
 		}
 		else
 		{
-			result.append(currString, currPos, it - currString.begin() - currPos);
 			result.append(replaceString);
 			currPos += it - currString.begin() - currPos + searchString.length();
 		}
@@ -44,7 +39,7 @@ void CopyStreamWithReplacement(std::istream& input, std::ostream& output,
 
 	while (std::getline(input, line))
 	{
-		output << ReplaceString(line, searchString, replaceString) << "\n";
+		output << ReplaceString(line, searchString, replaceString) << std::endl;
 	}
 }
 
