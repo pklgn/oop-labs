@@ -47,11 +47,9 @@ void MultiplyMatrix3x3(const Matrix3x3& aMatrix, const Matrix3x3& bMatrix, Matri
 			for (int inter = 0; inter < SQUARE_MATRIX_SIZE; inter++) {
 				result[row][column] += aMatrix[row][inter] * bMatrix[inter][column];
 			}
-			//std::cout << std::fixed << std::setprecision(3) << result[row][column] << "  ";
 		}
-		//std::cout << "\n";
+
 	}
-	//std::cout << "\n";
 }
 
 void PrintMatrix3x3(const Matrix3x3 matrix)
