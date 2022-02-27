@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <optional>
 
 const int SQUARE_MATRIX_SIZE = 3;
 typedef double Matrix3x3[SQUARE_MATRIX_SIZE][SQUARE_MATRIX_SIZE];
@@ -29,7 +30,7 @@ bool ReadMatrix3x3(const std::string& fileName, Matrix3x3& result)
 			inputFile >> elt;
 			if (inputFile.fail())
 			{
-				std::cout << "Couldn't read a double from the file." << std::endl;
+				std::cout << "Couldn't read a matrix element from the file" << std::endl;
 				return false;
 			}
 			result[currRow][currColumn] = elt;
@@ -59,38 +60,50 @@ void PrintMatrix3x3(const Matrix3x3 matrix)
 	{
 		for (int column = 0; column < SQUARE_MATRIX_SIZE; column++)
 		{
-			std::cout << std::fixed << std::setprecision(3) << matrix[row][column] << "  ";
+			std::cout << std::fixed << std::setprecision(3) << matrix[row][column] << " ";
 		}
-		std::cout << "\n";
+		std::cout << std::endl;
 	}
-	std::cout << "\n";
 }
 
-int main(int argc, char* argv[])
+struct Params 
 {
+	Matrix3x3 aMat;
+	Matrix3x3 bMat;
+};
 
-
-	// добавить функцию парсинга 
+std::optional<Params> getParams(int argc, char* argv[])
+{
+	Params result;
 	if (argc != 3)
 	{
 		std::cout << "Invalid arguments count\n"
 			<< "Usage multmatrix.exe <matrix file1> <matrix file2>";
-
-		return 1;
+		return std::nullopt;
 	}
 
-	std::string leftMatrixFileName = argv[1];
-	std::string rightMatrixFileName = argv[2];
+	std::string aMatFileName = argv[1];
+	std::string bMatFileName = argv[2];
+	if (!(ReadMatrix3x3(aMatFileName, result.aMat) && ReadMatrix3x3(bMatFileName, result.bMat)))
+	{
+		return std::nullopt;
+	}
+	else
+	{
+		return result;
+	}
+}
 
-	Matrix3x3 aMat;
-	Matrix3x3 bMat;
-	if (!(ReadMatrix3x3(leftMatrixFileName, aMat) && ReadMatrix3x3(rightMatrixFileName, bMat)))
+int main(int argc, char* argv[])
+{
+	std::optional<Params> matrices = getParams(argc, argv);
+	if (!matrices.has_value())
 	{
 		return 1;
 	}
-	
-	Matrix3x3 rMat;
-	MultiplyMatrix3x3(aMat, bMat, rMat);
+	Matrix3x3 rMat = { };
+	MultiplyMatrix3x3(matrices.value().aMat, matrices.value().bMat, rMat);
+	PrintMatrix3x3(rMat);
 
 	return 0;
 }

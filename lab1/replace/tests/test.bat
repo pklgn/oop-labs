@@ -7,29 +7,29 @@ rem set DIR="%CD%"
 %PROGRAM% > nul
 if NOT ERRORLEVEL 1 goto err
 
-%PROGRAM% book.txt "%DIR%\output_book.txt" star ABRACADABRA
+%PROGRAM% tests\book.txt "%DIR%\output_book.txt" star ABRACADABRA
 if ERRORLEVEL 1 goto err
-fc.exe book.txt "%DIR%\output_book.txt" >nul
+fc.exe tests\book.txt "%DIR%\output_book.txt" >nul
 
-%PROGRAM% empty_file.txt "%DIR%\output_empty_file.txt" test ABRACADABRA
+%PROGRAM% tests\empty_file.txt "%DIR%\output_empty_file.txt" test ABRACADABRA
 if ERRORLEVEL 1 goto err
-fc.exe empty_file.txt "%DIR%\output_empty_file.txt"
+fc.exe tests\empty_file.txt "%DIR%\output_empty_file.txt"
 
-%PROGRAM% small_text.txt "%DIR%\output_small_text.txt" re ABRACADABRA
+%PROGRAM% tests\small_text.txt "%DIR%\output_small_text.txt" re ABRACADABRA
 if ERRORLEVEL 1 goto err
-fc.exe small_text.txt "%DIR%\output_small_text.txt"
+fc.exe tests\small_text.txt "%DIR%\output_small_text.txt"
 
-%PROGRAM% small_number.txt "%DIR%\output_simple_example.txt" 1231234 ABRACADABRA
+%PROGRAM% tests\small_number.txt "%DIR%\output_simple_example.txt" 1231234 ABRACADABRA
 if ERRORLEVEL 1 goto err
-fc.exe small_number.txt "%DIR%\output_simple_example.txt"
+fc.exe tests\small_number.txt "%DIR%\output_simple_example.txt"
 
-%PROGRAM% long_string.txt "%DIR%\output_very_long_string.txt" a bb
+%PROGRAM% tests\long_string.txt "%DIR%\output_very_long_string.txt" a bb
 if ERRORLEVEL 1 goto err
-fc.exe long_string.txt "%DIR%\output_very_long_string.txt" >nul
+fc.exe tests\long_string.txt "%DIR%\output_very_long_string.txt" >nul
 
-%PROGRAM% small_text.txt "%DIR%\output_small_text.txt" "" ABRACADABRA
+%PROGRAM% tests\small_text.txt "%DIR%\output_small_text.txt" "" ABRACADABRA
 if ERRORLEVEL 1 goto err
-fc.exe small_text.txt "%DIR%\output_small_text.txt" 
+fc.exe tests\small_text.txt "%DIR%\output_small_text.txt" 
 
 
 echo OK
