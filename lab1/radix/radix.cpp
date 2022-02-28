@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::cout << IntToString(value, destinationNotation, wasError);
+	std::cout << IntToString(value, destinationNotation, wasError) << std::endl;
 
 	return 0;
 }
