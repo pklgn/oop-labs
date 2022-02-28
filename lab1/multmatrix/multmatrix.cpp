@@ -6,6 +6,7 @@
 
 const int SQUARE_MATRIX_SIZE = 3;
 typedef double Matrix3x3[SQUARE_MATRIX_SIZE][SQUARE_MATRIX_SIZE];
+//объявить как std::array массив фиксированного размера и возвращать массив как результат работы функции
 
 bool ReadMatrix3x3(const std::string& fileName, Matrix3x3& result)
 {
@@ -19,6 +20,7 @@ bool ReadMatrix3x3(const std::string& fileName, Matrix3x3& result)
 	{
 		for (int currColumn = 0; currColumn < SQUARE_MATRIX_SIZE; currColumn++)
 		{
+			//перенести условие после чтения
 			if (inputFile.bad() || inputFile.eof())
 			{
 				std::cout << "Cannot read matrix from file" << std::endl;
@@ -94,6 +96,7 @@ std::optional<Params> getParams(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+	//заменить имя с большой букву
 	std::optional<Params> matrices = getParams(argc, argv);
 	if (!matrices.has_value())
 	{

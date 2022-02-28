@@ -13,9 +13,11 @@ std::string ReplaceString(std::string& currString,
 	}
 
 	size_t currPos = 0;
-	std::string result = ""; 
+	std::string result = ""; //не нужно писать равно пустой строке, переменная ужу будет пустой строкой 
 	while (currPos < currString.length())
+	//вынести searcher вне цикла для инициализации единожды
 	{
+		
 		const auto it = std::search(currString.begin() + currPos, currString.end(), std::boyer_moore_horspool_searcher(searchString.begin(), searchString.end()));
 		result.append(currString, currPos, it - currString.begin() - currPos);
 		if (it == currString.end())
@@ -45,6 +47,7 @@ void CopyStreamWithReplacement(std::istream& input, std::ostream& output,
 
 int main(int argc, char* argv[])
 {
+	//Replace(inputFileName, outputFileName, searchString, replaceString);
 	if (argc != 5)
 	{
 		std::cout << "Invalid arguments count\n"

@@ -7,7 +7,7 @@
 constexpr short MIN_NOTATION = 2;
 constexpr short MAX_NOTATION = 36;
 
-bool isValidNotation(short notation)
+bool IsValidNotation(short notation)
 {
 	return ((notation <= MAX_NOTATION) && (notation >= MIN_NOTATION));
 }
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	short sourceNotation = StringToInt(argv[1], 10, wasError);
 	short destinationNotation = StringToInt(argv[2], 10, wasError);
 
-	if (!(isValidNotation(sourceNotation) && isValidNotation(destinationNotation)))
+	if (!(IsValidNotation(sourceNotation) && IsValidNotation(destinationNotation)))
 	{
 		std::cout << "Number's notation is out of range\n";
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-int appendDigitToPositiveNumber(int digit, int radix, int number, bool& wasError)
+int AppendDigitToPositiveNumber(int digit, int radix, int number, bool& wasError)
 {
 	if ((INT_MAX / radix) >= number)
 	{
@@ -71,7 +71,7 @@ int appendDigitToPositiveNumber(int digit, int radix, int number, bool& wasError
 	return number;
 }
 
-int appendDigitToNegativeNumber(int digit, int radix, int number, bool& wasError)
+int AppendDigitToNegativeNumber(int digit, int radix, int number, bool& wasError)
 {
 	if ((INT_MIN / radix) <= number)
 	{
@@ -107,15 +107,15 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
 			// имеется в виду разряд числа
 			short currDigit = ch - '0';
 			result = negative
-				? appendDigitToNegativeNumber(currDigit, radix, result, wasError)
-				: appendDigitToPositiveNumber(currDigit, radix, result, wasError);
+				? AppendDigitToNegativeNumber(currDigit, radix, result, wasError)
+				: AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
 		}
 		else if (ch >= 'A' && ch <= 'Z')
 		{
 			short currDigit = ch - 'A' + 10;
 			result = negative
-				? appendDigitToNegativeNumber(currDigit, radix, result, wasError)
-				: appendDigitToPositiveNumber(currDigit, radix, result, wasError);
+				? AppendDigitToNegativeNumber(currDigit, radix, result, wasError)
+				: AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
 		}
 		else if (pos == 0 && ch == '-')
 		{
