@@ -20,14 +20,6 @@ bool ReadMatrix3x3(const std::string& fileName, Matrix3x3& result)
 	{
 		for (int currColumn = 0; currColumn < SQUARE_MATRIX_SIZE; currColumn++)
 		{
-			//перенести условие после чтения
-			if (inputFile.bad() || inputFile.eof())
-			{
-				std::cout << "Cannot read matrix from file" << std::endl;
-				return false;
-			}
-			
-			//определять значение бита ошибки и убрать try catch
 			double elt;
 			inputFile >> elt;
 			if (inputFile.fail())
@@ -36,12 +28,18 @@ bool ReadMatrix3x3(const std::string& fileName, Matrix3x3& result)
 				return false;
 			}
 			result[currRow][currColumn] = elt;
+
+			if (inputFile.bad() || inputFile.eof())
+			{
+				std::cout << "Cannot read matrix from file" << std::endl;
+				return false;
+			}
 		}
 	}
 
 	return true;
 }
-//разделить умножение и печать + убрать инициализцию и принимать по const &
+
 void MultiplyMatrix3x3(const Matrix3x3& aMatrix, const Matrix3x3& bMatrix, Matrix3x3& result)
 {
 	for (int row = 0; row < SQUARE_MATRIX_SIZE; row++) {

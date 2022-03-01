@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <functional>
+#include <optional>
 
 std::string ReplaceString(std::string& currString,
 	const std::string& searchString, const std::string& replaceString)
@@ -43,6 +44,20 @@ void CopyStreamWithReplacement(std::istream& input, std::ostream& output,
 	{
 		output << ReplaceString(line, searchString, replaceString) << std::endl;
 	}
+}
+
+struct Params
+{
+	std::string inputFileName;
+	std::string outputFileName;
+	std::string searchString;
+	std::string replaceString;
+};
+
+std::optional<Params> getParams(int argc, char* argv[])
+{
+	Params result;
+	
 }
 
 int main(int argc, char* argv[])
