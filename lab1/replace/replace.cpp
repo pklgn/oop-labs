@@ -56,17 +56,14 @@ struct Params
 
 std::optional<Params> getParams(int argc, char* argv[])
 {
-	Params result;
-
 	if (argc != 5)
 	{
 		std::cout << "Invalid arguments count\n"
 			<< "Usage replace.exe <input file> <output file> <search string> <replace string>";
 		return std::nullopt;
 	}
-	result = { argv[1], argv[2], argv[3], argv[4] };
 
-	return result;
+	return { { argv[1], argv[2], argv[3], argv[4] } };
 }
 
 bool Replace(Params params)
