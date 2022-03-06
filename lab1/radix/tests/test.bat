@@ -53,7 +53,7 @@ fc.exe tests\ABCD.txt %OUTPUT% >nul
 if ERRORLEVEL 1 goto err
 
 
-echo OK
+echo All tests have been successfully passed!
 exit 0
 
 :err
