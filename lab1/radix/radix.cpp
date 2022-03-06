@@ -17,11 +17,11 @@ struct Params
 
 int StringToInt(const std::string& str, int radix, bool& wasError);
 std::string IntToString(int n, int radix, bool& wasError);
-std::optional<Params> getParams(int argc, char* argv[]);
+std::optional<Params> GetParams(int argc, char* argv[]);
 
 int main(int argc, char* argv[])
 {
-	const auto params = getParams(argc, argv);
+	const auto params = GetParams(argc, argv);
 	if (!params.has_value())
 	{
 		return 1;
@@ -43,7 +43,7 @@ bool IsValidNotation(short notation)
 	return ((notation <= MAX_NOTATION) && (notation >= MIN_NOTATION));
 }
 
-std::optional<Params> getParams(int argc, char* argv[])
+std::optional<Params> GetParams(int argc, char* argv[])
 {
 	Params params;
 

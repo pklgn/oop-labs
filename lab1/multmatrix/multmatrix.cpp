@@ -79,7 +79,7 @@ struct Params
 	Matrix3x3 bMat;
 };
 
-std::optional<Params> getParams(int argc, char* argv[])
+std::optional<Params> GetParams(int argc, char* argv[])
 {
 	Params result;
 	if (argc != 3)
@@ -104,7 +104,7 @@ std::optional<Params> getParams(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
 	//заменить имя с большой букву
-	std::optional<Params> matrices = getParams(argc, argv);
+	std::optional<Params> matrices = GetParams(argc, argv);
 	if (!matrices.has_value())
 	{
 		return 1;

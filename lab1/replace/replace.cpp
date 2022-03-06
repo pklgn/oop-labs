@@ -54,7 +54,7 @@ struct Params
 	std::string replaceString;
 };
 
-std::optional<Params> getParams(int argc, char* argv[])
+std::optional<Params> GetParams(int argc, char* argv[])
 {
 	if (argc != 5)
 	{
@@ -98,7 +98,7 @@ bool Replace(Params params)
 
 int main(int argc, char* argv[])
 {
-	std::optional<Params> params = getParams(argc, argv);
+	std::optional<Params> params = GetParams(argc, argv);
 	if (!params.has_value())
 	{
 		return 1;
