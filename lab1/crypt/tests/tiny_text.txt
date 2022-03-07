@@ -1,0 +1,3 @@
+THIS is a tiny
+text to test whether this program can crypt and decrypt correct
+ly

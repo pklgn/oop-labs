@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <functional>
+#include <optional>
 
 std::string ReplaceString(std::string& currString,
 	const std::string& searchString, const std::string& replaceString)
@@ -13,12 +14,12 @@ std::string ReplaceString(std::string& currString,
 	}
 
 	size_t currPos = 0;
-	std::string result = ""; //не нужно писать равно пустой строке, переменная ужу будет пустой строкой 
+	std::string result;
+	const auto searcher = std::boyer_moore_horspool_searcher(searchString.begin(), searchString.end());
 	while (currPos < currString.length())
-	//вынести searcher вне цикла для инициализации единожды
 	{
 		
-		const auto it = std::search(currString.begin() + currPos, currString.end(), std::boyer_moore_horspool_searcher(searchString.begin(), searchString.end()));
+		const auto it = std::search(currString.begin() + currPos, currString.end(), searcher);
 		result.append(currString, currPos, it - currString.begin() - currPos);
 		if (it == currString.end())
 		{
@@ -45,41 +46,67 @@ void CopyStreamWithReplacement(std::istream& input, std::ostream& output,
 	}
 }
 
-int main(int argc, char* argv[])
+struct Params
 {
-	//Replace(inputFileName, outputFileName, searchString, replaceString);
+	std::string inputFileName;
+	std::string outputFileName;
+	std::string searchString;
+	std::string replaceString;
+};
+
+std::optional<Params> GetParams(int argc, char* argv[])
+{
 	if (argc != 5)
 	{
 		std::cout << "Invalid arguments count\n"
 			<< "Usage replace.exe <input file> <output file> <search string> <replace string>";
-		return 1;
+		return std::nullopt;
 	}
 
-	std::ifstream sourceFile(argv[1]);
+	return { { argv[1], argv[2], argv[3], argv[4] } };
+}
+
+bool Replace(Params params)
+{
+	std::ifstream sourceFile(params.inputFileName);
 	if (!sourceFile.is_open())
 	{
-		std::cout << "Failed to open " << argv[1] << " for reading\n";
+		std::cout << "Failed to open " << params.inputFileName << " for reading\n";
 
-		return 1;
+		return false;
 	}
 
-	std::ofstream outputFile(argv[2]);
+	std::ofstream outputFile(params.outputFileName);
 	if (!outputFile.is_open())
 	{
-		std::cout << "Failed to open " << argv[2] << " for writing\n";
+		std::cout << "Failed to open " << params.outputFileName << " for writing\n";
 
-		return 1;
+		return false;
 	}
 
-	std::string searchString = argv[3];
-	std::string replaceString = argv[4];
-
-	CopyStreamWithReplacement(sourceFile, outputFile, searchString, replaceString);
+	CopyStreamWithReplacement(sourceFile, outputFile, params.searchString, params.replaceString);
 
 	if (!outputFile.flush()) // Если не удалось сбросить данные на диск
 	{
 		std::cout << "Failed to save data on disk\n";
 
+		return false;
+	}
+
+	return true;
+}
+
+int main(int argc, char* argv[])
+{
+	std::optional<Params> params = GetParams(argc, argv);
+	if (!params.has_value())
+	{
+		return 1;
+	}
+	
+	bool status = Replace(params.value());
+	if (!status)
+	{
 		return 1;
 	}
 

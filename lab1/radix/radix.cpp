@@ -3,49 +3,83 @@
 #include <cstdlib>
 #include <string>
 #include <iterator>
+#include <optional>
 
 constexpr short MIN_NOTATION = 2;
 constexpr short MAX_NOTATION = 36;
+
+struct Params
+{
+	short srcNotation;
+	short destNotation;
+	int value;
+};
+
+int StringToInt(const std::string& str, int radix, bool& wasError);
+std::string IntToString(int n, int radix, bool& wasError);
+std::optional<Params> GetParams(int argc, char* argv[]);
+
+int main(int argc, char* argv[])
+{
+	const auto params = GetParams(argc, argv);
+	if (!params.has_value())
+	{
+		return 1;
+	}
+	bool wasError = false;
+
+	std::string convertedNumber = IntToString(params.value().value, params.value().destNotation, wasError);
+	if (wasError)
+	{
+		return 1;
+	}
+	std::cout << convertedNumber << std::endl;
+
+	return 0;
+}
 
 bool IsValidNotation(short notation)
 {
 	return ((notation <= MAX_NOTATION) && (notation >= MIN_NOTATION));
 }
 
-int StringToInt(const std::string& str, int radix, bool& wasError);
-std::string IntToString(int n, int radix, bool& wasError);
-
-int main(int argc, char* argv[])
+std::optional<Params> GetParams(int argc, char* argv[])
 {
+	Params params;
+
 	if (argc != 4)
 	{
 		std::cout << "Invalid arguments count\n"
 			<< "Usage radix.exe <source notation> <destination notation> <value>\n";
 
-		return 1;
+		return std::nullopt;
 	}
 	bool wasError = false;
-	short sourceNotation = StringToInt(argv[1], 10, wasError);
-	short destinationNotation = StringToInt(argv[2], 10, wasError);
-
-	if (!(IsValidNotation(sourceNotation) && IsValidNotation(destinationNotation)))
-	{
-		std::cout << "Number's notation is out of range\n";
-
-		return 1;
-	}
-	
-	int value = StringToInt(argv[3], sourceNotation, wasError);
+	params.srcNotation = StringToInt(argv[1], 10, wasError);
+	params.destNotation = StringToInt(argv[2], 10, wasError);
 	if (wasError)
 	{
-		std::cout << "Overflow found during reading param" << std::endl;
+		std::cout << "Invalid number notation was found\n";
 
-		return 1;
+		return std::nullopt;
 	}
 
-	std::cout << IntToString(value, destinationNotation, wasError) << std::endl;
+	if (!(IsValidNotation(params.srcNotation) && IsValidNotation(params.destNotation)))
+	{
+		std::cout << "Number notation is out of range\n";
 
-	return 0;
+		return std::nullopt;
+	}
+
+	params.value = StringToInt(argv[3], params.srcNotation, wasError);
+	if (wasError)
+	{
+		std::cout << "Overflow found during reading param\n";
+
+		return std::nullopt;
+	}
+
+	return params;
 }
 
 int AppendDigitToPositiveNumber(int digit, int radix, int number, bool& wasError)
@@ -98,13 +132,24 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
 {
 	bool negative = false;
 	int result = 0;
-	short pos = 0;
-
-	for (char ch : str)
+	size_t startPos = 0;
+	if (!IsValidNotation(radix))
 	{
+		wasError = true;
+
+		return result;
+	}
+	if (str[0] == '-')
+	{
+		negative = true;
+		startPos = 1;
+	}
+
+	for (size_t pos = startPos; pos < str.length(); ++pos)
+	{
+		char ch = str[pos];
 		if (ch >= '0' && ch <= '9')
 		{
-			// имеется в виду разряд числа
 			short currDigit = ch - '0';
 			result = negative
 				? AppendDigitToNegativeNumber(currDigit, radix, result, wasError)
@@ -116,11 +161,6 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
 			result = negative
 				? AppendDigitToNegativeNumber(currDigit, radix, result, wasError)
 				: AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
-		}
-		else if (pos == 0 && ch == '-')
-		{
-			negative = true;
-			pos += 1;
 		}
 		else
 		{
@@ -138,6 +178,14 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
 
 std::string IntToString(int n, int radix, bool& wasError)
 {
+	if (!IsValidNotation(radix))
+	{
+		wasError = true;
+
+		return "";
+	}
+
+
 	bool negative = n < 0;
 	std::string result = n == 0 ? "0" : "";
 
@@ -147,7 +195,7 @@ std::string IntToString(int n, int radix, bool& wasError)
 		short currDigit = abs(n % radix);
 		if (currDigit > 9)
 		{
-			ch = 'A' + currDigit - 10;
+			ch = 'A' + (currDigit - 10);
 		}
 		else
 		{
