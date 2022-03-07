@@ -44,8 +44,6 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-
-
 std::optional<CryptParams> GetCryptParams(int argc, char* argv[])
 {
 	CryptParams params;

@@ -1,0 +1,4 @@
+Invalid arguments count
+Usage crypt.exe crypt <input file> <output file> <key> 
+or
+ Usage crypt.exe decrypt <input file> <output file> <key>
