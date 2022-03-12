@@ -128,6 +128,16 @@ int AppendDigitToNegativeNumber(int digit, int radix, int number, bool& wasError
 	return number;
 }
 
+short createDigitFromChar(char ch)
+{
+	return ch - 'A' + 10;
+}
+
+short createDigitFromDigit(char ch)
+{
+	return ch - '0';
+}
+
 int StringToInt(const std::string& str, int radix, bool& wasError)
 {
 	bool negative = false;
@@ -139,37 +149,64 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
 
 		return result;
 	}
+
 	if (str[0] == '-')
 	{
 		negative = true;
 		startPos = 1;
 	}
 
-	for (size_t pos = startPos; pos < str.length(); ++pos)
-	{
-		char ch = str[pos];
-		if (ch >= '0' && ch <= '9')
-		{
-			short currDigit = ch - '0';
-			result = negative
-				? AppendDigitToNegativeNumber(currDigit, radix, result, wasError)
-				: AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
-		}
-		else if (ch >= 'A' && ch <= 'Z')
-		{
-			short currDigit = ch - 'A' + 10;
-			result = negative
-				? AppendDigitToNegativeNumber(currDigit, radix, result, wasError)
-				: AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
-		}
-		else
-		{
-			wasError = true;
-		}
 
-		if (wasError)
+	if (negative)
+	{
+		for (size_t pos = startPos; pos < str.length(); ++pos)
 		{
-			break;
+			char ch = str[pos];
+			if (ch >= '0' && ch <= '9')
+			{
+				short currDigit = createDigitFromDigit(ch);
+				AppendDigitToNegativeNumber(currDigit, radix, result, wasError);
+			}
+			else if (ch >= 'A' && ch <= 'Z')
+			{
+				short currDigit = createDigitFromChar(ch);
+				AppendDigitToNegativeNumber(currDigit, radix, result, wasError);
+			}
+			else
+			{
+				wasError = true;
+			}
+
+			if (wasError)
+			{
+				break;
+			}
+		}
+	}
+	else
+	{
+		for (size_t pos = startPos; pos < str.length(); ++pos)
+		{
+			char ch = str[pos];
+			if (ch >= '0' && ch <= '9')
+			{
+				short currDigit = createDigitFromDigit(ch);
+				AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
+			}
+			else if (ch >= 'A' && ch <= 'Z')
+			{
+				short currDigit = createDigitFromChar(ch);
+				AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
+			}
+			else
+			{
+				wasError = true;
+			}
+
+			if (wasError)
+			{
+				break;
+			}
 		}
 	}
 
@@ -184,7 +221,6 @@ std::string IntToString(int n, int radix, bool& wasError)
 
 		return "";
 	}
-
 
 	bool negative = n < 0;
 	std::string result = n == 0 ? "0" : "";
