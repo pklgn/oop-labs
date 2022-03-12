@@ -9,11 +9,13 @@ constexpr int MIN_KEY = 0;
 constexpr int MAX_KEY = 255;
 constexpr std::array<int, 8> OFFSET_ENCRYPT = { 2, 3, 4, 6, 7, 0, 1, 5 };
 constexpr std::array<int, 8> OFFSET_DECRYPT = { 5, 6, 0, 1, 2, 7, 3, 4 };
+constexpr auto CRYPT = "crypt";
+constexpr auto DECRYPT = "decrypt";
 
-enum Mode
+enum class Mode
 {
-	CRYPT,
-	DECRYPT,
+	Crypt,
+	Decrypt,
 };
 
 struct CryptParams
@@ -25,7 +27,9 @@ struct CryptParams
 };
 
 std::optional<CryptParams> GetCryptParams(int argc, char* argv[]);
-bool Encrypt(CryptParams& params);
+bool EncryptFile(std::ifstream& inputFile, std::ofstream& outputFile, const CryptParams& params);
+bool DecryptFile(std::ifstream& inputFile, std::ofstream& outputFile, const CryptParams& params);
+bool ValidateFiles(std::ifstream& inputFile, std::ofstream& outputFile);
 
 int main(int argc, char* argv[])
 {
@@ -35,7 +39,24 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	bool status = Encrypt(params.value());
+	std::ifstream inputFile(params.value().inputFileName, std::ios_base::binary);
+	std::ofstream outputFile(params.value().outputFileName, std::ios_base::binary);
+	if (!ValidateFiles(inputFile, outputFile))
+	{
+		return 1;
+	}
+
+	bool status;
+	if (params.value().mode == Mode::Crypt)
+	{
+		status = EncryptFile(inputFile, outputFile, params.value());
+	}
+	else
+	{
+		status = DecryptFile(inputFile, outputFile, params.value());
+	}
+	////разделить на две функции encrypt decrypt
+	//bool status = EncryptFile(params.value());
 	if (!status)
 	{
 		return 1;
@@ -56,13 +77,14 @@ std::optional<CryptParams> GetCryptParams(int argc, char* argv[])
 
 		return std::nullopt;
 	}
-	if (std::string(argv[1]) == "crypt")
+	//constexpr crypt decrypt
+	if (std::string(argv[1]) == CRYPT)
 	{
-		params.mode = Mode::CRYPT;
+		params.mode = Mode::Crypt;
 	}
-	else if (std::string(argv[1]) == "decrypt")
+	else if (std::string(argv[1]) == DECRYPT)
 	{
-		params.mode = Mode::DECRYPT;
+		params.mode = Mode::Decrypt;
 	}
 	else
 	{
@@ -85,7 +107,6 @@ std::optional<CryptParams> GetCryptParams(int argc, char* argv[])
 		return std::nullopt;
 	}
 
-
 	if (params.key > MAX_KEY || params.key < MIN_KEY)
 	{
 		std::cout << "Key value is out of range\n";
@@ -96,7 +117,7 @@ std::optional<CryptParams> GetCryptParams(int argc, char* argv[])
 	return params;
 }
 
-char ShuffleBits(char currByte, CryptParams& params)
+char ShuffleBits(char currByte, Mode mode)
 {
 	char resultByte = 0;
 	for (int i = 0; i < 8; i++)
@@ -104,7 +125,9 @@ char ShuffleBits(char currByte, CryptParams& params)
 		char currMask = pow(2, i);
 		unsigned char maskedByte = currByte & currMask;
 
-		if (params.mode == Mode::CRYPT)
+
+		// либо обобщить работу с mode либо вынести перемещение битов  в отдельную функцию
+		if (mode == Mode::Crypt)
 		{
 			if ((OFFSET_ENCRYPT[i] - i) >= 0)
 			{
@@ -133,64 +156,69 @@ char ShuffleBits(char currByte, CryptParams& params)
 	return resultByte;
 }
 
-std::optional<char> EncryptByte(std::ifstream& inputFile, std::ofstream& outputFile, CryptParams& params)
+//const params
+char EncryptByte(char currByte, int key)
 {
-	char currByte;
-	inputFile.read(&currByte, 1);
-	if (inputFile.eof())
-	{
-		return std::nullopt;
-	}
-
-	if (params.mode == Mode::CRYPT)
-	{
-		currByte = currByte ^ params.key;
-	}
-
-	char resultByte = ShuffleBits(currByte, params);
-
-	if (params.mode == Mode::DECRYPT)
-	{
-		resultByte = resultByte ^ params.key;
-	}
+	currByte ^= key;
+	char resultByte = ShuffleBits(currByte, Mode::Crypt);
 
 	return resultByte;
 }
 
-void HandleEncription(std::ifstream& inputFile, std::ofstream& outputFile, CryptParams& params)
+char DecryptByte(char currByte, int key)
+{
+	char resultByte = ShuffleBits(currByte, Mode::Decrypt);
+	resultByte ^= key;
+
+	return resultByte;
+}
+
+//const params
+//заменить ifstream на istream
+void HandleEncription(std::istream& inputFile, std::ostream& outputFile, const CryptParams& params)
 {
 	while (!inputFile.eof())
 	{
-		std::optional<char> currByte = EncryptByte(inputFile, outputFile, params);
-		if (!currByte.has_value())
+		//читать здесь
+		//encrypt byte с конкретным байтом
+		char currByte;
+		inputFile.read(&currByte, 1);
+		if (inputFile.eof())
 		{
-			break;
+			return;
 		}
+		currByte = EncryptByte(currByte, params.key);
 
-		outputFile.write(&currByte.value(), 1);
+		//outputFile.write(&currByte.value(), 1);
+		outputFile << currByte;
 	}
 
 	return;
 }
 
-bool Encrypt(CryptParams& params)
+
+bool ValidateFiles(std::ifstream& inputFile, std::ofstream& outputFile)
 {
-	std::ifstream inputFile(params.inputFileName, std::ios_base::binary);
 	if (!inputFile.is_open())
 	{
-		std::cout << "Failed to open " << params.inputFileName << " for reading\n";
+		std::cout << "Failed to open input file for reading\n";
 
 		return false;
 	}
 
-	std::ofstream outputFile(params.outputFileName, std::ios_base::binary);
 	if (!outputFile.is_open())
 	{
-		std::cout << "Failed to open " << params.outputFileName << " for reading\n";
+		std::cout << "Failed to open output file for reading\n";
 
 		return false;
 	}
 
+	return true;
+}
+
+//const params
+bool EncryptFile(std::ifstream& inputFile, std::ofstream& outputFile, const CryptParams& params)
+{
 	HandleEncription(inputFile, outputFile, params);
 
 	if (!outputFile.flush()) // Если не удалось сбросить данные на диск
@@ -200,9 +228,40 @@ bool Encrypt(CryptParams& params)
 		return false;
 	}
 
-	inputFile.close();
-	outputFile.close();
-
 	return true;
 }
 
+void HandleDecription(std::istream& inputFile, std::ostream& outputFile, const CryptParams& params)
+{
+	while (!inputFile.eof())
+	{
+		//читать здесь
+		//encrypt byte с конкретным байтом
+		char currByte;
+		inputFile.read(&currByte, 1);
+		if (inputFile.eof())
+		{
+			return;
+		}
+		currByte = DecryptByte(currByte, params.key);
+
+		//outputFile.write(&currByte.value(), 1);
+		outputFile << currByte;
+	}
+
+	return;
+}
+
+bool DecryptFile(std::ifstream& inputFile, std::ofstream& outputFile, const CryptParams& params)
+{
+	HandleDecription(inputFile, outputFile, params);
+
+	if (!outputFile.flush()) // Если не удалось сбросить данные на диск
+	{
+		std::cout << "Failed to save data on disk\n";
+
+		return false;
+	}
+
+	return true;
+}
