@@ -82,7 +82,7 @@ std::optional<Params> GetParams(int argc, char* argv[])
 	return params;
 }
 
-int AppendDigitToPositiveNumber(int digit, int radix, int number, bool& wasError)
+int AppendDigitToPositiveNumber(int digit, int radix, int& number, bool& wasError)
 {
 	if ((INT_MAX / radix) >= number)
 	{
@@ -105,7 +105,7 @@ int AppendDigitToPositiveNumber(int digit, int radix, int number, bool& wasError
 	return number;
 }
 
-int AppendDigitToNegativeNumber(int digit, int radix, int number, bool& wasError)
+int AppendDigitToNegativeNumber(int digit, int radix, int& number, bool& wasError)
 {
 	if ((INT_MIN / radix) <= number)
 	{
@@ -128,26 +128,69 @@ int AppendDigitToNegativeNumber(int digit, int radix, int number, bool& wasError
 	return number;
 }
 
-short createDigitFromChar(char ch)
+short GetDigitFromChar(char ch, int radix, bool& wasError)
 {
-	return ch - 'A' + 10;
+	short currDigit = 0;
+	if (ch >= '0' && ch <= '9')
+	{
+		currDigit = ch - '0';
+	}
+	else if (ch >= 'A' && ch <= 'Z')
+	{
+		currDigit = ch - 'A' + 10;
+		currDigit = ch - 'A' + 10;
+	}
+	else
+	{
+		wasError = true;
+	}
+
+	return currDigit;
 }
 
-short createDigitFromDigit(char ch)
+int ConvertNegativeNumberString(size_t startPos, const std::string& str, int radix, bool& wasError)
 {
-	return ch - '0';
+	int result = 0;
+	for (size_t pos = startPos; pos < str.length(); ++pos)
+	{
+		short currDigit = GetDigitFromChar(str[pos], radix, wasError);
+		AppendDigitToNegativeNumber(currDigit, radix, result, wasError);
+
+		if (wasError)
+		{
+			break;
+		}
+	}
+	return result;
+}
+
+int ConvertPositiveNumberString(size_t startPos, const std::string& str, int radix, bool& wasError)
+{
+	int result = 0;
+	for (size_t pos = startPos; pos < str.length(); ++pos)
+	{
+		short currDigit = GetDigitFromChar(str[pos], radix, wasError);
+		AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
+
+		if (wasError)
+		{
+			break;
+		}
+	}
+
+	return result;
 }
 
 int StringToInt(const std::string& str, int radix, bool& wasError)
 {
-	bool negative = false;
-	int result = 0;
+	int result;
 	size_t startPos = 0;
+	bool negative = false;
 	if (!IsValidNotation(radix))
 	{
 		wasError = true;
 
-		return result;
+		return 1;
 	}
 
 	if (str[0] == '-')
@@ -156,61 +199,9 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
 		startPos = 1;
 	}
 
-
-	if (negative)
-	{
-		for (size_t pos = startPos; pos < str.length(); ++pos)
-		{
-			char ch = str[pos];
-			if (ch >= '0' && ch <= '9')
-			{
-				short currDigit = createDigitFromDigit(ch);
-				AppendDigitToNegativeNumber(currDigit, radix, result, wasError);
-			}
-			else if (ch >= 'A' && ch <= 'Z')
-			{
-				short currDigit = createDigitFromChar(ch);
-				AppendDigitToNegativeNumber(currDigit, radix, result, wasError);
-			}
-			else
-			{
-				wasError = true;
-			}
-
-			if (wasError)
-			{
-				break;
-			}
-		}
-	}
-	else
-	{
-		for (size_t pos = startPos; pos < str.length(); ++pos)
-		{
-			char ch = str[pos];
-			if (ch >= '0' && ch <= '9')
-			{
-				short currDigit = createDigitFromDigit(ch);
-				AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
-			}
-			else if (ch >= 'A' && ch <= 'Z')
-			{
-				short currDigit = createDigitFromChar(ch);
-				AppendDigitToPositiveNumber(currDigit, radix, result, wasError);
-			}
-			else
-			{
-				wasError = true;
-			}
-
-			if (wasError)
-			{
-				break;
-			}
-		}
-	}
-
-	return result;
+	return result = negative
+		? ConvertNegativeNumberString(startPos, str, radix, wasError)
+		: ConvertPositiveNumberString(startPos, str, radix, wasError);
 }
 
 std::string IntToString(int n, int radix, bool& wasError)
