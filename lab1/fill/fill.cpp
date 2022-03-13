@@ -6,8 +6,8 @@
 #include <array>
 #include <vector>
 
-constexpr size_t MIN_POS = 0;
-constexpr size_t MAX_POS = 100;
+constexpr int MIN_POS = 0;
+constexpr int MAX_POS = 100;
 constexpr char BORDER = '#';
 constexpr char BLANK = ' ';
 constexpr char START_POINT = 'O';
@@ -15,8 +15,8 @@ constexpr char FILLED_POINT = '.';
 
 struct Point
 {
-	size_t x;
-	size_t y;
+	int x;
+	int y;
 };
 
 struct FillParams
@@ -45,7 +45,7 @@ std::optional<FillParams> GetFillParams(int argc, char* argv[])
 	}
 
 	params.inputFileName = argv[1];
-	params. outputFileName = argv[2];
+	params.outputFileName = argv[2];
 
 	return params;
 }
@@ -77,7 +77,11 @@ bool AppendLine(size_t linePos, std::string& line, Map& map, std::stack<Point>& 
 			startPoints.push(point);
 		}
 
-		map[linePos].push_back(mapElement.value());
+		map.lines[linePos].push_back(mapElement.value());
+	}
+	if (map.lines[linePos].length() < MAX_POS)
+	{
+		map.lines[linePos].resize(MAX_POS, BLANK);
 	}
 
 	return true;
@@ -99,7 +103,12 @@ std::optional<Map> GetMap(std::ifstream& inputFile, std::stack<Point>& startPoin
 
 		++linePos;
 	}
-
+	std::string blankString;
+	for (size_t y = linePos; y < MAX_POS; ++y)
+	{
+		map.lines[y].resize(MAX_POS, BLANK);
+	}
+	map.ySize = MAX_POS;
 	return map;
 }
 
@@ -115,56 +124,52 @@ void FillLine(Map& map, std::stack<Point>& startPoints, bool& isFilled)
 	startPoints.pop();
 	Point startPoint;
 	auto [posX, posY] = point;
-	while (posX >= MIN_POS && map[posY][posX] != BORDER)
+	while (posX >= MIN_POS && map.lines[posY][posX] != BORDER)
 	{
-		if (map[posY][posX] != START_POINT)
+		if (map.lines[posY][posX] != START_POINT)
 		{
-			std::cout << "Left posX=" << posX << " posY=" << posY << std::endl;
-			map[posY][posX] = FILLED_POINT;
+			//std::cout << "Left posX=" << posX << " posY=" << posY << std::endl;
+			map.lines[posY][posX] = FILLED_POINT;
 		}
 
-		if (posY > 0 && map[posY - 1][posX] == BORDER && map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != FILLED_POINT)
+		if (posY > 0 && map.lines[posY - 1][posX] == BORDER && map.lines[posY - 1][posX + 1] != BORDER && map.lines[posY - 1][posX + 1] != FILLED_POINT)
 		{
 			startPoint = { posX + 1, posY - 1 };
 			startPoints.push(startPoint);
 		}
-		if (posY < MAX_POS && map[posY + 1][posX] == BORDER && map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != FILLED_POINT)
+		if (posY < map.ySize - 1 && map.lines[posY + 1][posX] == BORDER && map.lines[posY + 1][posX + 1] != BORDER && map.lines[posY + 1][posX + 1] != FILLED_POINT)
 		{
 			startPoint = { posX + 1, posY + 1 };
 			startPoints.push(startPoint);
 		}
 		--posX;
-		if (posX == 0)
-		{
-			break;
-		}
 	}
-	if (posY > MIN_POS && map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != FILLED_POINT)
+	if (posY > MIN_POS && map.lines[posY - 1][posX + 1] != BORDER && map.lines[posY - 1][posX + 1] != FILLED_POINT)
 	{
 		startPoint = { posX + 1, posY - 1 };
 		startPoints.push(startPoint);
 	}
-	if (posY < MAX_POS && map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != FILLED_POINT)
+	if (posY < map.ySize - 1 && map.lines[posY + 1][posX + 1] != BORDER && map.lines[posY + 1][posX + 1] != FILLED_POINT)
 	{
 		startPoint = { posX + 1, posY + 1 };
 		startPoints.push(startPoint);
 	}
 
 	posX = point.x;
-	while (posX < map[posY].size() && map[posY][posX] != BORDER)
+	while (posX < map.lines[posY].size() && map.lines[posY][posX] != BORDER)
 	{
-		if (map[posY][posX] != START_POINT)
+		if (map.lines[posY][posX] != START_POINT)
 		{
-			std::cout << "Right posX=" << posX << " posY=" << posY << std::endl;
-			map[posY][posX] = FILLED_POINT;
+			//std::cout << "Right posX=" << posX << " posY=" << posY << std::endl;
+			map.lines[posY][posX] = FILLED_POINT;
 		}
 
-		if (posY > MIN_POS && posX > MIN_POS && map[posY - 1][posX - 1] == BORDER && map[posY - 1][posX] != BORDER && map[posY - 1][posX] != FILLED_POINT)
+		if (posY > MIN_POS && posX > MIN_POS && map.lines[posY - 1][posX - 1] == BORDER && map.lines[posY - 1][posX] != BORDER && map.lines[posY - 1][posX] != FILLED_POINT)
 		{
 			startPoint = { posX, posY - 1 };
 			startPoints.push(startPoint);
 		}
-		if (posY < MAX_POS && posX > MIN_POS && map[posY + 1][posX - 1] == BORDER && map[posY + 1][posX] != BORDER && map[posY + 1][posX] != FILLED_POINT)
+		if (posY < map.ySize - 1 && posX > MIN_POS && map.lines[posY + 1][posX - 1] == BORDER && map.lines[posY + 1][posX] != BORDER && map.lines[posY + 1][posX] != FILLED_POINT)
 		{
 			startPoint = { posX, posY + 1 };
 			startPoints.push(startPoint);
@@ -212,7 +217,7 @@ int main(int argc, char* argv[])
 			break;
 		}
 	}
-	for (std::string line : resultMap)
+	for (std::string line : resultMap.lines)
 	{
 		outputFile << line << std::endl;
 	}
