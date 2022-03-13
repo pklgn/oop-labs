@@ -6,8 +6,8 @@
 #include <array>
 #include <vector>
 
-constexpr short MIN_POS = 0;
-constexpr short MAX_POS = 100;
+constexpr size_t MIN_POS = 0;
+constexpr size_t MAX_POS = 100;
 constexpr char BORDER = '#';
 constexpr char BLANK = ' ';
 constexpr char START_POINT = 'O';
@@ -26,7 +26,11 @@ struct FillParams
 };
 
 typedef std::stack<Point> StartPoints;
-typedef std::array<std::string, MAX_POS> Map;
+struct Map
+{
+	int ySize;
+	std::array<std::string, MAX_POS> lines;
+};
 
 std::optional<FillParams> GetFillParams(int argc, char* argv[])
 {
@@ -115,52 +119,62 @@ void FillLine(Map& map, std::stack<Point>& startPoints, bool& isFilled)
 	{
 		if (map[posY][posX] != START_POINT)
 		{
+			std::cout << "Left posX=" << posX << " posY=" << posY << std::endl;
 			map[posY][posX] = FILLED_POINT;
 		}
 
-		if (map[posY - 1][posX] == BORDER && map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != BORDER)
+		if (posY > 0 && map[posY - 1][posX] == BORDER && map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != FILLED_POINT)
 		{
 			startPoint = { posX + 1, posY - 1 };
 			startPoints.push(startPoint);
 		}
-		if (map[posY + 1][posX] == BORDER && map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != BORDER)
+		if (posY < MAX_POS && map[posY + 1][posX] == BORDER && map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != FILLED_POINT)
 		{
 			startPoint = { posX + 1, posY + 1 };
 			startPoints.push(startPoint);
 		}
 		--posX;
+		if (posX == 0)
+		{
+			break;
+		}
 	}
-	if (map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != FILLED_POINT)
+	if (posY > MIN_POS && map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != FILLED_POINT)
 	{
 		startPoint = { posX + 1, posY - 1 };
 		startPoints.push(startPoint);
 	}
-	if (map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != FILLED_POINT)
+	if (posY < MAX_POS && map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != FILLED_POINT)
 	{
 		startPoint = { posX + 1, posY + 1 };
 		startPoints.push(startPoint);
 	}
 
 	posX = point.x;
-	while (posX < MAX_POS && posX < map[posY].length() && map[posY][posX] != BORDER)
+	while (posX < map[posY].size() && map[posY][posX] != BORDER)
 	{
 		if (map[posY][posX] != START_POINT)
 		{
+			std::cout << "Right posX=" << posX << " posY=" << posY << std::endl;
 			map[posY][posX] = FILLED_POINT;
 		}
 
-		if (map[posY - 1][posX - 1] == BORDER && map[posY - 1][posX] != BORDER && map[posY - 1][posX] != FILLED_POINT)
+		if (posY > MIN_POS && posX > MIN_POS && map[posY - 1][posX - 1] == BORDER && map[posY - 1][posX] != BORDER && map[posY - 1][posX] != FILLED_POINT)
 		{
 			startPoint = { posX, posY - 1 };
 			startPoints.push(startPoint);
 		}
-		if (map[posY + 1][posX - 1] == BORDER && map[posY + 1][posX] != BORDER && map[posY + 1][posX] != FILLED_POINT)
+		if (posY < MAX_POS && posX > MIN_POS && map[posY + 1][posX - 1] == BORDER && map[posY + 1][posX] != BORDER && map[posY + 1][posX] != FILLED_POINT)
 		{
 			startPoint = { posX, posY + 1 };
 			startPoints.push(startPoint);
 		}
 		++posX;
 	}
+	//for (std::string line : map)
+	//{
+	//	std::cout << line << std::endl;
+	//}
 }
 
 int main(int argc, char* argv[])
