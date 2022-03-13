@@ -1,0 +1,2 @@
+Invalid arguments count
+Usage fill.exe <input file> <output file>
