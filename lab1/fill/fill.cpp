@@ -28,6 +28,49 @@ struct FillParams
 typedef std::stack<Point> StartPoints;
 typedef std::array<std::string, MAX_POS> Map;
 
+std::optional<FillParams> GetFillParams(int argc, char* argv[]);
+std::optional<Map> GetMap(std::ifstream& inputFile, std::stack<Point>& startPoints);
+void Fill(Map& map, std::stack<Point>& startPoints, bool& isFilled);
+bool ValidateFiles(std::ifstream& inputFile, std::ofstream& outputFile);
+
+int main(int argc, char* argv[])
+{
+	std::optional<FillParams> params = GetFillParams(argc, argv);
+	if (!params.has_value())
+	{
+		return 1;
+	}
+
+	std::ifstream inputFile(params.value().inputFileName);
+	std::ofstream outputFile(params.value().outputFileName);
+
+	StartPoints startPoints;
+	std::optional<Map> map = GetMap(inputFile, startPoints);
+	if (!map.has_value())
+	{
+		return 1;
+	}
+
+	bool isFilled = false;
+	while (!isFilled)
+	{
+		Fill(map.value(), startPoints, isFilled);
+	}
+	for (std::string line : map.value())
+	{
+		outputFile << line << std::endl;
+	}
+	if (!outputFile.flush()) // Если не удалось сбросить данные на диск
+	{
+		std::cout << "Failed to save data on disk\n";
+
+		return 1;
+	}
+
+
+	return 0;
+}
+
 std::optional<FillParams> GetFillParams(int argc, char* argv[])
 {
 	FillParams params;
@@ -58,7 +101,7 @@ std::optional<char> ValidateMapElement(char ch)
 	return ch;
 }
 
-bool AppendLine(size_t linePos, std::string& line, Map& map, std::stack<Point>& startPoints)
+bool AppendLineToMap(size_t linePos, std::string& line, Map& map, std::stack<Point>& startPoints)
 {
 	for (size_t posX = 0; posX < MAX_POS && posX < line.length(); ++posX)
 	{
@@ -75,6 +118,7 @@ bool AppendLine(size_t linePos, std::string& line, Map& map, std::stack<Point>& 
 
 		map[linePos].push_back(mapElement.value());
 	}
+
 	if (map[linePos].length() < MAX_POS)
 	{
 		map[linePos].resize(MAX_POS, BLANK);
@@ -91,7 +135,7 @@ std::optional<Map> GetMap(std::ifstream& inputFile, std::stack<Point>& startPoin
 	while (!inputFile.eof() && linePos < MAX_POS)
 	{
 		std::getline(inputFile, line);
-		bool status = AppendLine(linePos, line, map, startPoints);
+		bool status = AppendLineToMap(linePos, line, map, startPoints);
 		if (!status)
 		{
 			return std::nullopt;
@@ -108,7 +152,123 @@ std::optional<Map> GetMap(std::ifstream& inputFile, std::stack<Point>& startPoin
 	return map;
 }
 
-void FillLine(Map& map, std::stack<Point>& startPoints, bool& isFilled)
+bool LeftStartPointFound(short offsetY, Point& p, Map& map)
+{
+	return map[p.y + offsetY][p.x + 1] != BORDER && map[p.y + offsetY][p.x + 1] != FILLED_POINT;
+}
+
+bool LeftLinkFound(Point& p, Map& map)
+{
+	return map[p.y][p.x + 1] != BORDER;
+}
+
+void AddLeftStartPoint(short offset, Point& p, Map& map, StartPoints& startPoints)
+{
+	Point startPoint;
+	if (LeftStartPointFound(offset, p, map) && LeftLinkFound(p, map))
+	{
+		startPoint = { p.x + 1, p.y + offset };
+		startPoints.push(startPoint);
+	}
+
+	return;
+}
+
+void FillToLeft(const Point& point, Map& map, StartPoints& startPoints)
+{
+	Point startPoint;
+	Point p = point;
+	short offsetUp = -1;
+	short offsetDown = 1;
+	while (p.x >= MIN_POS && map[p.y][p.x] != BORDER)
+	{
+		if (map[p.y][p.x] != START_POINT)
+		{
+			map[p.y][p.x] = FILLED_POINT;
+		}
+
+		if (p.y > MIN_POS && map[p.y + offsetUp][p.x] == BORDER)
+		{
+			AddLeftStartPoint(offsetUp, p, map, startPoints);
+		}
+		if (p.y < MAX_POS - 1 && map[p.y + offsetDown][p.x] == BORDER)
+		{
+			AddLeftStartPoint(offsetDown, p, map, startPoints);
+		}
+
+		--p.x;
+	}
+	
+	if (p.y > MIN_POS)
+	{
+		AddLeftStartPoint(offsetUp, p, map, startPoints);
+	}
+	if (p.y < MAX_POS - 1)
+	{
+		AddLeftStartPoint(offsetDown, p, map, startPoints);
+	}
+	
+	return;
+}
+
+bool RightStartPointFound(short offsetY, Point& p, Map& map)
+{
+	return map[p.y + offsetY][p.x - 1] != BORDER && map[p.y + offsetY][p.x - 1] != FILLED_POINT;
+}
+
+bool RightLinkFound(Point& p, Map& map)
+{
+	return map[p.y][p.x - 1] != BORDER;
+}
+
+void AddRightStartPoint(short offset, Point& p, Map& map, StartPoints& startPoints)
+{
+	Point startPoint;
+	if (RightStartPointFound(offset, p, map) && RightLinkFound(p, map))
+	{
+		startPoint = { p.x - 1, p.y + offset };
+		startPoints.push(startPoint);
+	}
+
+	return;
+}
+
+void FillToRight(const Point& point, Map& map, StartPoints& startPoints)
+{
+	Point startPoint;
+	short offsetUp = -1;
+	short offsetDown = 1;
+	Point p = point;
+	while (p.x < map[p.y].size() && map[p.y][p.x] != BORDER)
+	{
+		if (map[p.y][p.x] != START_POINT)
+		{
+			map[p.y][p.x] = FILLED_POINT;
+		}
+
+		if (p.y > MIN_POS && p.x > MIN_POS && map[p.y + offsetUp][p.x] == BORDER)
+		{
+			AddRightStartPoint(offsetUp, p, map, startPoints);
+		}
+		if (p.y < MAX_POS - 1 && p.x > MIN_POS && map[p.y + offsetDown][p.x] == BORDER)
+		{
+			AddRightStartPoint(offsetDown, p, map, startPoints);
+		}
+
+		++p.x;
+	}
+
+	if (p.y > MIN_POS)
+	{
+		AddRightStartPoint(offsetUp, p, map, startPoints);
+	}
+	if (p.y < MAX_POS - 1)
+	{
+		AddRightStartPoint(offsetDown, p, map, startPoints);
+	}
+}
+
+void Fill(Map& map, std::stack<Point>& startPoints, bool& isFilled)
 {
 	if (startPoints.empty())
 	{
@@ -118,108 +278,28 @@ void FillLine(Map& map, std::stack<Point>& startPoints, bool& isFilled)
 	}
 	Point point = startPoints.top();
 	startPoints.pop();
-	Point startPoint;
-	auto [posX, posY] = point;
-	while (posX >= MIN_POS && map[posY][posX] != BORDER)
-	{
-		if (map[posY][posX] != START_POINT)
-		{
-			map[posY][posX] = FILLED_POINT;
-		}
 
-		if (posY > 0 && map[posY - 1][posX] == BORDER && map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != FILLED_POINT && map[posY][posX + 1] != BORDER)
-		{
-			startPoint = { posX + 1, posY - 1 };
-			startPoints.push(startPoint);
-		}
-		if (posY < MAX_POS - 1 && map[posY + 1][posX] == BORDER && map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != FILLED_POINT && map[posY][posX + 1] != BORDER)
-		{
-			startPoint = { posX + 1, posY + 1 };
-			startPoints.push(startPoint);
-		}
-		--posX;
-	}
-	if (posY > MIN_POS && map[posY - 1][posX + 1] != BORDER && map[posY - 1][posX + 1] != FILLED_POINT && map[posY][posX + 1] != BORDER)
-	{
-		startPoint = { posX + 1, posY - 1 };
-		startPoints.push(startPoint);
-	}
-	if (posY < MAX_POS - 1 && map[posY + 1][posX + 1] != BORDER && map[posY + 1][posX + 1] != FILLED_POINT && map[posY][posX + 1] != BORDER)
-	{
-		startPoint = { posX + 1, posY + 1 };
-		startPoints.push(startPoint);
-	}
+	FillToLeft(point, map, startPoints);
+	FillToRight(point, map, startPoints);
 
-	posX = point.x;
-	while (posX < map[posY].size() && map[posY][posX] != BORDER)
-	{
-		if (map[posY][posX] != START_POINT)
-		{
-			map[posY][posX] = FILLED_POINT;
-		}
-
-		if (posY > MIN_POS && posX > MIN_POS && map[posY - 1][posX - 1] != BORDER && map[posY - 1][posX] == BORDER && map[posY - 1][posX - 1] != FILLED_POINT && map[posY][posX - 1] != BORDER)
-		{
-			startPoint = { posX - 1, posY - 1 };
-			startPoints.push(startPoint);
-		}
-		if (posY < MAX_POS - 1 && posX > MIN_POS && map[posY + 1][posX - 1] != BORDER && map[posY + 1][posX] == BORDER && map[posY + 1][posX - 1] != FILLED_POINT && map[posY][posX - 1] != BORDER)
-		{
-			startPoint = { posX - 1, posY + 1 };
-			startPoints.push(startPoint);
-		}
-		++posX;
-	}
-	if (posY > MIN_POS && map[posY - 1][posX - 1] != BORDER && map[posY - 1][posX - 1] != FILLED_POINT && map[posY][posX - 1] != BORDER)
-	{
-		startPoint = { posX - 1, posY - 1 };
-		startPoints.push(startPoint);
-	}
-	if (posY < MAX_POS - 1 && map[posY + 1][posX - 1] != BORDER && map[posY + 1][posX - 1] != FILLED_POINT && map[posY][posX - 1] != BORDER)
-	{
-		startPoint = { posX - 1, posY + 1 };
-		startPoints.push(startPoint);
-	}
+	return;
 }
 
-int main(int argc, char* argv[])
+bool ValidateFiles(std::ifstream& inputFile, std::ofstream& outputFile)
 {
-	std::optional<FillParams> params = GetFillParams(argc, argv);
-	if (!params.has_value())
+	if (!inputFile.is_open())
 	{
-		return 1;
+		std::cout << "Failed to open input file for reading\n";
+
+		return false;
 	}
 
-	std::ifstream inputFile(params.value().inputFileName);
-	std::ofstream outputFile(params.value().outputFileName);
+	if (!outputFile.is_open())
+	{
+		std::cout << "Failed to open output file for writing\n";
 
-	StartPoints startPoints;
-	std::optional<Map> map = GetMap(inputFile, startPoints);
-	if (!map.has_value())
-	{
-		return 1;
-	}
-	Map resultMap = map.value();
-	bool isFilled = false;
-	while (!isFilled)
-	{
-		FillLine(resultMap, startPoints, isFilled);
-		if (isFilled)
-		{
-			break;
-		}
-	}
-	for (std::string line : resultMap)
-	{
-		outputFile << line << std::endl;
-	}
-	if (!outputFile.flush()) // Если не удалось сбросить данные на диск
-	{
-		std::cout << "Failed to save data on disk\n";
-
-		return 1;
+		return false;
 	}
 
-
-	return 0;
+	return true;
 }
