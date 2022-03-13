@@ -26,6 +26,7 @@ struct FillParams
 };
 
 typedef std::stack<Point> StartPoints;
+
 struct Map
 {
 	int ySize;
@@ -128,28 +129,27 @@ void FillLine(Map& map, std::stack<Point>& startPoints, bool& isFilled)
 	{
 		if (map.lines[posY][posX] != START_POINT)
 		{
-			//std::cout << "Left posX=" << posX << " posY=" << posY << std::endl;
 			map.lines[posY][posX] = FILLED_POINT;
 		}
 
-		if (posY > 0 && map.lines[posY - 1][posX] == BORDER && map.lines[posY - 1][posX + 1] != BORDER && map.lines[posY - 1][posX + 1] != FILLED_POINT)
+		if (posY > 0 && map.lines[posY - 1][posX] == BORDER && map.lines[posY - 1][posX + 1] != BORDER && map.lines[posY - 1][posX + 1] != FILLED_POINT && map.lines[posY][posX + 1] != BORDER)
 		{
 			startPoint = { posX + 1, posY - 1 };
 			startPoints.push(startPoint);
 		}
-		if (posY < map.ySize - 1 && map.lines[posY + 1][posX] == BORDER && map.lines[posY + 1][posX + 1] != BORDER && map.lines[posY + 1][posX + 1] != FILLED_POINT)
+		if (posY < map.ySize - 1 && map.lines[posY + 1][posX] == BORDER && map.lines[posY + 1][posX + 1] != BORDER && map.lines[posY + 1][posX + 1] != FILLED_POINT && map.lines[posY][posX + 1] != BORDER)
 		{
 			startPoint = { posX + 1, posY + 1 };
 			startPoints.push(startPoint);
 		}
 		--posX;
 	}
-	if (posY > MIN_POS && map.lines[posY - 1][posX + 1] != BORDER && map.lines[posY - 1][posX + 1] != FILLED_POINT)
+	if (posY > MIN_POS && map.lines[posY - 1][posX + 1] != BORDER && map.lines[posY - 1][posX + 1] != FILLED_POINT && map.lines[posY][posX + 1] != BORDER)
 	{
 		startPoint = { posX + 1, posY - 1 };
 		startPoints.push(startPoint);
 	}
-	if (posY < map.ySize - 1 && map.lines[posY + 1][posX + 1] != BORDER && map.lines[posY + 1][posX + 1] != FILLED_POINT)
+	if (posY < map.ySize - 1 && map.lines[posY + 1][posX + 1] != BORDER && map.lines[posY + 1][posX + 1] != FILLED_POINT && map.lines[posY][posX + 1] != BORDER)
 	{
 		startPoint = { posX + 1, posY + 1 };
 		startPoints.push(startPoint);
@@ -160,26 +160,31 @@ void FillLine(Map& map, std::stack<Point>& startPoints, bool& isFilled)
 	{
 		if (map.lines[posY][posX] != START_POINT)
 		{
-			//std::cout << "Right posX=" << posX << " posY=" << posY << std::endl;
 			map.lines[posY][posX] = FILLED_POINT;
 		}
 
-		if (posY > MIN_POS && posX > MIN_POS && map.lines[posY - 1][posX - 1] == BORDER && map.lines[posY - 1][posX] != BORDER && map.lines[posY - 1][posX] != FILLED_POINT)
+		if (posY > MIN_POS && posX > MIN_POS && map.lines[posY - 1][posX - 1] != BORDER && map.lines[posY - 1][posX] == BORDER && map.lines[posY - 1][posX - 1] != FILLED_POINT && map.lines[posY][posX - 1] != BORDER)
 		{
-			startPoint = { posX, posY - 1 };
+			startPoint = { posX - 1, posY - 1 };
 			startPoints.push(startPoint);
 		}
-		if (posY < map.ySize - 1 && posX > MIN_POS && map.lines[posY + 1][posX - 1] == BORDER && map.lines[posY + 1][posX] != BORDER && map.lines[posY + 1][posX] != FILLED_POINT)
+		if (posY < map.ySize - 1 && posX > MIN_POS && map.lines[posY + 1][posX - 1] != BORDER && map.lines[posY + 1][posX] == BORDER && map.lines[posY + 1][posX - 1] != FILLED_POINT && map.lines[posY][posX - 1] != BORDER)
 		{
-			startPoint = { posX, posY + 1 };
+			startPoint = { posX - 1, posY + 1 };
 			startPoints.push(startPoint);
 		}
 		++posX;
 	}
-	//for (std::string line : map)
-	//{
-	//	std::cout << line << std::endl;
-	//}
+	if (posY > MIN_POS && map.lines[posY - 1][posX - 1] != BORDER && map.lines[posY - 1][posX - 1] != FILLED_POINT && map.lines[posY][posX - 1] != BORDER)
+	{
+		startPoint = { posX - 1, posY - 1 };
+		startPoints.push(startPoint);
+	}
+	if (posY < MAX_POS - 1 && map.lines[posY + 1][posX - 1] != BORDER && map.lines[posY + 1][posX - 1] != FILLED_POINT && map.lines[posY][posX - 1] != BORDER)
+	{
+		startPoint = { posX - 1, posY + 1 };
+		startPoints.push(startPoint);
+	}
 }
 
 int main(int argc, char* argv[])
@@ -200,14 +205,6 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 	Map resultMap = map.value();
-	Point point;
-	//while (!startPoints.empty())
-	//{
-	//	point = startPoints.top();
-	//	startPoints.pop();
-	//	std::cout << "startPoints.size() " << startPoints.size() << std::endl;
-	//	FillLine(point, resultMap, startPoints);
-	//}
 	bool isFilled = false;
 	while(!isFilled)
 	{
