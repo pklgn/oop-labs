@@ -31,7 +31,7 @@ typedef std::array<std::string, MAX_POS> Map;
 std::optional<FillParams> GetFillParams(int argc, char* argv[]);
 std::optional<Map> GetMap(std::ifstream& inputFile, std::stack<Point>& startPoints);
 void Fill(Map& map, std::stack<Point>& startPoints, bool& isFilled);
-bool ValidateFiles(std::ifstream& inputFile, std::ofstream& outputFile);
+bool ValidateFiles(const std::ifstream& inputFile, const std::ofstream& outputFile);
 
 int main(int argc, char* argv[])
 {
@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
 
 	std::ifstream inputFile(params.value().inputFileName);
 	std::ofstream outputFile(params.value().outputFileName);
+	ValidateFiles(inputFile, outputFile);
 
 	StartPoints startPoints;
 	std::optional<Map> map = GetMap(inputFile, startPoints);
@@ -101,7 +102,7 @@ std::optional<char> ValidateMapElement(char ch)
 	return ch;
 }
 
-bool AppendLineToMap(size_t linePos, std::string& line, Map& map, std::stack<Point>& startPoints)
+bool AppendLineToMap(size_t linePos, const std::string& line, Map& map, std::stack<Point>& startPoints)
 {
 	for (size_t posX = 0; posX < MAX_POS && posX < line.length(); ++posX)
 	{
@@ -176,7 +177,6 @@ void AddLeftStartPoint(short offset, Point& p, Map& map, StartPoints& startPoint
 
 void FillToLeft(const Point& point, Map& map, StartPoints& startPoints)
 {
-	Point startPoint;
 	Point p = point;
 	short offsetUp = -1;
 	short offsetDown = 1;
@@ -232,13 +232,13 @@ void AddRightStartPoint(short offset, Point& p, Map& map, StartPoints& startPoin
 
 	return;
 }
-
+// TODO: поправить все предупреждения
 void FillToRight(const Point& point, Map& map, StartPoints& startPoints)
 {
-	Point startPoint;
 	short offsetUp = -1;
 	short offsetDown = 1;
 	Point p = point;
+	// TODO: привести тип к Int
 	while (p.x < map[p.y].size() && map[p.y][p.x] != BORDER)
 	{
 		if (map[p.y][p.x] != START_POINT)
@@ -285,7 +285,7 @@ void Fill(Map& map, std::stack<Point>& startPoints, bool& isFilled)
 	return;
 }
 
-bool ValidateFiles(std::ifstream& inputFile, std::ofstream& outputFile)
+bool ValidateFiles(const std::ifstream& inputFile, const std::ofstream& outputFile)
 {
 	if (!inputFile.is_open())
 	{
