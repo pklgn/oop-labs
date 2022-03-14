@@ -44,6 +44,10 @@ rem complex form test
 fc.exe %DIR%check_complex_form.txt %OUTPUT% >nul 
 if ERRORLEVEL 1 goto err
 
+rem dd extra start point in the same figure
+%PROGRAM% %DIR%several_start_point.txt %OUTPUT%
+fc.exe %DIR%check_several_start_point.txt %OUTPUT% >nul 
+if ERRORLEVEL 1 goto err
 
 echo All tests have been successfully passed!
 exit 0
