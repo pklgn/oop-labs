@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "html_decode.h"
 
 struct HtmlEntity
 {
@@ -20,7 +21,7 @@ std::string HtmlStringDecode(std::string const& string, const HtmlEntity& entity
 	while (currPos < string.length())
 	{
 		const auto htmlCodeIt = std::search(string.begin() + currPos, string.end(), searcher);
-		const auto htmlDelimeterIt = std::find(htmlCodeIt - string.begin(), string.end(), htmlDelimeter);
+		const auto htmlDelimeterIt = std::find(string.begin() + currPos, string.end(), htmlDelimeter);
 		result.append(string, currPos, htmlCodeIt - string.begin() - currPos);
 
 		if (htmlCodeIt == string.end())
@@ -39,7 +40,7 @@ std::string HtmlStringDecode(std::string const& string, const HtmlEntity& entity
 			currPos += htmlCodeIt - string.begin() - currPos + entity.htmlCode.length();
 		}
 
-		if (htmlDelimeterIt - string.begin() == htmlCodeIt - string.begin() + entity.htmlCode.size())
+		if (htmlDelimeterIt - string.begin() == htmlCodeIt - string.begin() + entity.htmlCode.length())
 		{
 			currPos += 1;
 		}
@@ -67,18 +68,7 @@ void HtmlTextDecode(std::istream& inputFile, std::ostream& outputFile)
 	while (!inputFile.eof())
 	{
 		std::getline(inputFile, line);
-		if (inputFile.eof())
-		{
-			return;
-		}
 
 		outputFile << HtmlDecode(line) << std::endl;
 	}
-}
-
-int main()
-{
-	HtmlTextDecode(std::cin, std::cout);
-
-	return 0;
 }
