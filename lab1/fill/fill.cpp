@@ -113,7 +113,7 @@ bool AppendLineToMap(size_t linePos, const std::string& line, Map& map, std::sta
 		}
 		if (mapElement.value() == START_POINT)
 		{
-			Point point = { posX, linePos };
+			Point point = { static_cast<int>(posX), static_cast<int>(linePos) };
 			startPoints.push(point);
 		}
 
@@ -239,7 +239,7 @@ void FillToRight(const Point& point, Map& map, StartPoints& startPoints)
 	short offsetDown = 1;
 	Point p = point;
 	// TODO: привести тип к Int
-	while (p.x < map[p.y].size() && map[p.y][p.x] != BORDER)
+	while (p.x < static_cast<int>(map[p.y].size()) && map[p.y][p.x] != BORDER)
 	{
 		if (map[p.y][p.x] != START_POINT)
 		{
