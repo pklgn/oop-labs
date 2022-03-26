@@ -33,6 +33,7 @@ void PrintVector(std::vector<double>& vec, std::ostream& output)
 	output << std::endl;
 }
 
+//const vec
 std::vector<double> MultiplyNegativeByMinMaxOfVector(std::vector<double>& vec)
 {
 	auto bounds = std::minmax_element(vec.begin(), vec.end());
@@ -46,8 +47,9 @@ std::vector<double> MultiplyNegativeByMinMaxOfVector(std::vector<double>& vec)
 
 		resultVec.push_back(element);
 	};
-
+	//использовать transform вместо for_each с back_insert_iterator
 	std::for_each(vec.begin(), vec.end(), multiply);
+	//sort вынести в printSorted вариант функции
 	std::sort(resultVec.begin(), resultVec.end());
 
 	return resultVec;
