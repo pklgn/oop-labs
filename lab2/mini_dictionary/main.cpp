@@ -3,6 +3,9 @@
 #include <set>
 #include <fstream>
 #include <string>
+#include <vector>
+#include <sstream>
+#include <algorithm>
 
 const std::string DEFAULT_DICTIONARY_FILE_NAME = "dictionary.txt";
 
@@ -30,7 +33,7 @@ std::string GetDictionaryFileName(int argc, char* argv[])
 	return argv[1];
 }
 
-void ReadDictionary(std::ifstream& dictFile, Dictionary& dict);
+bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict);
 
 void InitDictionary(std::string dictFileName, Dictionary& dict)
 {
@@ -45,18 +48,55 @@ void InitDictionary(std::string dictFileName, Dictionary& dict)
 
 void RemoveExtraBlanks(std::string& term);
 
-void ReadTranslation(std::ifstream& dictFile, Dictionary& dict, std::string& term)
+std::set<std::string> SplitString(std::string& string, char delimeter)
 {
-
+	std::string line;
+	std::set<std::string> result;
+	std::stringstream ss(string);
+	while (std::getline(ss, line, delimeter))
+	{
+		result.insert(line);
+	}
+	
+	return result;
 }
 
-void ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
+bool ReadTranslation(std::ifstream& dictFile, Dictionary& dict, std::string& term)
+{
+	const char TRANSLATION_DELIMETER = ',';
+	if (dictFile.eof())
+	{
+		std::cout << "Fail to read translation for " << term << std::endl;
+
+		return false;
+	}
+
+	std::string rawTranslation;
+	std::getline(dictFile, rawTranslation);
+	auto translation = SplitString(rawTranslation, TRANSLATION_DELIMETER);
+	std::for_each(translation.begin(), translation.end(), [&](std::string string) { RemoveExtraBlanks(string); });
+	dict.emplace(term, translation);
+
+	return true;
+}
+
+bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 {
 	while (!dictFile.eof())
 	{
 		std::string term;
 		std::getline(dictFile, term);
 		RemoveExtraBlanks(term);
-		ReadTranslation(dictFile, dict, term);
+		if (!ReadTranslation(dictFile, dict, term))
+		{
+			return false;
+		}
 	}
+
+	return true;
+}
+
+void RemoveExtraBlanks(std::string& string)
+{
+	return;
 }
