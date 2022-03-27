@@ -46,7 +46,7 @@ void InitDictionary(std::string dictFileName, Dictionary& dict)
 	return;
 }
 
-void RemoveExtraBlanks(std::string& term);
+std::string RemoveExtraBlanks(const std::string& string);
 
 std::set<std::string> SplitString(std::string& string, char delimeter)
 {
@@ -55,7 +55,7 @@ std::set<std::string> SplitString(std::string& string, char delimeter)
 	std::stringstream ss(string);
 	while (std::getline(ss, line, delimeter))
 	{
-		result.insert(line);
+		result.insert(RemoveExtraBlanks(line));
 	}
 	
 	return result;
@@ -71,11 +71,10 @@ bool ReadTranslation(std::ifstream& dictFile, Dictionary& dict, std::string& ter
 		return false;
 	}
 
-	std::string rawTranslation;
-	std::getline(dictFile, rawTranslation);
-	auto translation = SplitString(rawTranslation, TRANSLATION_DELIMETER);
-	std::for_each(translation.begin(), translation.end(), [&](std::string string) { RemoveExtraBlanks(string); });
-	dict.emplace(term, translation);
+	std::string rawTranslations;
+	std::getline(dictFile, rawTranslations);
+	auto translations = SplitString(rawTranslations, TRANSLATION_DELIMETER);
+	dict.emplace(term, translations);
 
 	return true;
 }
@@ -86,7 +85,7 @@ bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 	{
 		std::string term;
 		std::getline(dictFile, term);
-		RemoveExtraBlanks(term);
+		term = RemoveExtraBlanks(term);
 		if (!ReadTranslation(dictFile, dict, term))
 		{
 			return false;
@@ -96,7 +95,22 @@ bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 	return true;
 }
 
-void RemoveExtraBlanks(std::string& string)
+std::string Trim(const std::string& str)
 {
-	return;
+	const std::string WHITESPACE = " ";
+	const auto strBegin = str.find_first_not_of(WHITESPACE);
+	if (strBegin == std::string::npos)
+	{
+		return "";
+	}
+
+	const auto strEnd = str.find_last_not_of(WHITESPACE);
+	const auto strRange = strEnd - strBegin + 1;
+
+	return str.substr(strBegin, strRange);
+}
+
+std::string RemoveExtraBlanks(const std::string& string)
+{
+	return Trim(string);
 }
