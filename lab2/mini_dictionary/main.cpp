@@ -6,7 +6,9 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <optional>
 
+const char DICTIONARY_DELIMETER = '-';
 const std::string EXIT_COMMAND = "...";
 const std::string DEFAULT_DICTIONARY_FILE_NAME = "dictionary.txt";
 
@@ -20,6 +22,7 @@ enum class DictionaryMode
 
 enum class SessionStatus
 {
+	Inactive,
 	Pending,
 	Exit,
 };
@@ -28,38 +31,23 @@ struct DictionarySession
 {
 	Dictionary dict;
 	Dictionary tempDict;
-	DictionaryMode mode;
-	SessionStatus status;
+	DictionaryMode mode = DictionaryMode::Saved;
+	SessionStatus status = SessionStatus::Inactive;
 	std::string dictFileName;
 };
 
-
-std::string GetDictionaryFileName(int argc, char* argv[]);
-bool InitDictionary(std::string dictFileName, Dictionary& dict);
-
-bool StartDictionarySession(DictionarySession& dictSession, std::string& dictFileName)
-{
-	if (!InitDictionary(dictFileName, dictSession.dict))
-	{
-		return false;
-	}
-	dictSession.status = SessionStatus::Pending;
-	dictSession.mode = DictionaryMode::Saved;
-
-
-	return true;
-}
-
+void SetDictionaryFileName(int argc, char* argv[], DictionarySession& dictSession);
+bool InitDictionary(DictionarySession& dictSession);
+bool StartDictionarySession(DictionarySession& dictSession);
 void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStrea, DictionarySession& dictSession);
 
 int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "ru");
-	std::string dictFileName = GetDictionaryFileName(argc, argv);
-
 	DictionarySession dictSession;
-	dictSession.dictFileName = dictFileName;
-	if (!StartDictionarySession(dictSession, dictFileName))
+	SetDictionaryFileName(argc, argv, dictSession);
+
+	if (!StartDictionarySession(dictSession))
 	{
 		return 1;
 	}
@@ -71,8 +59,31 @@ int main(int argc, char* argv[])
 	
 	return 0;
 }
+
+void SetDictionaryFileName(int argc, char* argv[], DictionarySession& dictSession)
+{
+	if (argc == 1)
+	{
+		dictSession.dictFileName = DEFAULT_DICTIONARY_FILE_NAME;
+	}
+
+	dictSession.dictFileName = argv[1];
+}
+
+bool StartDictionarySession(DictionarySession& dictSession)
+{
+	if (!InitDictionary(dictSession))
+	{
+		return false;
+	}
+	dictSession.mode = DictionaryMode::Saved;
+	dictSession.status = SessionStatus::Pending;
+
+	return true;
+}
+
 std::string RemoveExtraBlanks(const std::string& string);
-std::string GetTranslations(Dictionary& dict, const std::string& term);
+std::optional<std::string> GetTranslations(Dictionary& dict, const std::string& term);
 bool ReadTranslation(std::istream& inputFile, Dictionary& dict, std::string& term);
 void AddTranslation(std::istream& inputStream, std::ostream& outputStream, std::string& term, DictionarySession& dictSession);
 
@@ -93,8 +104,8 @@ void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStr
 				std::ofstream dictFile(dictSession.dictFileName, std::ios::app);
 				for (const auto& [term, translations]: dictSession.tempDict)
 				{
-					dictFile << term << '-'
-							 << GetTranslations(dictSession.tempDict, term) << std::endl;
+					dictFile << term << DICTIONARY_DELIMETER
+							 << GetTranslations(dictSession.tempDict, term).value() << std::endl;
 				}
 				if (!dictFile.flush())
 				{
@@ -106,17 +117,31 @@ void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStr
 
 		return;
 	}
-	auto it = dictSession.dict.find(request);
-	if (it == dictSession.dict.end())
+	auto dictTranslations = GetTranslations(dictSession.dict, request);
+	auto tempDictTranslations = GetTranslations(dictSession.tempDict, request);
+	if (!dictTranslations.has_value() && !tempDictTranslations.has_value())
 	{
 		AddTranslation(inputStream, outputStream, request, dictSession);
 	}
+	else if (dictTranslations.has_value())
+	{
+		outputStream << dictTranslations.value() << std::endl;
+	}
+	else 
+	{
+		outputStream << tempDictTranslations.value() << std::endl;
+	}
 }
 
-std::string GetTranslations(Dictionary& dict, const std::string& term)
+std::optional<std::string> GetTranslations(Dictionary& dict, const std::string& term)
 {
 	std::stringstream rawTranslations;
-	std::set<std::string> translations = dict.find(term)->second;
+	auto it = dict.find(term);
+	if (it == dict.end())
+	{
+		return std::nullopt;
+	}
+	std::set<std::string> translations = it->second;
 	for (auto it = translations.begin(); it != translations.end(); it++)
 	{
 		rawTranslations << *it;
@@ -139,27 +164,17 @@ void AddTranslation(std::istream& inputStream, std::ostream& outputStream, std::
 		return;
 	}
 	dictSession.mode = DictionaryMode::Modified;
-	outputStream << "Слово \"" << term << "\" сохранено в словаре как \"" << GetTranslations(dictSession.tempDict, term) << "\"\n";
-}
-
-std::string GetDictionaryFileName(int argc, char* argv[])
-{
-	if (argc == 1)
-	{
-		return DEFAULT_DICTIONARY_FILE_NAME;
-	}
-	
-	return argv[1];
+	outputStream << "Слово \"" << term << "\" сохранено в словаре как \"" << GetTranslations(dictSession.tempDict, term).value() << "\"\n";
 }
 
 bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict);
 
-bool InitDictionary(std::string dictFileName, Dictionary& dict)
+bool InitDictionary(DictionarySession& dictSession)
 {
-	if (dictFileName != DEFAULT_DICTIONARY_FILE_NAME)
+	if (dictSession.dictFileName != DEFAULT_DICTIONARY_FILE_NAME)
 	{
-		std::ifstream dictFile(dictFileName);
-		if (!ReadDictionary(dictFile, dict))
+		std::ifstream dictFile(dictSession.dictFileName);
+		if (!ReadDictionary(dictFile, dictSession.dict))
 		{
 			return false;
 		}
@@ -204,7 +219,7 @@ bool ReadTranslation(std::istream& inputFile, Dictionary& dict, std::string& ter
 bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 {
 	std::string term;
-	while (std::getline(dictFile, term, '-'))
+	while (std::getline(dictFile, term, DICTIONARY_DELIMETER))
 	{
 		term = RemoveExtraBlanks(term);
 		if (!ReadTranslation(dictFile, dict, term))
@@ -212,10 +227,6 @@ bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 			std::cout << "Fail to read translation for " << term << std::endl;
 
 			return false;
-		}
-		if (dictFile.eof())
-		{
-			break;
 		}
 	}
 
