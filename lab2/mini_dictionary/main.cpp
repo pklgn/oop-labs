@@ -7,6 +7,7 @@
 #include <sstream>
 #include <algorithm>
 
+const std::string EXIT_COMMAND = "...";
 const std::string DEFAULT_DICTIONARY_FILE_NAME = "dictionary.txt";
 
 typedef std::map<std::string, std::set<std::string>> Dictionary;
@@ -29,6 +30,7 @@ struct DictionarySession
 	Dictionary tempDict;
 	DictionaryMode mode;
 	SessionStatus status;
+	std::string dictFileName;
 };
 
 
@@ -48,14 +50,15 @@ bool StartDictionarySession(DictionarySession& dictSession, std::string& dictFil
 	return true;
 }
 
-void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStrea, DictionarySession dictSession);
+void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStrea, DictionarySession& dictSession);
 
 int main(int argc, char* argv[])
 {
-	setlocale(LC_ALL, "rus");
+	setlocale(LC_ALL, "ru");
 	std::string dictFileName = GetDictionaryFileName(argc, argv);
 
 	DictionarySession dictSession;
+	dictSession.dictFileName = dictFileName;
 	if (!StartDictionarySession(dictSession, dictFileName))
 	{
 		return 1;
@@ -65,25 +68,65 @@ int main(int argc, char* argv[])
 	{
 		ProcessDictionarySession(std::cin, std::cout, dictSession);
 	}
-
-
 	
 	return 0;
 }
 std::string RemoveExtraBlanks(const std::string& string);
+std::string GetTranslations(Dictionary& dict, const std::string& term);
 bool ReadTranslation(std::istream& inputFile, Dictionary& dict, std::string& term);
 void AddTranslation(std::istream& inputStream, std::ostream& outputStream, std::string& term, DictionarySession& dictSession);
 
-void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStream, DictionarySession dictSession)
+void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStream, DictionarySession& dictSession)
 {
 	std::string request;
 	std::getline(inputStream, request);
 	request = RemoveExtraBlanks(request);
+	if (request == EXIT_COMMAND)
+	{
+		if (dictSession.mode == DictionaryMode::Modified)
+		{
+			outputStream << "В словарь были внесены изменения. Введите Y или y для сохранения перед выходом.\n";
+			char response;
+			inputStream >> response;
+			if (response == 'Y' || response == 'y')
+			{
+				std::ofstream dictFile(dictSession.dictFileName, std::ios::app);
+				for (const auto& [term, translations]: dictSession.tempDict)
+				{
+					dictFile << term << '-'
+							 << GetTranslations(dictSession.tempDict, term) << std::endl;
+				}
+				if (!dictFile.flush())
+				{
+					std::cout << "Can't save changes to file\n";
+				}
+			}
+		}
+		dictSession.status = SessionStatus::Exit;
+
+		return;
+	}
 	auto it = dictSession.dict.find(request);
 	if (it == dictSession.dict.end())
 	{
 		AddTranslation(inputStream, outputStream, request, dictSession);
 	}
+}
+
+std::string GetTranslations(Dictionary& dict, const std::string& term)
+{
+	std::stringstream rawTranslations;
+	std::set<std::string> translations = dict.find(term)->second;
+	for (auto it = translations.begin(); it != translations.end(); it++)
+	{
+		rawTranslations << *it;
+		if (std::distance(translations.begin(), it) != translations.size() - 1)
+		{
+			rawTranslations << ", ";
+		}
+	}
+
+	return rawTranslations.str();
 }
 
 void AddTranslation(std::istream& inputStream, std::ostream& outputStream, std::string& term, DictionarySession& dictSession)
@@ -95,17 +138,8 @@ void AddTranslation(std::istream& inputStream, std::ostream& outputStream, std::
 
 		return;
 	}
-	std::stringstream rawTranslations;
-	std::set<std::string> translations = dictSession.tempDict.find(term)->second;
-	for (auto it = translations.begin(); it != translations.end(); it++)
-	{
-		rawTranslations << *it;
-		if (std::distance(translations.begin(), it) != translations.size() - 1)
-		{
-			rawTranslations << ", ";
-		}
-	}
-	outputStream << "Слово \"" << term << "\" сохранено в словаре как \"" << rawTranslations.str() << "\"\n";
+	dictSession.mode = DictionaryMode::Modified;
+	outputStream << "Слово \"" << term << "\" сохранено в словаре как \"" << GetTranslations(dictSession.tempDict, term) << "\"\n";
 }
 
 std::string GetDictionaryFileName(int argc, char* argv[])
@@ -169,16 +203,19 @@ bool ReadTranslation(std::istream& inputFile, Dictionary& dict, std::string& ter
 
 bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 {
-	while (!dictFile.eof())
+	std::string term;
+	while (std::getline(dictFile, term, '-'))
 	{
-		std::string term;
-		std::getline(dictFile, term);
 		term = RemoveExtraBlanks(term);
 		if (!ReadTranslation(dictFile, dict, term))
 		{
 			std::cout << "Fail to read translation for " << term << std::endl;
 
 			return false;
+		}
+		if (dictFile.eof())
+		{
+			break;
 		}
 	}
 
