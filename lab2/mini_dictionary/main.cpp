@@ -11,16 +11,67 @@ const std::string DEFAULT_DICTIONARY_FILE_NAME = "dictionary.txt";
 
 typedef std::map<std::string, std::set<std::string>> Dictionary;
 
+enum class DictionaryMode
+{
+	Modified,
+	Saved,
+};
+
+enum class SessionStatus
+{
+	Pending,
+	Exit,
+};
+
+struct DictionarySession
+{
+	Dictionary dict;
+	DictionaryMode mode;
+	SessionStatus status;
+};
+
+
 std::string GetDictionaryFileName(int argc, char* argv[]);
-void InitDictionary(std::string dictFileName, Dictionary& dict);
+bool InitDictionary(std::string dictFileName, Dictionary& dict);
+
+bool StartDictionarySession(DictionarySession& dictSession, std::string& dictFileName)
+{
+	if (!InitDictionary(dictFileName, dictSession.dict))
+	{
+		return false;
+	}
+	dictSession.status = SessionStatus::Pending;
+	dictSession.mode = DictionaryMode::Saved;
+
+
+	return true;
+}
+
+void ProcessRequest(std::istream& inputStream, std::ostream& outputStrea, DictionarySession dictSession);
 
 int main(int argc, char* argv[])
 {
 	std::string dictFileName = GetDictionaryFileName(argc, argv);
 
-	Dictionary dict;
-	InitDictionary(dictFileName, dict);
+	DictionarySession dictSession;
+	if (!StartDictionarySession(dictSession, dictFileName))
+	{
+		return 1;
+	}
+
+	while (dictSession.status == SessionStatus::Pending)
+	{
+		ProcessRequest(std::cin, std::cout, dictSession);
+	}
+
+
 	
+	return 0;
+}
+
+void ProcessRequest(std::istream& inputStream, std::ostream& outputStrea, DictionarySession dictSession)
+{
+	return;
 }
 
 std::string GetDictionaryFileName(int argc, char* argv[])
@@ -35,15 +86,18 @@ std::string GetDictionaryFileName(int argc, char* argv[])
 
 bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict);
 
-void InitDictionary(std::string dictFileName, Dictionary& dict)
+bool InitDictionary(std::string dictFileName, Dictionary& dict)
 {
 	if (dictFileName != DEFAULT_DICTIONARY_FILE_NAME)
 	{
 		std::ifstream dictFile(dictFileName);
-		ReadDictionary(dictFile, dict);
+		if (!ReadDictionary(dictFile, dict))
+		{
+			return false;
+		}
 	}
 
-	return;
+	return true;
 }
 
 std::string RemoveExtraBlanks(const std::string& string);
