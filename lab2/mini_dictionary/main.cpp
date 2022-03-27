@@ -26,6 +26,7 @@ enum class SessionStatus
 struct DictionarySession
 {
 	Dictionary dict;
+	Dictionary tempDict;
 	DictionaryMode mode;
 	SessionStatus status;
 };
@@ -47,10 +48,11 @@ bool StartDictionarySession(DictionarySession& dictSession, std::string& dictFil
 	return true;
 }
 
-void ProcessRequest(std::istream& inputStream, std::ostream& outputStrea, DictionarySession dictSession);
+void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStrea, DictionarySession dictSession);
 
 int main(int argc, char* argv[])
 {
+	setlocale(LC_ALL, "rus");
 	std::string dictFileName = GetDictionaryFileName(argc, argv);
 
 	DictionarySession dictSession;
@@ -61,17 +63,49 @@ int main(int argc, char* argv[])
 
 	while (dictSession.status == SessionStatus::Pending)
 	{
-		ProcessRequest(std::cin, std::cout, dictSession);
+		ProcessDictionarySession(std::cin, std::cout, dictSession);
 	}
 
 
 	
 	return 0;
 }
+std::string RemoveExtraBlanks(const std::string& string);
+bool ReadTranslation(std::istream& inputFile, Dictionary& dict, std::string& term);
+void AddTranslation(std::istream& inputStream, std::ostream& outputStream, std::string& term, DictionarySession& dictSession);
 
-void ProcessRequest(std::istream& inputStream, std::ostream& outputStrea, DictionarySession dictSession)
+void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStream, DictionarySession dictSession)
 {
-	return;
+	std::string request;
+	std::getline(inputStream, request);
+	request = RemoveExtraBlanks(request);
+	auto it = dictSession.dict.find(request);
+	if (it == dictSession.dict.end())
+	{
+		AddTranslation(inputStream, outputStream, request, dictSession);
+	}
+}
+
+void AddTranslation(std::istream& inputStream, std::ostream& outputStream, std::string& term, DictionarySession& dictSession)
+{
+	outputStream << "Неизвестное слово \"" << term << "\". Введите перевод или пустую строку для отказа.\n";
+	if (!ReadTranslation(inputStream, dictSession.tempDict, term))
+	{
+		outputStream << "Слово \"" << term << "\" проигнорировано.\n";
+
+		return;
+	}
+	std::stringstream rawTranslations;
+	std::set<std::string> translations = dictSession.tempDict.find(term)->second;
+	for (auto it = translations.begin(); it != translations.end(); it++)
+	{
+		rawTranslations << *it;
+		if (std::distance(translations.begin(), it) != translations.size() - 1)
+		{
+			rawTranslations << ", ";
+		}
+	}
+	outputStream << "Слово \"" << term << "\" сохранено в словаре как \"" << rawTranslations.str() << "\"\n";
 }
 
 std::string GetDictionaryFileName(int argc, char* argv[])
@@ -100,8 +134,6 @@ bool InitDictionary(std::string dictFileName, Dictionary& dict)
 	return true;
 }
 
-std::string RemoveExtraBlanks(const std::string& string);
-
 std::set<std::string> SplitString(std::string& string, char delimeter)
 {
 	std::string line;
@@ -115,19 +147,21 @@ std::set<std::string> SplitString(std::string& string, char delimeter)
 	return result;
 }
 
-bool ReadTranslation(std::ifstream& dictFile, Dictionary& dict, std::string& term)
+bool ReadTranslation(std::istream& inputFile, Dictionary& dict, std::string& term)
 {
 	const char TRANSLATION_DELIMETER = ',';
-	if (dictFile.eof())
+	if (inputFile.eof())
 	{
-		std::cout << "Fail to read translation for " << term << std::endl;
-
 		return false;
 	}
 
 	std::string rawTranslations;
-	std::getline(dictFile, rawTranslations);
+	std::getline(inputFile, rawTranslations);
 	auto translations = SplitString(rawTranslations, TRANSLATION_DELIMETER);
+	if (translations.size() == 0)
+	{
+		return false;
+	}
 	dict.emplace(term, translations);
 
 	return true;
@@ -142,6 +176,8 @@ bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 		term = RemoveExtraBlanks(term);
 		if (!ReadTranslation(dictFile, dict, term))
 		{
+			std::cout << "Fail to read translation for " << term << std::endl;
+
 			return false;
 		}
 	}
