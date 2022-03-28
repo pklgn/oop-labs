@@ -3,15 +3,6 @@
 
 #include "pch.h"
 #include "mini_dictionary_lib.h"
-#include <iostream>
-#include <map>
-#include <set>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <sstream>
-#include <algorithm>
-#include <optional>
 
 
 const char DICTIONARY_DELIMETER = '-';
@@ -43,10 +34,11 @@ void SetDictionaryFileName(int argc, char* argv[], DictionarySession& dictSessio
 	if (argc == 1)
 	{
 		dictSession.dictFileName = DEFAULT_DICTIONARY_FILE_NAME;
+		dictSession.mode = DictionaryMode::New;
 
 		return;
 	}
-
+	dictSession.mode = DictionaryMode::Saved;
 	dictSession.dictFileName = argv[1];
 
 	return;
@@ -58,7 +50,6 @@ bool StartDictionarySession(DictionarySession& dictSession)
 	{
 		return false;
 	}
-	dictSession.mode = DictionaryMode::Saved;
 	dictSession.status = SessionStatus::Pending;
 
 	return true;
@@ -103,9 +94,11 @@ void FinishDictionarySession(std::istream& inputStream, std::ostream& outputStre
 		if (response == "Y" || response == "y")
 		{
 			SaveDictionarySession(dictSession);
+			outputStream << "Изменения сохранены. ";
 		}
 	}
 	dictSession.status = SessionStatus::Exit;
+	outputStream << "До свидания.\n";
 
 	return;
 }
@@ -168,7 +161,7 @@ void AddTranslations(std::istream& inputStream, std::ostream& outputStream, std:
 bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict);
 bool InitDictionary(DictionarySession& dictSession)
 {
-	if (dictSession.dictFileName != DEFAULT_DICTIONARY_FILE_NAME)
+	if (!(dictSession.dictFileName == DEFAULT_DICTIONARY_FILE_NAME && dictSession.mode == DictionaryMode::New))
 	{
 		std::ifstream dictFile(dictSession.dictFileName);
 		if (!dictFile.is_open())

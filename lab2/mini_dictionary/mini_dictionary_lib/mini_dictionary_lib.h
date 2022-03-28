@@ -10,6 +10,7 @@ typedef std::map<std::string, std::set<std::string>> Dictionary;
 
 enum class DictionaryMode
 {
+	New,
 	Modified,
 	Saved,
 };
