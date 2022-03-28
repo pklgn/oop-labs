@@ -38,4 +38,14 @@ SCENARIO("Working without initial dictionary file")
 		REQUIRE(dictSession.tempDict.find(term)->second.size() == 4);
 		REQUIRE(translations.value() == "быстро двигаться, пользоваться Zoom, приближать, увеличиваться");
 	}
+
+	WHEN("There is no translation")
+	{
+		std::string term = "translation";
+		std::istringstream inputStream(" \n");
+		std::ostringstream outputStream;
+		AddTranslations(inputStream, outputStream, term, dictSession);
+		auto translations = GetTranslations(dictSession.tempDict, term);
+		CHECK(!translations.has_value());
+	}
 }
