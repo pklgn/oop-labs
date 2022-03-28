@@ -1,59 +1,41 @@
 #include <iostream>
-#include <set>
-#include <vector>
+#include <optional>
+#include "prime_numbers_lib/prime_number_lib.h"
 
-constexpr int FIRST_PRIME_NUMBER = 2;
-std::set<int> GeneratePrimeNumbersSet(int upperBound);
-void PrintPrimeNumbersSet(std::ostream& outputStream, std::set<int>& primes);
+std::optional<int> GetParams(int argc, char* argv[])
+{
+	if (argc != 2)
+	{
+		std::cout << "Usage: prime_numbers.exe <upperBound>\n";
+
+		return std::nullopt;
+	}
+
+	int upperBound = atoi(argv[1]);
+
+	if (upperBound < 2)
+	{
+		std::cout << "Minimum prime number equals 2\n";
+
+		return std::nullopt;
+	}
+
+	return upperBound;
+}
 
 int main(int argc, char* argv[])
 {
-	std::set<int> primes = GeneratePrimeNumbersSet(atoi(argv[1]));
+	auto upperBound = GetParams(argc, argv);
+	if (!upperBound.has_value())
+	{
+		return 1;
+	}
+
+	std::set<int> primes = GeneratePrimeNumbersSet(upperBound.value());
 	if (!primes.empty())
 	{
 		PrintPrimeNumbersSet(std::cout, primes);
 	}
 
 	return 0;
-}
-
-std::set<int> GeneratePrimeNumbersSet(int upperBound)
-{
-	std::set<int> result{};
-
-	if (upperBound < FIRST_PRIME_NUMBER)
-	{
-		return result;
-	}
-
-	std::vector<bool> primeVec(upperBound, true);
-	size_t primeUpperBound = static_cast<size_t>(std::floor(sqrt(upperBound - 1)));
-	for (size_t i = FIRST_PRIME_NUMBER; i < upperBound; i++)
-	{
-		if (primeVec[i] && i <= primeUpperBound)
-		{
-			for (size_t j = i * i; j < upperBound; j += i)
-			{
-				primeVec[j] = false;
-			}
-		}
-	}
-
-	for (size_t i = FIRST_PRIME_NUMBER; i < upperBound; i++)
-	{
-		if (primeVec[i])
-		{
-			result.insert(static_cast<int>(i));
-		}
-	}
-
-	return result;
-}
-
-void PrintPrimeNumbersSet(std::ostream& outputStream, std::set<int>& primes)
-{
-	for (auto& prime: primes)
-	{
-		outputStream << prime << std::endl;
-	}
 }
