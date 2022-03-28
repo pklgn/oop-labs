@@ -25,7 +25,7 @@ std::optional<int> GetParams(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-	auto upperBound = GetParams(argc, argv);
+	const auto upperBound = GetParams(argc, argv);
 	if (!upperBound.has_value())
 	{
 		return 1;
