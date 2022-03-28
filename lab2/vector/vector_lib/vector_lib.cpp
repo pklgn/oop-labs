@@ -26,31 +26,35 @@ bool ReadNumbers(std::istream& inputStream, std::vector<double>& outputVec)
 	return true;
 }
 
-void PrintVector(std::vector<double>& vec, std::ostream& output)
+void PrintSortedVector(const std::vector<double>& vec, std::ostream& output)
 {
+	// TODO: sort вынести в PrintSortedVector вариант функции
+	std::vector<double> tempVec;
+	std::copy(vec.begin(), vec.end(), std::back_inserter(tempVec));
+	std::sort(tempVec.begin(), tempVec.end());
+
 	output << std::fixed << std::setprecision(FLOAT_PRECISION);
-	std::copy(vec.begin(), vec.end(), std::ostream_iterator<double>(output, " "));
+	std::copy(tempVec.begin(), tempVec.end(), std::ostream_iterator<double>(output, " "));
 	output << std::endl;
 }
 
-//const vec
-std::vector<double> MultiplyNegativeByMinMaxOfVector(std::vector<double>& vec)
+// TODO: const vec
+std::vector<double> MultiplyNegativeByMinMaxOfVector(const std::vector<double>& vec)
 {
 	auto bounds = std::minmax_element(vec.begin(), vec.end());
 
 	std::vector<double> resultVec;
-	auto multiply = [&](double element) {
+	auto multiply = [&](double element) -> double {
 		if (element < 0)
 		{
 			element *= *bounds.first * *bounds.second;
 		}
 
-		resultVec.push_back(element);
+		return element;
 	};
-	//использовать transform вместо for_each с back_insert_iterator
-	std::for_each(vec.begin(), vec.end(), multiply);
-	//sort вынести в printSorted вариант функции
-	std::sort(resultVec.begin(), resultVec.end());
+
+	// TODO: использовать transform вместо for_each с back_insert_iterator
+	std::transform(vec.begin(), vec.end(), std::back_inserter(resultVec), multiply);
 
 	return resultVec;
 }

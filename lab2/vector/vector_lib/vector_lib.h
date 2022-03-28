@@ -3,6 +3,6 @@
 
 bool ReadNumbers(std::istream& inputStream, std::vector<double>& outputVec);
 
-void PrintVector(std::vector<double>& vec, std::ostream& output);
+void PrintSortedVector(const std::vector<double>& vec, std::ostream& output);
 
-std::vector<double> MultiplyNegativeByMinMaxOfVector(std::vector<double>& vec);
+std::vector<double> MultiplyNegativeByMinMaxOfVector(const std::vector<double>& vec);
