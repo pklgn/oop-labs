@@ -1,8 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#include <iostream>
-#include "double_vector.h"
 #include "../../../catch2/catch.hpp"
-#include <sstream>
+#include "../vector_lib/vector_lib.h"
 
 SCENARIO("Reading a stream which contains apropriate values of numbers")
 {

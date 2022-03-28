@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include <vector>
 
 bool ReadNumbers(std::istream& inputStream, std::vector<double>& outputVec);

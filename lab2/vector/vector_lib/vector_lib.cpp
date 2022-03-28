@@ -1,4 +1,8 @@
-#include "double_vector.h"
+// vector_lib.cpp : Defines the functions for the static library.
+//
+
+#include "pch.h"
+#include "vector_lib.h"
 #include <algorithm>
 #include <fstream>
 #include <iomanip>

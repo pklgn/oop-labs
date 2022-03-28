@@ -1,9 +1,6 @@
 #include <iostream>
-#include <vector>
-#include <fstream>
-#include <algorithm>
 #include <iomanip>
-#include "double_vector.h"
+#include "vector_lib/vector_lib.h"
 
 int main(int argc, char* argv[])
 {

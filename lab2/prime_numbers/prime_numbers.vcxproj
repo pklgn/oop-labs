@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{fc6ce284-43a0-4123-9000-fefc3de032d0}</ProjectGuid>
-    <RootNamespace>vector</RootNamespace>
+    <ProjectGuid>{98c274c4-2253-418b-a908-517595c96565}</ProjectGuid>
+    <RootNamespace>primenumbers</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -146,8 +146,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="vector_lib\vector_lib.vcxproj">
-      <Project>{7e9a8aa7-9210-4736-8b4b-e7e72a894d19}</Project>
+    <ProjectReference Include="prime_numbers_lib\prime_numbers_lib.vcxproj">
+      <Project>{a4006c60-69dd-478c-a6df-3f0d483c49e7}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

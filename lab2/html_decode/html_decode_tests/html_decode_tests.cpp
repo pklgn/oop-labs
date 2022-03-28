@@ -1,9 +1,7 @@
-#define CATCH_CONFIG_MAIN
+п»ї#define CATCH_CONFIG_MAIN
 #include "../../../catch2/catch.hpp"
-#include "html_decode.h"
-#include <iostream>
+#include "../html_decode_lib/html_decode_lib.h"
 
-//выделить функцию для тестирования, которая принимает исходную строку
 SCENARIO("Input stream contains appropriate values")
 {
 	std::vector<double> numbers;
@@ -54,21 +52,5 @@ SCENARIO("Input stream contains appropriate values")
 		std::ostringstream outputStream;
 		HtmlTextDecode(inputStream, outputStream);
 		REQUIRE(outputStream.str() == "<&quot\n");
-	}
-
-	WHEN("There are several html entities and only one semicolon")
-	{
-		std::istringstream inputStream("&lt;&quot");
-		std::ostringstream outputStream;
-		HtmlTextDecode(inputStream, outputStream);
-		REQUIRE(outputStream.str() == "<&quot\n");
-	}
-
-	WHEN("There are several html entities and only one semicolon")
-	{
-		std::istringstream inputStream("&lt&quot;");
-		std::ostringstream outputStream;
-		HtmlTextDecode(inputStream, outputStream);
-		REQUIRE(outputStream.str() == "&lt\"\n");
 	}
 }

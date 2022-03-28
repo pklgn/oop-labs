@@ -1,9 +1,8 @@
-#include <algorithm>
+#include "pch.h"
+#include "html_decode_lib.h"
 #include <functional>
-#include <iostream>
-#include <string>
+#include <algorithm>
 #include <vector>
-#include "html_decode.h"
 
 struct HtmlEntity
 {
@@ -40,7 +39,7 @@ std::string HtmlStringDecode(std::string const& string, const HtmlEntity& entity
 			currPos += htmlCodeIt - string.begin() - currPos + entity.htmlCode.length();
 		}
 
-		if (htmlDelimeterIt - string.begin() == htmlCodeIt - string.begin() + entity.htmlCode.length())
+		if (htmlDelimeterIt - string.begin() == htmlCodeIt - string.begin() + entity.htmlCode.size())
 		{
 			currPos += 1;
 		}
