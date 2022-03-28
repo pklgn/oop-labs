@@ -31,6 +31,17 @@ SCENARIO("Giving to the function valid values")
 		}
 	}
 
+	WHEN("Input value is small enough to calculate it by myself and equals prime number")
+	{
+		const std::set<int> set = GeneratePrimeNumbersSet(101);
+		THEN("Size of the result for upperBound = 101 will be equal to 26")
+		{
+			REQUIRE(set.size() == 26);
+		}
+	}
+	
+
+	#ifdef NDEBUG
 	WHEN("Input value is the maximum")
 	{
 		const std::set<int> set = GeneratePrimeNumbersSet(100000000);
@@ -39,6 +50,7 @@ SCENARIO("Giving to the function valid values")
 			REQUIRE(set.size() == 5761455);
 		}
 	}
+	#endif
 }
 // TODO: сделать нагрузочный тест только для release версии
 // TODO: добавить тест для границы, которой является простое число, напр 101
