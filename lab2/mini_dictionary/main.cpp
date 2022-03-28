@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "ru");
-	if (!LaunchDictionarySession(argc, argv, std::cin, std::cout))
+	if (!ProvideDictionarySession(argc, argv, std::cin, std::cout))
 	{
 		return 1;
 	}
