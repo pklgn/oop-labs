@@ -2,16 +2,17 @@
 //
 
 #include "pch.h"
+#include "string_format.h"
 #include "mini_dictionary_lib.h"
 
 
 const char DICTIONARY_DELIMETER = '-';
 const std::string EXIT_COMMAND = "...";
-const std::string RAW_TRANSLATION_DELIMETER = ", ";
+const std::string OUTPUT_TRANSLATION_DELIMETER = ", ";
 
 typedef std::map<std::string, std::set<std::string>> Dictionary;
 
-bool LaunchDictionarySession(int argc, char* argv[],
+bool ProvideDictionarySession(int argc, char** argv,
 	std::istream& inputStream, std::ostream& outputStream)
 {
 	DictionarySession dictSession;
@@ -29,7 +30,7 @@ bool LaunchDictionarySession(int argc, char* argv[],
 	return true;
 }
 
-void SetDictionaryFileName(int argc, char* argv[], DictionarySession& dictSession)
+void SetDictionaryFileName(int argc, char ** argv, DictionarySession& dictSession)
 {
 	if (argc == 1)
 	{
@@ -82,7 +83,7 @@ void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStr
 		AddTranslations(inputStream, outputStream, request, dictSession);
 	}
 }
-void SaveDictionarySession(DictionarySession& dictSession);
+
 void FinishDictionarySession(std::istream& inputStream, std::ostream& outputStream, DictionarySession& dictSession)
 {
 	if (dictSession.mode == DictionaryMode::Modified)
@@ -94,9 +95,11 @@ void FinishDictionarySession(std::istream& inputStream, std::ostream& outputStre
 		if (response == "Y" || response == "y")
 		{
 			SaveDictionarySession(dictSession);
+
 			outputStream << "Изменения сохранены. ";
 		}
 	}
+
 	dictSession.status = SessionStatus::Exit;
 	outputStream << "До свидания.\n";
 
@@ -122,31 +125,30 @@ void SaveDictionarySession(DictionarySession& dictSession)
 
 std::optional<std::string> GetTranslations(Dictionary& dict, const std::string& term)
 {
-	std::stringstream rawTranslations;
-	auto it = dict.find(term);
-	if (it == dict.end())
+	std::stringstream outputTranslations;
+	auto dictPair = dict.find(term);
+	if (dictPair == dict.end())
 	{
 		return std::nullopt;
 	}
 
-	std::set<std::string> translations = it->second;
+	std::set<std::string> translations = dictPair->second;
 	for (auto it = translations.begin(); it != translations.end(); it++)
 	{
-		rawTranslations << *it;
+		outputTranslations << *it;
 		if (std::distance(translations.begin(), it) != translations.size() - 1)
 		{
-			rawTranslations << RAW_TRANSLATION_DELIMETER;
+			outputTranslations << OUTPUT_TRANSLATION_DELIMETER;
 		}
 	}
 
-	return rawTranslations.str();
+	return outputTranslations.str();
 }
 
-void AddTranslations(std::istream& inputStream, std::ostream& outputStream, std::string& term,
+void AddTranslations(std::istream& inputStream, std::ostream& outputStream, const std::string& term,
 	DictionarySession& dictSession)
 {
-	outputStream << "Неизвестное слово \"" << term
-				 << "\". Введите перевод или пустую строку для отказа.\n";
+	outputStream << "Неизвестное слово \"" << term << "\". Введите перевод или пустую строку для отказа.\n";
 	if (!ReadTranslations(inputStream, dictSession.tempDict, term))
 	{
 		outputStream << "Слово \"" << term << "\" проигнорировано.\n";
@@ -158,15 +160,14 @@ void AddTranslations(std::istream& inputStream, std::ostream& outputStream, std:
 				 << GetTranslations(dictSession.tempDict, term).value() << "\"\n";
 }
 
-bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict);
 bool InitDictionary(DictionarySession& dictSession)
 {
-	if (!(dictSession.dictFileName == DEFAULT_DICTIONARY_FILE_NAME && dictSession.mode == DictionaryMode::New))
+	if (dictSession.mode != DictionaryMode::New)
 	{
 		std::ifstream dictFile(dictSession.dictFileName);
 		if (!dictFile.is_open())
 		{
-			std::cout << "Невозможно открыть файл " << dictSession.dictFileName << std::endl;
+			std::cout << "Unable to open file " << dictSession.dictFileName << std::endl;
 
 			return false;
 		}
@@ -180,24 +181,7 @@ bool InitDictionary(DictionarySession& dictSession)
 	return true;
 }
 
-std::set<std::string> SplitString(std::string& string, char delimeter)
-{
-	std::string line;
-	std::set<std::string> result;
-	std::stringstream ss(string);
-	while (std::getline(ss, line, delimeter))
-	{
-		line = RemoveExtraBlanks(line);
-		if (!line.empty())
-		{
-			result.insert(line);
-		}
-	}
-
-	return result;
-}
-
-bool ReadTranslations(std::istream& inputFile, Dictionary& dict, std::string& term)
+bool ReadTranslations(std::istream& inputFile, Dictionary& dict, const std::string& term)
 {
 	const char TRANSLATION_DELIMETER = ',';
 	if (inputFile.eof())
@@ -233,25 +217,4 @@ bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 	}
 
 	return true;
-}
-
-std::string Trim(const std::string& str)
-{
-	const std::string WHITESPACE = " ";
-
-	const auto stringBegin = str.find_first_not_of(WHITESPACE);
-	if (stringBegin == std::string::npos)
-	{
-		return "";
-	}
-
-	const auto stringEnd = str.find_last_not_of(WHITESPACE);
-	const auto stringRange = stringEnd - stringBegin + 1;
-
-	return str.substr(stringBegin, stringRange);
-}
-
-std::string RemoveExtraBlanks(const std::string& string)
-{
-	return Trim(string);
 }

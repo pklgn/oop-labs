@@ -11,7 +11,7 @@ SCENARIO("Reading a stream which contains apropriate values of numbers")
 		std::istringstream inputStream("12 4 3");
 		ReadNumbers(inputStream, numbers);
 		std::vector<double> processedNumbers = MultiplyNegativeByMinMaxOfVector(numbers);
-		PrintVector(processedNumbers, outputStream);
+		PrintSortedVector(processedNumbers, outputStream);
 		THEN("Output stream will contain them with precision equals to 3 filled with 0")
 		{
 			REQUIRE(outputStream.str() == "3.000 4.000 12.000 \n");
@@ -23,7 +23,7 @@ SCENARIO("Reading a stream which contains apropriate values of numbers")
 		std::istringstream inputStream("12.9874 4.32 3");
 		ReadNumbers(inputStream, numbers);
 		std::vector<double> processedNumbers = MultiplyNegativeByMinMaxOfVector(numbers);
-		PrintVector(processedNumbers, outputStream);
+		PrintSortedVector(processedNumbers, outputStream);
 		THEN("Each number will be printed with precision equals to 3")
 		{
 			REQUIRE(outputStream.str() == "3.000 4.320 12.987 \n");
@@ -45,7 +45,7 @@ SCENARIO("Reading a stream which contains apropriate values of numbers")
 		std::istringstream inputStream("12 4 3 -1");
 		ReadNumbers(inputStream, numbers);
 		std::vector<double> processedNumbers = MultiplyNegativeByMinMaxOfVector(numbers);
-		PrintVector(processedNumbers, outputStream);
+		PrintSortedVector(processedNumbers, outputStream);
 		THEN("Negative mumber will by multiplied by minmax")
 		{
 			REQUIRE(outputStream.str() == "3.000 4.000 12.000 12.000 \n");

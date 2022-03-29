@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	}
 
 	std::vector<double> processedNumbers = MultiplyNegativeByMinMaxOfVector(numbers);
-	PrintVector(processedNumbers, std::cout);
+	PrintSortedVector(processedNumbers, std::cout);
 
 	return 0;
 }

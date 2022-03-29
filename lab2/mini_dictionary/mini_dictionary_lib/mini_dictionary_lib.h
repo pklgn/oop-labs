@@ -1,8 +1,8 @@
 #pragma once
-#include <iostream>
 #include <set>
 #include <map>
 #include <optional>
+#include <iostream>
 
 const std::string DEFAULT_DICTIONARY_FILE_NAME = "dictionary.txt";
 
@@ -31,23 +31,25 @@ struct DictionarySession
 	std::string dictFileName;
 };
 
-bool LaunchDictionarySession(int argc, char* argv[],
+void SetDictionaryFileName(int argc, char** argv, DictionarySession& dictSession);
+
+bool ProvideDictionarySession(int argc, char** argv,
 	std::istream& inputStream, std::ostream& outputStream);
 
 bool StartDictionarySession(DictionarySession& dictSession);
 
-void SetDictionaryFileName(int argc, char* argv[], DictionarySession& dictSession);
+void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStrea, DictionarySession& dictSession);
+
+void SaveDictionarySession(DictionarySession& dictSession);
+
+void FinishDictionarySession(std::istream& inputStream, std::ostream& outputStream, DictionarySession& dictSession);
 
 bool InitDictionary(DictionarySession& dictSession);
 
-void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStrea, DictionarySession& dictSession);
-
-std::string RemoveExtraBlanks(const std::string& string);
+bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict);
 
 std::optional<std::string> GetTranslations(Dictionary& dict, const std::string& term);
 
-bool ReadTranslations(std::istream& inputFile, Dictionary& dict, std::string& term);
+bool ReadTranslations(std::istream& inputFile, Dictionary& dict, const std::string & term);
 
-void AddTranslations(std::istream& inputStream, std::ostream& outputStream, std::string& term, DictionarySession& dictSession);
-
-void FinishDictionarySession(std::istream& inputStream, std::ostream& outputStream, DictionarySession& dictSession);
+void AddTranslations(std::istream& inputStream, std::ostream& outputStream, const std::string & term, DictionarySession& dictSession);

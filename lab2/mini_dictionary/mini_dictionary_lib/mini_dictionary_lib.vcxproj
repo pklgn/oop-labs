@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="mini_dictionary_lib.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="string_format.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mini_dictionary_lib.cpp" />
@@ -166,6 +167,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="string_format.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

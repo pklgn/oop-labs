@@ -6,6 +6,7 @@ SCENARIO("Working without initial dictionary file")
 {
 	DictionarySession dictSession;
 	dictSession.dictFileName = DEFAULT_DICTIONARY_FILE_NAME;
+	dictSession.mode = DictionaryMode::New;
 	StartDictionarySession(dictSession);
 	WHEN("Inserting new translation")
 	{
@@ -17,7 +18,7 @@ SCENARIO("Working without initial dictionary file")
 		REQUIRE(translations.value() == "автомобиль");
 	}
 
-	WHEN("Inserting new translation with two meanings")
+		WHEN("Inserting new translation with two meanings")
 	{
 		std::string term = "outside";
 		std::istringstream inputStream("снаружи,   вне\n");
