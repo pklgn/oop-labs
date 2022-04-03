@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <cctype>
 
 enum class Protocol
 {
@@ -25,26 +26,27 @@ int ParsePort(Protocol& protocol, const std::string& port);
 bool ParseURL(std::string const& url, Protocol& protocol, int& port, std::string& host, std::string& document)
 {
 	bool isCorrect = true;
-	std::regex regexURL(R"((https?|ftp)://([\w\-\.]+\.[\w]+):(\d+)?/(.+)?$)");
+	std::regex regexURL(R"((https?|ftp)://([\w\-\.]+\.[\w]+):?(\d+)?/?(.+)?$)");
 	std::cmatch result;
 
 	if (!std::regex_match(url.c_str(), result, regexURL))
 	{
 		return !isCorrect;
 	}
-
 	protocol = ParseProtocol(result[1].str());
 	host = result[2].str();
 	port = ParsePort(protocol, result[3].str());
-	document = result[4].str();
+	document = result[3].str();
 
 	return isCorrect;
 }
 
 std::string TextToLower(const std::string& str)
 {
-	std::string result;
-	std::transform(str.begin(), str.end(), result.begin(), ::toupper);
+	std::string result = str;
+	std::transform(result.begin(), result.end(), result.begin(),
+		[](unsigned char c) { return std::tolower(c); });
+
 
 	return result;
 }
@@ -106,7 +108,7 @@ int ParsePort(Protocol& protocol, const std::string& port)
 void PrintURL(std::string const& url, int& port, std::string& host, std::string& document,
 	std::ostream& outputStream)
 {
-	outputStream << url
+	outputStream << url << std::endl
 				 << "HOST: " << host << std::endl
 				 << "PORT: " << port << std::endl
 				 << "DOC: " << document << std::endl;
