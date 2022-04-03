@@ -28,3 +28,5 @@ void PrintURL(std::string const& url, int& port, std::string& host, std::string&
 	std::ostream& outputStream);
 
 void ProcessURLParsing(std::istream& inputStream, std::ostream& outputStream);
+
+bool ParseURL(std::string const& url, Protocol& protocol, int& port, std::string& host, std::string& document);

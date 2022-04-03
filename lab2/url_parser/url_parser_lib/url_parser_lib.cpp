@@ -17,7 +17,14 @@ bool ParseURL(std::string const& url, Protocol& protocol, int& port, std::string
 	protocol = ParseProtocol(result[1].str());
 	host = result[2].str();
 	port = ParsePort(protocol, result[3].str());
-	document = result[3].str();
+	document = result[4].str();
+
+	if (port == NO_PORT_DEFAULT)
+	{
+		std::cout << "Wrong port value found\n";
+
+		return !isCorrect;
+	}
 
 	return isCorrect;
 }
@@ -48,7 +55,7 @@ Protocol ParseProtocol(const std::string& protocolName)
 		return Protocol::HTTPS;
 	}
 
-	throw std::invalid_argument("can't match protocol name");
+	throw std::invalid_argument("Ñan't match protocol name");
 }
 
 int GetDefaultPort(Protocol& protocol)
