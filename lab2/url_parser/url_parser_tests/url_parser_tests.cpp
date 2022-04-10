@@ -107,7 +107,7 @@ SCENARIO("Reading incorrect input data")
 
 	WHEN("Given a wrong protocol")
 	{
-		REQUIRE_THROWS(ParseProtocol("file"));
+		REQUIRE(!ParseProtocol("file").has_value());
 	}
 
 	WHEN("Given URL is incorrect")

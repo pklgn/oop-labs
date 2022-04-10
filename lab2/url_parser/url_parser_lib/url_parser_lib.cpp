@@ -6,39 +6,44 @@
 
 bool ParseURL(std::string const& url, Protocol& protocol, int& port, std::string& host, std::string& document)
 {
-	bool isCorrect = true;
+	// TODO: убрать isCorrect
 	std::regex regexURL(R"((https?|ftp)://([\w\-\.]+\.[\w]+):?(\d+)?/?(.+)?$)");
-	std::cmatch result;
-
-	if (!std::regex_match(url.c_str(), result, regexURL))
+	std::smatch result;
+	// TODO: убрать c_str()
+	if (!std::regex_match(url, result, regexURL))
 	{
-		return !isCorrect;
+		return false;
 	}
-	protocol = ParseProtocol(result[1].str());
+
+	
+	std::optional<Protocol> oProtocol = ParseProtocol(result[1].str());
+	if (!oProtocol.has_value())
+	{
+		return false;
+	}
+	protocol = oProtocol.value();
 	host = result[2].str();
-	port = ParsePort(protocol, result[3].str());
+	std::optional<int> oPort = ParsePort(protocol, result[3].str());
+	if (!oPort.has_value())
+	{
+		return false;
+	}
+	port = oPort.value();
 	document = result[4].str();
 
-	if (port == NO_PORT_DEFAULT)
-	{
-		std::cout << "Wrong port value found\n";
-
-		return !isCorrect;
-	}
-
-	return isCorrect;
+	return true;
 }
 
 std::string TextToLower(const std::string& str)
 {
 	std::string result = str;
 	std::transform(result.begin(), result.end(), result.begin(),
-		[](unsigned char c) { return std::tolower(c); });
+		[](char c) { return std::tolower(c); });
 
 	return result;
 }
 
-Protocol ParseProtocol(const std::string& protocolName)
+std::optional<Protocol> ParseProtocol(const std::string& protocolName)
 {
 	std::string protocol = TextToLower(protocolName);
 
@@ -54,39 +59,47 @@ Protocol ParseProtocol(const std::string& protocolName)
 	{
 		return Protocol::HTTPS;
 	}
-
-	throw std::invalid_argument("Сan't match protocol name");
+	else
+	{
+		return std::nullopt;
+	}
 }
 
-int GetDefaultPort(Protocol& protocol)
+int GetDefaultPort(const Protocol& protocol)
 {
 	switch (protocol)
 	{
 	case Protocol::FTP:
-		return FTP_PORT_DEFAULT;
+		return DEFAULT_FTP_PORT;
 	case Protocol::HTTP:
-		return HTTP_PORT_DEFAULT;
+		return DEFAULT_HTTP_PORT;
 	case Protocol::HTTPS:
-		return HTTPS_PORT_DEFAULT;
+		return DEFAULT_HTTPS_PORT;
 	}
-
-	std::cout << "Can't match protocol and default port\n";
-
-	return NO_PORT_DEFAULT;
+	// TODO: rename
+	return DEFAULT_NO_PORT;
 }
 
-int ParsePort(Protocol& protocol, const std::string& port)
+std::optional<int> ParsePort(const Protocol& protocol, const std::string& port)
 {
 	if (port.empty())
 	{
 		return GetDefaultPort(protocol);
 	}
 
-	int portNumber = std::stoi(port);
+	int portNumber;
+	try 
+	{
+		portNumber = std::stoi(port);
+	}
+	catch (...)
+	{
+		return std::nullopt;
+	}
 
 	if (portNumber < MIN_PORT || portNumber > MAX_PORT)
 	{
-		return NO_PORT_DEFAULT;
+		return std::nullopt;
 	}
 
 	return portNumber;

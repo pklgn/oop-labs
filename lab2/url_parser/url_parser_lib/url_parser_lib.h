@@ -1,24 +1,25 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <optional>
 
 enum class Protocol
 {
 	HTTP,
 	HTTPS,
-	FTP
+	FTP,
 };
 
-constexpr int FTP_PORT_DEFAULT = 21;
-constexpr int HTTP_PORT_DEFAULT = 80;
-constexpr int HTTPS_PORT_DEFAULT = 443;
-constexpr int NO_PORT_DEFAULT = 0;
+constexpr int DEFAULT_FTP_PORT = 21;
+constexpr int DEFAULT_HTTP_PORT = 80;
+constexpr int DEFAULT_HTTPS_PORT = 443;
+constexpr int DEFAULT_NO_PORT = 0;
 constexpr int MIN_PORT = 1;
 constexpr int MAX_PORT = 65535;
 
-Protocol ParseProtocol(const std::string& protocol);
+std::optional<Protocol> ParseProtocol(const std::string& protocolName);
 
-int ParsePort(Protocol& protocol, const std::string& port);
+std::optional<int> ParsePort(const Protocol& protocol, const std::string& port);
 
 std::string TextToLower(const std::string& str);
 
