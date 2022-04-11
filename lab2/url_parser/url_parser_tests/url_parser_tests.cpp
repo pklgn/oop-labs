@@ -3,6 +3,9 @@
 #include "../url_parser_lib/url_parser_lib.h"
 #include <sstream>
 
+// TODO: не парсятся url вида localhost
+// TODO: не валидный url Localhost.com: с двоеточием
+// TODO: исправить отрицательный порт
 SCENARIO("Reading a correct URL")
 {
 	Protocol protocol;
@@ -77,6 +80,18 @@ SCENARIO("Reading a correct URL")
 			REQUIRE(document == "docs/document1.html?page=30&lang=en#title");
 		}
 	}
+
+	WHEN("Given URL without domain, i.e. localhost that also has proper port value")
+	{
+		url = "http://localhost:42";
+		THEN("ParseURL will work correctly")
+		{
+			REQUIRE(ParseURL(url, protocol, port, host, document));
+			REQUIRE(protocol == Protocol::HTTP);
+			REQUIRE(port == 42);
+			REQUIRE(host == "localhost");
+		}
+	}
 }
 
 SCENARIO("Reading correct input stream")
@@ -110,10 +125,37 @@ SCENARIO("Reading incorrect input data")
 		REQUIRE(!ParseProtocol("file").has_value());
 	}
 
-	WHEN("Given URL is incorrect")
+	WHEN("Given URL without domain, i.e. localhost")
 	{
-		url = "ftp:/www.mysite.com:0/docs/document1.html?page=30&lang=en#title";
-		bool isCorrect = ParseURL(url, protocol, port, host, document);
-		REQUIRE(!isCorrect);
+		url = "http://localhost";
+		REQUIRE(ParseURL(url, protocol, port, host, document));
+		REQUIRE(protocol == Protocol::HTTP);
+		REQUIRE(port == DEFAULT_HTTP_PORT);
+		REQUIRE(host == "localhost");
+	}
+	
+	WHEN("Given URL without domain, i.e. localhost that doesn't have proper port value")
+	{
+		url = "http://localhost:";
+		REQUIRE(!ParseURL(url, protocol, port, host, document));
+	}
+
+	WHEN("Given URL without domain, i.e. localhost that also has invalid port value")
+	{
+		url = "http://localhost:0";
+		THEN("ParseURL will return false")
+		{
+			REQUIRE(!ParseURL(url, protocol, port, host, document));
+		}
+		url = "http://localhost:-1";
+		THEN("ParseURL will return false")
+		{
+			REQUIRE(!ParseURL(url, protocol, port, host, document));
+		}
+		url = "http://localhost:3424938493984";
+		THEN("ParseURL will return false")
+		{
+			REQUIRE(!ParseURL(url, protocol, port, host, document));
+		}
 	}
 }
