@@ -6,15 +6,12 @@
 
 bool ParseURL(std::string const& url, Protocol& protocol, int& port, std::string& host, std::string& document)
 {
-	// TODO: убрать isCorrect
-	std::regex regexURL(R"((https?|ftp)://([\w\-\.]+\.[\w]+):?(\d+)?/?(.+)?$)");
+	std::regex regexURL(R"((https?|ftp)://([\w\-\.]+)(?::(\d+))?(?:/(.+))?)");
 	std::smatch result;
-	// TODO: убрать c_str()
 	if (!std::regex_match(url, result, regexURL))
 	{
 		return false;
 	}
-
 	
 	std::optional<Protocol> oProtocol = ParseProtocol(result[1].str());
 	if (!oProtocol.has_value())
