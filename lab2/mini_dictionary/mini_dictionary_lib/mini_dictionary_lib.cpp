@@ -4,21 +4,23 @@
 #include "pch.h"
 #include "string_format.h"
 #include "mini_dictionary_lib.h"
-
-
+// TODO: создавать и потом открывать dictionary.txt по умолчанию
+// TODO: SetConsoleOutputCP();
+// TODO: придумать способ, чтобы разделителем тоже были слова
 const char DICTIONARY_DELIMETER = '-';
 const std::string EXIT_COMMAND = "...";
 const std::string OUTPUT_TRANSLATION_DELIMETER = ", ";
 
 typedef std::map<std::string, std::set<std::string>> Dictionary;
 
-bool ProvideDictionarySession(int argc, char** argv,
-	std::istream& inputStream, std::ostream& outputStream)
+bool HandleDictionarySession(std::string& dictFileName, std::istream& inputStream,
+	std::ostream& outputStream)
 {
 	DictionarySession dictSession;
-	SetDictionaryFileName(argc, argv, dictSession);
+	dictSession.dictFileName = dictFileName;
 	if (!StartDictionarySession(dictSession))
 	{
+		outputStream << dictSession.errorDescription << std::endl;
 		return false;
 	}
 
@@ -30,17 +32,26 @@ bool ProvideDictionarySession(int argc, char** argv,
 	return true;
 }
 
-void SetDictionaryFileName(int argc, char ** argv, DictionarySession& dictSession)
+std::string GetDictionaryFileName(int argc, char ** argv)
 {
 	if (argc == 1)
 	{
-		dictSession.dictFileName = DEFAULT_DICTIONARY_FILE_NAME;
-		dictSession.mode = DictionaryMode::New;
+		return DEFAULT_DICTIONARY_FILE_NAME;
+	}
+
+	return argv[1];
+}
+
+void SetDictionaryMode(DictionaryMode& dictMode, std::ifstream& dictFile)
+{
+	if (!dictFile.good())
+	{
+		dictMode = DictionaryMode::New;
 
 		return;
 	}
-	dictSession.mode = DictionaryMode::Saved;
-	dictSession.dictFileName = argv[1];
+
+	dictMode = DictionaryMode::Saved;
 
 	return;
 }
@@ -61,7 +72,7 @@ void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStr
 	std::string request;
 	std::getline(inputStream, request);
 	request = RemoveExtraBlanks(request);
-	if (request == EXIT_COMMAND)
+	if (request == EXIT_COMMAND || inputStream.eof())
 	{
 		FinishDictionarySession(inputStream, outputStream, dictSession);
 
@@ -86,21 +97,29 @@ void ProcessDictionarySession(std::istream& inputStream, std::ostream& outputStr
 
 void FinishDictionarySession(std::istream& inputStream, std::ostream& outputStream, DictionarySession& dictSession)
 {
+	dictSession.status = SessionStatus::Exit;
+
 	if (dictSession.mode == DictionaryMode::Modified)
 	{
-		outputStream << "¬ словарь были внесены изменени€. ¬ведите Y или y дл€ сохранени€ перед выходом.\n";
-		std::string response;
-		std::getline(inputStream, response);
-		response = RemoveExtraBlanks(response);
-		if (response == "Y" || response == "y")
+		if (inputStream.eof())
+		{
+			outputStream << "ѕоследние изменени€ будут утер€ны.\n";
+
+			return;
+		}
+
+		outputStream << "¬ словарь были внесены изменени€. "
+						"¬ведите Y или y дл€ сохранени€ перед выходом.\n";
+		char response;
+		inputStream >> response;
+		if (std::tolower(response) == 'y')
 		{
 			SaveDictionarySession(dictSession);
 
 			outputStream << "»зменени€ сохранены. ";
 		}
 	}
-
-	dictSession.status = SessionStatus::Exit;
+	
 	outputStream << "ƒо свидани€.\n";
 
 	return;
@@ -162,18 +181,23 @@ void AddTranslations(std::istream& inputStream, std::ostream& outputStream, cons
 
 bool InitDictionary(DictionarySession& dictSession)
 {
+	std::ifstream dictFile(dictSession.dictFileName);
+	SetDictionaryMode(dictSession.mode, dictFile);
+
 	if (dictSession.mode != DictionaryMode::New)
 	{
 		std::ifstream dictFile(dictSession.dictFileName);
 		if (!dictFile.is_open())
 		{
-			std::cout << "Unable to open file " << dictSession.dictFileName << std::endl;
+			dictSession.errorDescription = dictSession.dictFileName + " file can't be opened"; 
 
 			return false;
 		}
 
 		if (!ReadDictionary(dictFile, dictSession.dict))
 		{
+			dictSession.errorDescription = "Can't read dictionary file";
+
 			return false;
 		}
 	}
@@ -210,8 +234,6 @@ bool ReadDictionary(std::ifstream& dictFile, Dictionary& dict)
 		term = RemoveExtraBlanks(term);
 		if (!ReadTranslations(dictFile, dict, term))
 		{
-			std::cout << "Fail to read translation for " << term << std::endl;
-
 			return false;
 		}
 	}

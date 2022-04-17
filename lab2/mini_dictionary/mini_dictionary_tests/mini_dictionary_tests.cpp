@@ -25,6 +25,7 @@ SCENARIO("Working without initial dictionary file")
 		std::ostringstream outputStream;
 		AddTranslations(inputStream, outputStream, term, dictSession);
 		auto translations = GetTranslations(dictSession.tempDict, term);
+		// TODO: прежде чем использовать find проверить на end() REQUIRE
 		REQUIRE(dictSession.tempDict.find(term)->second.size() == 2);
 		REQUIRE(translations.value() == "вне, снаружи");
 	}

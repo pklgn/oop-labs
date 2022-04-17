@@ -28,13 +28,13 @@ std::string Trim(const std::string& str)
 
 std::string RemoveExtraBlanks(const std::string& string)
 {
-	std::string temp = Trim(string);
-	if (temp.size() < 2)
+	std::string result = Trim(string);
+	if (result.size() < 3)
 	{
-		return temp;
+		return result;
 	}
 
-	return CollapseExtraBlanks(temp);
+	return CollapseExtraBlanks(result);
 }
 
 std::set<std::string> SplitString(const std::string& string, char delimeter)

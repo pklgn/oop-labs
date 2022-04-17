@@ -18,5 +18,6 @@
 #include <sstream>
 #include <algorithm>
 #include <optional>
+#include <cctype>
 
 #endif //PCH_H

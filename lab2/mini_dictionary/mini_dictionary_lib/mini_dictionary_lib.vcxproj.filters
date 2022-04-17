@@ -24,6 +24,9 @@
     <ClInclude Include="string_format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mini_dictionary_session.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mini_dictionary_lib.cpp">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="string_format.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mini_dictionary_session.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

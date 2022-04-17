@@ -29,11 +29,14 @@ struct DictionarySession
 	DictionaryMode mode = DictionaryMode::Saved;
 	SessionStatus status = SessionStatus::Inactive;
 	std::string dictFileName;
+	std::string errorDescription;
 };
 
-void SetDictionaryFileName(int argc, char** argv, DictionarySession& dictSession);
 
-bool ProvideDictionarySession(int argc, char** argv,
+// TODO: не использовать argc, argv, пусть вернет имя в виде строки
+std::string GetDictionaryFileName(int argc, char** argv);
+
+bool HandleDictionarySession(std::string& dictFileName,
 	std::istream& inputStream, std::ostream& outputStream);
 
 bool StartDictionarySession(DictionarySession& dictSession);

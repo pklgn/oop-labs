@@ -156,11 +156,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="mini_dictionary_lib.h" />
+    <ClInclude Include="mini_dictionary_session.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="string_format.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mini_dictionary_lib.cpp" />
+    <ClCompile Include="mini_dictionary_session.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
