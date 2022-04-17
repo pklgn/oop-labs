@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#include "../../Car_libb/Car.h"
-#include "../../Car_libb/CarControlConsole.h"
+#include "../Car_lib/Car.h"
+#include "../Car_lib/CarControlConsole.h"
 #include "../../../catch2/catch.hpp"
 #include <sstream>
 
@@ -229,9 +229,9 @@ SCENARIO("Car class works properly")
 			REQUIRE(car.GetDirection() == Car::Direction::Backwards);
 		}
 
-		car.SetSpeed(0);
 		THEN("Gear will change")
 		{
+			REQUIRE(car.SetSpeed(0));
 			REQUIRE(car.SetGear(1));
 			REQUIRE(car.GetGear() == 1);
 		}
@@ -270,6 +270,32 @@ SCENARIO("Car class works properly")
 			REQUIRE(car.SetGear(5));
 			REQUIRE(car.SetSpeed(150));
 			REQUIRE(car.GetSpeed() == 150);
+		}
+	}
+
+	WHEN("Try to slow down on neutral gear moving backwards")
+	{
+		car.TurnOnEngine();
+		THEN("Direction will not change")
+		{
+			REQUIRE(car.SetGear(-1));
+			REQUIRE(car.SetSpeed(20));
+			REQUIRE(car.GetSpeed() == 20);
+			REQUIRE(car.GetDirection() == Car::Direction::Backwards);
+			REQUIRE(car.SetGear(0));
+			REQUIRE(car.SetSpeed(15));
+			REQUIRE(car.GetDirection() == Car::Direction::Backwards);
+		}
+	}
+
+	WHEN("Try to switch gear from backwards to second")
+	{
+		car.TurnOnEngine();
+		THEN("Direction will not change")
+		{
+			REQUIRE(car.SetGear(-1));
+			REQUIRE(car.SetSpeed(20));
+			REQUIRE(!car.SetGear(2));
 		}
 	}
 }
