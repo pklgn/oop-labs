@@ -142,8 +142,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Car_libb\Car_libb.vcxproj">
-      <Project>{068e089c-001e-4e23-9586-6fc40af0603e}</Project>
+    <ProjectReference Include="Car_lib\Car_lib.vcxproj">
+      <Project>{84397543-c6a8-4cde-bc77-0a53778bcbaf}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

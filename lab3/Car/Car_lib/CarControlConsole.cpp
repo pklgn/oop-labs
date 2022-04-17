@@ -5,7 +5,7 @@
 // TODO: при вводе неизвестных команд выдывать сообщение
 // TODO: если команду выполнить нельзя - выдавать сообщение
 // TODO: исправить переключение 2 передачи при движении задом: написать тест для этой ситуации и исправить программу
-// TODO: исправить SetGear 2 -> 0 (см скриншот)
+// TODO: исправить SetGear 2 -> 0
 CarControlConsole::CarControlConsole(std::istream& inputStream, std::ostream& outputStream, Car& car)
 	: m_inputStream(inputStream)
 	, m_outputStream(outputStream)
@@ -23,27 +23,30 @@ void CarControlConsole::ProcessSession()
 		switch (command.name)
 		{
 		case CommandName::EngineOn:
-			m_Car.TurnOnEngine();
+			EngineOn();
 			break;
 		case CommandName::EngineOff:
-			m_Car.TurnOffEngine();
+			EngineOff();
 			break;
 		case CommandName::SetGear:
-			m_Car.SetGear(command.argument);
+			SetGear(command.argument);
 			break;
 		case CommandName::SetSpeed:
-			m_Car.SetSpeed(command.argument);
+			SetSpeed(command.argument);
 			break;
 		case CommandName::Info:
-			PrintCarInfo();
+			PrintInfo();
+			break;		
+		case CommandName::Help:
+			PrintHelp();
 			break;
 		case CommandName::Exit:
 			isRunning = false;
 			break;
 		case CommandName::Skip:
+			Skip();
 			break;
 		default:
-			std::cout << "Unknown command was found\n";
 			isRunning = false;
 		}
 	}
@@ -51,9 +54,9 @@ void CarControlConsole::ProcessSession()
 
 bool CarControlConsole::ParseCommand(std::string& inputCommand, Command& command)
 {
-	std::cmatch result;
+	std::smatch result;
 	std::regex regular(R"(([\w]+)?[\s]?(-?[\d]{0,3})?)");
-	if (!regex_match(inputCommand.c_str(), result, regular))
+	if (!regex_match(inputCommand, result, regular))
 	{
 		return false;
 	}
@@ -97,6 +100,10 @@ bool CarControlConsole::ParseCommand(std::string& inputCommand, Command& command
 	else if (result[1].str() == "Exit")
 	{
 		command.name = CommandName::Exit;
+	}	
+	else if (result[1].str() == "Help")
+	{
+		command.name = CommandName::Help;
 	}
 	else
 	{
@@ -114,7 +121,7 @@ CarControlConsole::Command CarControlConsole::GetCommand()
 	bool isCorrect = ParseCommand(inputCommand, command);
 	if (!isCorrect)
 	{
-		return { CommandName::Skip, 0 };
+		return { CommandName::Skip };
 	}
 
 	return command;
@@ -135,12 +142,68 @@ std::string GetDirectionString(Car::Direction& direction)
 	}
 }
 
-void CarControlConsole::PrintCarInfo()
+void CarControlConsole::PrintInfo()
 {
 	Car::Direction direction = m_Car.GetDirection();
 	std::string directionStr = GetDirectionString(direction);
-	m_outputStream << "Engine: " << (m_Car.IsTurnedOn() ? "On" : "Off") << std::endl
-				   << "Direction: " << directionStr << std::endl
-				   << "Speed: " << (m_Car.GetSpeed()) << std::endl
-				   << "Gear: " << m_Car.GetGear() << std::endl;
+	m_outputStream << "Engine:\t\t " << (m_Car.IsTurnedOn() ? "On" : "Off") << std::endl
+				   << "Direction:\t " << directionStr << std::endl
+				   << "Speed:\t\t " << (m_Car.GetSpeed()) << std::endl
+				   << "Gear:\t\t " << m_Car.GetGear() << std::endl;
+}
+
+void CarControlConsole::PrintHelp()
+{
+	m_outputStream << "Info:\t\t prints vehicle engine status, driving direction, speed and gear\n"
+					  "EngineOn:\t turns the engine on\n"
+					  "EngineOff:\t turns the engine off\n"
+					  "SetGear:\t switch gear with selected number\n"
+					  "SetSpeed:\t set selected speed value\n"
+					  "Exit:\t\t finish current console session\n";
+}
+
+void CarControlConsole::Skip()
+{
+	m_outputStream << "Unknown command name. "
+					  "Use Help to see all commands\n";
+}
+
+void CarControlConsole::EngineOn()
+{
+	if (!m_Car.TurnOnEngine())
+	{
+		m_outputStream << "Cannot turn the engine on\n";
+	}
+
+	return;
+}
+
+void CarControlConsole::EngineOff()
+{
+	if (!m_Car.TurnOffEngine())
+	{
+		m_outputStream << "Cannot turn the engine off\n";
+	}
+
+	return;
+}
+
+void CarControlConsole::SetGear(int gear)
+{
+	if (!m_Car.SetGear(gear))
+	{
+		m_outputStream << "Cannot switch gear to " << gear << std::endl;
+	}
+
+	return;
+}
+
+void CarControlConsole::SetSpeed(int speed)
+{
+	if (!m_Car.SetSpeed(speed))
+	{
+		m_outputStream << "Cannot set speed to " << speed << std::endl;
+	}
+
+	return;
 }

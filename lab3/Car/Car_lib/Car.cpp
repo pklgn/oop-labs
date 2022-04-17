@@ -51,28 +51,37 @@ bool Car::SetGear(int gear)
 		return false;
 	}
 
-	if (gear < MIN_GEAR || MAX_GEAR < gear)
+	if (gear < MIN_GEAR || gear > MAX_GEAR)
 	{
 		return false;
 	}
 
 	SpeedRange speedRange = GEAR_SPEED_RANGES.at(gear);
 
-	if (std::abs(m_speed) < speedRange.first || speedRange.second < std::abs(m_speed))
+	if (std::abs(m_speed) < speedRange.first || std::abs(m_speed) > speedRange.second)
 	{
 		return false;
 	}
 
+	if (m_speed < 0 && gear > 0)
+	{
+		return false;
+	}
+
+	// на задний ход можно переключиться только на нулевой скорости
 	if (gear == MIN_GEAR && m_speed != 0)
 	{
 		return false;
 	}
 
+	// с заднего хода можно переключиться на первую передачу только на нулевой скорости
 	if (m_gear == MIN_GEAR && gear == 1 && m_speed != 0)
 	{
 		return false;
 	}
 
+	// переключившись на заднем ходу на нейтральную передачу на ненулевой скорости, 
+	// переключиться на переднюю передачу можно только после остановки
 	if (m_speed < 0 && m_gear == 0 && gear == 1)
 	{
 		return false;
@@ -92,17 +101,22 @@ bool Car::SetSpeed(int speed)
 
 	SpeedRange speedRange = GEAR_SPEED_RANGES.at(m_gear);
 
-	if (speed < speedRange.first || speedRange.second < speed)
+	if (speed < speedRange.first || speed > speedRange.second)
 	{
 		return false;
 	}
 
-	if (m_gear == -1)
+	if (m_speed < 0 || m_gear == -1)
 	{
 		speed = -speed;
 	}
 
-	int dSpeed = std::abs(speed) - std::abs(m_speed);
+	int dSpeed = speed - m_speed;
+
+	if (m_speed < 0)
+	{
+		dSpeed = -dSpeed;
+	}
 	if (dSpeed > 0 && m_gear == 0)
 	{
 		return false;
