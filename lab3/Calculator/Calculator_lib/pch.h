@@ -11,5 +11,6 @@
 #include <map>
 #include <string>
 #include <optional>
+#include <math.h>
 
 #endif //PCH_H
