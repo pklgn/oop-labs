@@ -55,7 +55,7 @@ void CarControlConsole::ProcessSession()
 bool CarControlConsole::ParseCommand(std::string& inputCommand, Command& command)
 {
 	std::smatch result;
-	std::regex regular(R"(([\w]+)?[\s]?(-?[\d]{0,3})?)");
+	std::regex regular(R"(\s{0,}([\w]+)?[\s]?(-?[\d]{0,3})?\s{0,})");
 	if (!regex_match(inputCommand, result, regular))
 	{
 		return false;
