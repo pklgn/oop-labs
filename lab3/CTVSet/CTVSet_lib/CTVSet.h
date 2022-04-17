@@ -5,7 +5,7 @@ public:
 	bool TurnOn();
 	bool TurnOff();
 	bool SetChannel(int channel);
-	bool isTurnedOn() const;
+	bool IsTurnedOn() const;
 	int GetChannel() const;
 
 private:

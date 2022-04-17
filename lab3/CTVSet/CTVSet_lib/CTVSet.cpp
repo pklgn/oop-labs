@@ -25,7 +25,7 @@ bool CTVSet::SetChannel(int channel)
 		return false;
 	}
 
-	if (channel < MIN_CHANNEL || channel > MAX_CHANNEL)
+	if (channel <= MIN_CHANNEL || channel >= MAX_CHANNEL)
 	{
 		return false;
 	}
@@ -35,7 +35,7 @@ bool CTVSet::SetChannel(int channel)
 	return true;
 }
 
-bool CTVSet::isTurnedOn() const
+bool CTVSet::IsTurnedOn() const
 {
 	return m_isWorking;
 }

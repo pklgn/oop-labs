@@ -112,6 +112,8 @@ CTVSetControlConsole::Command CTVSetControlConsole::GetCommand()
 
 void CTVSetControlConsole::PrintTVSetInfo()
 {
-	m_outputStream << "State: " << (m_TVSet.isTurnedOn() ? "On" : "Off") << std::endl
-				   << "Channel" << m_TVSet.GetChannel() << std::endl;
+	m_outputStream << "State: " << (m_TVSet.IsTurnedOn() ? "On" : "Off") << std::endl
+				   << "Channel: " << m_TVSet.GetChannel() << std::endl;
 }
+
+CTVSetControlConsole::Command 
