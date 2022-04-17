@@ -1,6 +1,17 @@
 #include "pch.h"
 #include "Calculator.h"
 
+bool Calculator::AddVariable(const Identifier& identifier)
+{
+	if (GetOperandValue(identifier).has_value())
+	{
+		return false;
+	}
+	m_variables[identifier] = NAN;
+
+	return true;
+}
+
 bool Calculator::AssignVariable(const Identifier& identifier, Value value)
 {
 	if (GetFunctionValue(identifier).has_value())

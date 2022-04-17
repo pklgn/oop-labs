@@ -24,6 +24,7 @@ public:
 		Operation operation;
 	};
 
+	bool AddVariable(const Identifier& identifier);
 	bool AssignVariable(const Identifier& identifier, Value value = NAN);
 	bool AssignVariable(const Identifier& leftIdentifier, const Identifier& rightIdentifier);
 
