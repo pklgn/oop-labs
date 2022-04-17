@@ -12,5 +12,8 @@
 #include <string>
 #include <optional>
 #include <math.h>
+#include <regex>
+#include <iostream>
+#include <sstream>
 
 #endif //PCH_H
