@@ -14,6 +14,8 @@ CalculatorControlConsole::CalculatorControlConsole(std::istream& inputStream,
 void CalculatorControlConsole::ProcessSession()
 {
 	bool isRunning = true;
+	m_outputStream << std::fixed;
+	m_outputStream << std::setprecision(2);
 
 	while (isRunning)
 	{
