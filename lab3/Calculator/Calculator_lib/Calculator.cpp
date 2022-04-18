@@ -44,6 +44,11 @@ bool Calculator::AssignVariable(const Identifier& leftIdentifier, const Identifi
 
 bool Calculator::DefineFunction(const Identifier& leftIdentifier, const Identifier& rightIdentifier)
 {
+	if (GetVariableValue(leftIdentifier).has_value())
+	{
+		return false;
+	}
+
 	auto rightOperand = GetOperandValue(rightIdentifier);
 	if (!rightOperand.has_value())
 	{
