@@ -43,8 +43,8 @@ void CarControlConsole::ProcessSession()
 		case CommandName::Exit:
 			isRunning = false;
 			break;
-		case CommandName::Skip:
-			Skip();
+		case CommandName::SkipCommand:
+			SkipCommand();
 			break;
 		default:
 			isRunning = false;
@@ -55,7 +55,7 @@ void CarControlConsole::ProcessSession()
 bool CarControlConsole::ParseCommand(std::string& inputCommand, Command& command)
 {
 	std::smatch result;
-	std::regex regular(R"(([\w]+)?[\s]?(-?[\d]{0,3})?)");
+	std::regex regular(R"(\s{0,}([\w]+)?[\s]?(-?[\d]{0,3})?\s{0,})");
 	if (!regex_match(inputCommand, result, regular))
 	{
 		return false;
@@ -63,18 +63,9 @@ bool CarControlConsole::ParseCommand(std::string& inputCommand, Command& command
 
 	if (result[1].str().empty())
 	{
-		command.name = CommandName::Skip;
+		command.name = CommandName::SkipCommand;
 
 		return true;
-	}
-
-	if (result[2].str().empty())
-	{
-		command.argument = 0;
-	}
-	else
-	{
-		command.argument = std::stoi(result[2].str());
 	}
 
 	if (result[1].str() == "Info")
@@ -107,7 +98,19 @@ bool CarControlConsole::ParseCommand(std::string& inputCommand, Command& command
 	}
 	else
 	{
-		command.name = CommandName::Skip;
+		command.name = CommandName::SkipCommand;
+	}
+
+	if (result[2].str().empty())
+	{
+		if (command.name == CommandName::SetGear || command.name == CommandName::SetSpeed)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		command.argument = std::stoi(result[2].str());
 	}
 
 	return true;
@@ -121,7 +124,7 @@ CarControlConsole::Command CarControlConsole::GetCommand()
 	bool isCorrect = ParseCommand(inputCommand, command);
 	if (!isCorrect)
 	{
-		return { CommandName::Skip };
+		return { CommandName::SkipCommand };
 	}
 
 	return command;
@@ -157,14 +160,14 @@ void CarControlConsole::PrintHelp()
 	m_outputStream << "Info:\t\t prints vehicle engine status, driving direction, speed and gear\n"
 					  "EngineOn:\t turns the engine on\n"
 					  "EngineOff:\t turns the engine off\n"
-					  "SetGear:\t switch gear with selected number\n"
-					  "SetSpeed:\t set selected speed value\n"
+					  "SetGear:\t switch gear with specifeid number\n"
+					  "SetSpeed:\t set specified speed value\n"
 					  "Exit:\t\t finish current console session\n";
 }
 
-void CarControlConsole::Skip()
+void CarControlConsole::SkipCommand()
 {
-	m_outputStream << "Unknown command name. "
+	m_outputStream << "Cannot execute this command. "
 					  "Use Help to see all commands\n";
 }
 

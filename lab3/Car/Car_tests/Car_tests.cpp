@@ -310,7 +310,7 @@ SCENARIO("ControlConsole class works properly")
 	WHEN("Print info for the new car console session")
 	{
 		inputStream.str("Info\nExit\n");
-		const std::string response = "Engine: Off\nDirection: In place\nSpeed: 0\nGear: 0\n";
+		const std::string response = "Engine:\t\t Off\nDirection:\t In place\nSpeed:\t\t 0\nGear:\t\t 0\n";
 		THEN("Info will be match to default values of car")
 		{
 			console.ProcessSession();
@@ -321,7 +321,7 @@ SCENARIO("ControlConsole class works properly")
 	WHEN("Printing info for slightly modified car")
 	{
 		inputStream.str("EngineOn\nInfo\nExit\n");
-		const std::string response = "Engine: On\nDirection: In place\nSpeed: 0\nGear: 0\n";
+		const std::string response = "Engine:\t\t On\nDirection:\t In place\nSpeed:\t\t 0\nGear:\t\t 0\n";
 		THEN("Info will be match to values of the car")
 		{
 			console.ProcessSession();
@@ -332,7 +332,7 @@ SCENARIO("ControlConsole class works properly")
 	WHEN("Printing info for modified car")
 	{
 		inputStream.str("EngineOn\nSetGear 1\nSetSpeed 10\nInfo\nExit\n");
-		const std::string response = "Engine: On\nDirection: Forwards\nSpeed: 10\nGear: 1\n";
+		const std::string response = "Engine:\t\t On\nDirection:\t Forwards\nSpeed:\t\t 10\nGear:\t\t 1\n";
 		THEN("Response will match the Info result")
 		{
 			console.ProcessSession();
@@ -343,7 +343,7 @@ SCENARIO("ControlConsole class works properly")
 	WHEN("Changing to several gears works correctly")
 	{
 		inputStream.str("EngineOn\nSetGear 1\nSetSpeed 30\nSetGear 2\nInfo\nExit\n");
-		const std::string response = "Engine: On\nDirection: Forwards\nSpeed: 30\nGear: 2\n";
+		const std::string response = "Engine:\t\t On\nDirection:\t Forwards\nSpeed:\t\t 30\nGear:\t\t 2\n";
 		THEN("Response will match the Info result")
 		{
 			console.ProcessSession();
@@ -354,7 +354,8 @@ SCENARIO("ControlConsole class works properly")
 	WHEN("Turning car off when it is not running")
 	{
 		inputStream.str("Engineoff\nInfo\nExit\n");
-		const std::string response = "Engine: Off\nDirection: In place\nSpeed: 0\nGear: 0\n";
+		const std::string response = "Cannot execute this command. Use Help to see all commands\n"
+									 "Engine:\t\t Off\nDirection:\t In place\nSpeed:\t\t 0\nGear:\t\t 0\n";
 		THEN("Response will match default values of the car")
 		{
 			console.ProcessSession();
@@ -365,7 +366,8 @@ SCENARIO("ControlConsole class works properly")
 	WHEN("Passing wrong gear number")
 	{
 		inputStream.str("EngineOn\nSetGear -1\nSetGear -2\nInfo\nExit\n");
-		const std::string response = "Engine: On\nDirection: In place\nSpeed: 0\nGear: -1\n";
+		const std::string response = "Cannot switch gear to -2\n"
+									 "Engine:\t\t On\nDirection:\t In place\nSpeed:\t\t 0\nGear:\t\t -1\n";
 		THEN("Response will match previous values")
 		{
 			console.ProcessSession();

@@ -18,7 +18,7 @@ private:
 		Info,
 		Help,
 		Exit,
-		Skip,
+		SkipCommand,
 	};
 
 	struct Command
@@ -31,7 +31,7 @@ private:
 	bool ParseCommand(std::string& inputCommand, Command& command);
 	void PrintInfo();
 	void PrintHelp();
-	void Skip();
+	void SkipCommand();
 	void EngineOn();
 	void EngineOff();
 	void SetGear(int gear);
