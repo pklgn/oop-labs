@@ -10,7 +10,7 @@ CalculatorControlConsole::CalculatorControlConsole(std::istream& inputStream,
 	, m_calculator(calculator)
 {
 }
-
+// TODO: убрать command и обрабатывать на месте 
 void CalculatorControlConsole::ProcessSession()
 {
 	bool isRunning = true;
@@ -47,6 +47,7 @@ void CalculatorControlConsole::ProcessSession()
 			SkipCommand();
 			break;
 		default:
+			// TODO: добавить отчет об ошибке
 			isRunning = false;
 		}
 	}
@@ -66,9 +67,9 @@ CalculatorControlConsole::Command CalculatorControlConsole::GetCommand()
 	return command;
 }
 
+// TODO: const params
 bool CalculatorControlConsole::ParseCommand(std::string& inputCommand, Command& command)
 {
-	std::smatch result;
 	std::stringstream commandStream(inputCommand);
 	
 	std::string commandName;
@@ -124,25 +125,14 @@ bool CalculatorControlConsole::ParseCommand(std::string& inputCommand, Command& 
 		}
 		Calculator::Expression expression;
 		expression.operands.first = operand;
-		char operation;
-		commandStream >> operation;
-		switch (operation)
+		char operationCh;
+		commandStream >> operationCh;
+		auto operation = ParseOperation(operationCh);
+		if (!operation.has_value())
 		{
-		case '+':
-			expression.operation = Calculator::Operation::Add;
-			break;
-		case '-':
-			expression.operation = Calculator::Operation::Sub;
-			break;
-		case '*':
-			expression.operation = Calculator::Operation::Mul;
-			break;
-		case '/':
-			expression.operation = Calculator::Operation::Div;
-			break;
-		default:
 			return false;
 		}
+		expression.operation = operation.value();
 		commandStream >> expression.operands.second;
 
 		command.expression = expression;
@@ -192,7 +182,7 @@ void CalculatorControlConsole::PrintVariables()
 		m_outputStream << std::endl;
 	}
 }
-
+// TODO: print operands
 void CalculatorControlConsole::PrintFunctions()
 {
 	for (auto& function : m_calculator.GetFunctions())
@@ -236,6 +226,7 @@ bool CalculatorControlConsole::PrintIdentifier(const Calculator::Identifier& ide
 
 bool CalculatorControlConsole::DefineVariable(const Command& command)
 {
+	// TODO: получать операнды здесь
 	return m_calculator.DefineVariable(command.leftIdentifier);
 }
 
@@ -261,8 +252,24 @@ bool CalculatorControlConsole::DefineFunction(const Command& command)
 
 void CalculatorControlConsole::SkipCommand()
 {
-	m_outputStream << "Cannot execute this command. "
-					  "Use Help to see all commands\n";
+	m_outputStream << "Cannot execute this command.\n";
+}
+
+std::optional<Calculator::Operation> CalculatorControlConsole::ParseOperation(char operationCh)
+{
+	switch (operationCh)
+	{
+	case '+':
+		return Calculator::Operation::Add;
+	case '-':
+		return Calculator::Operation::Sub;
+	case '*':
+		return Calculator::Operation::Mul;
+	case '/':
+		return Calculator::Operation::Div;
+	default:
+		return std::nullopt;
+	}
 }
 
 bool CalculatorControlConsole::IsIdentifier(const std::string& string)

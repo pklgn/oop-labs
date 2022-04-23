@@ -4,6 +4,7 @@
 class CalculatorControlConsole
 {
 public:
+	// TODO: center | controller
 	CalculatorControlConsole(std::istream& inputStream, std::ostream& outputStream, Calculator& calculator);
 	void ProcessSession();
 
@@ -19,6 +20,7 @@ private:
 		ExitCommand,
 		SkipCommand,
 	};
+	// TODO: 
 
 	struct Command
 	{
@@ -38,7 +40,7 @@ private:
 	bool AssignVariable(const Command& command);
 	bool DefineFunction(const Command& command);
 	void SkipCommand();
-
+	std::optional<Calculator::Operation> ParseOperation(char operationCh);
 	bool IsIdentifier(const std::string& string);
 
 	std::istream& m_inputStream;

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Calculator.h"
 
+// TODO: isidentifier
 bool Calculator::DefineVariable(const Identifier& identifier)
 {
 	if (GetOperandValue(identifier).has_value())
@@ -23,7 +24,7 @@ bool Calculator::AssignVariable(const Identifier& identifier, Value value)
 
 	return true;
 }
-
+// TODO: разделить проверку на существование и получение значение
 bool Calculator::AssignVariable(const Identifier& leftIdentifier, const Identifier& rightIdentifier)
 {
 	if (GetFunctionValue(leftIdentifier).has_value())
@@ -88,6 +89,7 @@ std::optional<Calculator::Value> Calculator::GetVariableValue(const Identifier& 
 
 std::optional<Calculator::Value> Calculator::GetFunctionValue(const Identifier& identifier) const
 {
+	// TODO: посчитать значение вместо NAN
 	auto functionIt = m_functions.find(identifier);
 
 	if (functionIt != m_functions.end())

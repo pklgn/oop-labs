@@ -3,7 +3,9 @@
 #include "../Calculator_lib/CalculatorControlConsole.h"
 #include "../../../catch2/catch.hpp"
 #include <sstream>
-
+// TODO: переместить isidentifier
+// TODO: убрать Identifier заменить на стринг
+// TODO: написать TEST_CASE
 SCENARIO("Calculator class works properly")
 {
 	Calculator calculator;
@@ -137,6 +139,8 @@ SCENARIO("Calculator class works properly")
 			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == 0.5);
 		}
 	}
+	// TODO: ƒобавить проверку на 0
+	// TODO: объединить все случаи с повторным id
 	WHEN("Try to define a function with the id that already exists")
 	{
 		Calculator::Identifier identifier1 = "varIdentifier1";

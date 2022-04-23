@@ -11,6 +11,7 @@ public:
 		Mul,
 		Div,
 	};
+	// TODO: перенсти в Private
 	typedef double Value;
 	typedef std::optional<Value> CachedValue;
 	typedef std::string Identifier;
@@ -38,7 +39,7 @@ public:
 private:
 	std::optional<Value> GetVariableValue(const Identifier& identifier) const;
 	std::optional<Value> GetFunctionValue(const Identifier& identifier) const;
-	
+	// TODO: const 
 	Value CalculateExpression(const Expression& expression);
 
 	Functions m_functions;
