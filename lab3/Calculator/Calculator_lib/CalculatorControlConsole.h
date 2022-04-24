@@ -25,20 +25,17 @@ private:
 	struct Command
 	{
 		CommandName name;
-		Calculator::Identifier leftIdentifier;
-		Calculator::Identifier rightIdentifier;
-		Calculator::Value value;
-		Calculator::Expression expression;
+		std::string string;
 	};
 
 	Command GetCommand();
 	bool ParseCommand(std::string& inputCommand, Command& command);
 	void PrintVariables();
 	void PrintFunctions();
-	bool PrintIdentifier(const Calculator::Identifier& identifier);
-	bool DefineVariable(const Command& command);
-	bool AssignVariable(const Command& command);
-	bool DefineFunction(const Command& command);
+	bool PrintIdentifier(Command& command);
+	bool DefineVariable(Command& command);
+	bool AssignVariable(Command& command);
+	bool DefineFunction(Command& command);
 	void SkipCommand();
 	std::optional<Calculator::Operation> ParseOperation(char operationCh);
 	bool ReadWord(std::string& sourceString, std::string& result, const std::string& delimeters = " \n");

@@ -2,7 +2,7 @@
 #include "Calculator.h"
 #include "Function.h"
 
-// TODO: isidentifier
+// TODO: перенести из ControlConsole в Calculator IsIdentifier
 bool Calculator::DefineVariable(const std::string& identifier)
 {
 	if (!IsIdentifier(identifier))
@@ -36,6 +36,7 @@ bool Calculator::AssignVariable(const std::string& identifier, Value value)
 
 	return true;
 }
+
 // TODO: разделить проверку на существование и получение значение
 bool Calculator::AssignVariable(const std::string& leftIdentifier, const std::string& rightIdentifier)
 {
