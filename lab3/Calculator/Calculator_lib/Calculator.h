@@ -4,6 +4,10 @@
 class Calculator
 {
 public:
+	// TODO: перенсти в Private
+	typedef double Value;
+	typedef std::string Identifier;
+
 	enum class Operation
 	{
 		Add,
@@ -11,37 +15,42 @@ public:
 		Mul,
 		Div,
 	};
-	// TODO: перенсти в Private
-	typedef double Value;
-	typedef std::optional<Value> CachedValue;
-	typedef std::string Identifier;
-	typedef std::map<Identifier, CachedValue> Functions;
-	typedef std::map<Identifier, Value> Variables;
 	typedef std::pair<Identifier, Identifier> Operands;
-	
 	struct Expression
 	{
 		Operands operands;
 		Operation operation;
 	};
 
-	bool DefineVariable(const Identifier& identifier);
-	bool AssignVariable(const Identifier& identifier, Value value = NAN);
-	bool AssignVariable(const Identifier& leftIdentifier, const Identifier& rightIdentifier);
+	struct Function
+	{
+		std::optional<Expression> expression;
+		std::optional<Identifier> identifier;
+	};
 
-	bool DefineFunction(const Identifier& leftIdentifier, const Identifier& rightIdentifier);
-	bool DefineFunction(const Identifier& leftIdentifier, const Expression& expression);
+	typedef std::map<Identifier, Function> Functions;
+	typedef std::map<Identifier, Value> Variables;
 
-	std::optional<Value> GetOperandValue(const Identifier& identifier) const;
+	bool DefineVariable(const std::string& identifier);
+	bool AssignVariable(const std::string& identifier, Value value = NAN);
+	bool AssignVariable(const std::string& leftIdentifier, const std::string& rightIdentifier);
+
+	bool DefineFunction(const std::string& leftIdentifier, const std::string& rightIdentifier);
+	bool DefineFunction(const std::string& leftIdentifier, const Expression& expression);
+
 	const Variables& GetVariables() const;
 	const Functions& GetFunctions() const;
+	std::optional<Value> GetOperandValue(const Identifier& identifier) const;
+	bool IsIdentifier(const std::string& string);
 
 private:
-	std::optional<Value> GetVariableValue(const Identifier& identifier) const;
-	std::optional<Value> GetFunctionValue(const Identifier& identifier) const;
-	// TODO: const 
-	Value CalculateExpression(const Expression& expression);
+	bool IsVariableExist(const Identifier& identifier) const;
+	bool IsFunctionExist(const Identifier& identifier) const;
+	Value GetVariableValue(const Identifier& identifier) const;
+	Value GetFunctionValue(const Identifier& identifier) const;
+	Value CalculateExpression(const Expression& expression) const;
 
 	Functions m_functions;
 	Variables m_variables;
+	std::map<Identifier, std::set<Identifier>> m_state;
 };

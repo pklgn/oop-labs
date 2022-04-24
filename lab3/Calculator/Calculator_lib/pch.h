@@ -16,5 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <set>
+#include <vector>
 
 #endif //PCH_H

@@ -41,7 +41,8 @@ private:
 	bool DefineFunction(const Command& command);
 	void SkipCommand();
 	std::optional<Calculator::Operation> ParseOperation(char operationCh);
-	bool IsIdentifier(const std::string& string);
+	bool ReadWord(std::string& sourceString, std::string& result, const std::string& delimeters = " \n");
+	void TrimLeft(std::string& string, const std::string& delimeters) const;
 
 	std::istream& m_inputStream;
 	std::ostream& m_outputStream;
