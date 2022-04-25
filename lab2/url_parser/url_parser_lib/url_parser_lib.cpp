@@ -6,9 +6,10 @@
 
 bool ParseURL(std::string const& url, Protocol& protocol, int& port, std::string& host, std::string& document)
 {
-	std::regex regexURL(R"((https?|ftp)://([\w\-\.]+)(?::(\d+))?(?:/(.+))?)");
+	// TODO: rename и вынести в const 
+	std::regex URLregex(R"((https?|ftp)://([\w\-\.]+)(?::(\d+))?(?:/(.+))?)");
 	std::smatch result;
-	if (!std::regex_match(url, result, regexURL))
+	if (!std::regex_match(url, result, URLregex))
 	{
 		return false;
 	}
@@ -93,8 +94,8 @@ std::optional<int> ParsePort(const Protocol& protocol, const std::string& port)
 	{
 		return std::nullopt;
 	}
-
-	if (portNumber < MIN_PORT || portNumber > MAX_PORT)
+	// TODO: проверять границы
+	if (portNumber < MIN_PORT || portNumber >= MAX_PORT)
 	{
 		return std::nullopt;
 	}
