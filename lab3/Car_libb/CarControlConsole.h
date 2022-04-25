@@ -16,27 +16,19 @@ private:
 		SetGear,
 		SetSpeed,
 		Info,
-		Help,
 		Exit,
-		SkipCommand,
+		Skip,
 	};
 
 	struct Command
 	{
-		// TODO: лучше type
 		CommandName name;
 		int argument;
 	};
 
 	Command GetCommand();
 	bool ParseCommand(std::string& inputCommand, Command& command);
-	void PrintInfo();
-	void PrintHelp();
-	void SkipCommand();
-	void EngineOn();
-	void EngineOff();
-	void SetGear(int gear);
-	void SetSpeed(int speed);
+	void PrintCarInfo();
 
 	std::istream& m_inputStream;
 	std::ostream& m_outputStream;

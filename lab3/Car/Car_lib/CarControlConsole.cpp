@@ -6,6 +6,8 @@
 // TODO: если команду выполнить нельзя - выдавать сообщение
 // TODO: исправить переключение 2 передачи при движении задом: написать тест для этой ситуации и исправить программу
 // TODO: исправить SetGear 2 -> 0
+
+// TODO: m_car
 CarControlConsole::CarControlConsole(std::istream& inputStream, std::ostream& outputStream, Car& car)
 	: m_inputStream(inputStream)
 	, m_outputStream(outputStream)
@@ -16,7 +18,7 @@ CarControlConsole::CarControlConsole(std::istream& inputStream, std::ostream& ou
 void CarControlConsole::ProcessSession()
 {
 	bool isRunning = true;
-
+	// TODO: посмотреть обработку в примере с телевизором сделать с использованием map
 	while (isRunning)
 	{
 		const Command command = GetCommand();
@@ -55,6 +57,7 @@ void CarControlConsole::ProcessSession()
 bool CarControlConsole::ParseCommand(std::string& inputCommand, Command& command)
 {
 	std::smatch result;
+	// TODO: имя для регулярного выражения, обьявить константу вне функции чтобы создавать только один раз
 	std::regex regular(R"(\s{0,}([\w]+)?[\s]?(-?[\d]{0,3})?\s{0,})");
 	if (!regex_match(inputCommand, result, regular))
 	{

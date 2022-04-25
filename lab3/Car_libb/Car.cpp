@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Car.h"
 #include <map>
-// TODO: namespace без указания имени 
+
 const int MIN_GEAR = -1;
 const int MAX_GEAR = 5;
 const int MIN_SPEED = 0;
@@ -51,37 +51,28 @@ bool Car::SetGear(int gear)
 		return false;
 	}
 
-	if (gear < MIN_GEAR || gear > MAX_GEAR)
+	if (gear < MIN_GEAR || MAX_GEAR < gear)
 	{
 		return false;
 	}
 
 	SpeedRange speedRange = GEAR_SPEED_RANGES.at(gear);
 
-	if (std::abs(m_speed) < speedRange.first || std::abs(m_speed) > speedRange.second)
+	if (std::abs(m_speed) < speedRange.first || speedRange.second < std::abs(m_speed))
 	{
 		return false;
 	}
 
-	if (m_speed < 0 && gear > 0)
-	{
-		return false;
-	}
-
-	// на задний ход можно переключиться только на нулевой скорости
 	if (gear == MIN_GEAR && m_speed != 0)
 	{
 		return false;
 	}
 
-	// с заднего хода можно переключиться на первую передачу только на нулевой скорости
 	if (m_gear == MIN_GEAR && gear == 1 && m_speed != 0)
 	{
 		return false;
 	}
 
-	// переключившись на заднем ходу на нейтральную передачу на ненулевой скорости, 
-	// переключиться на переднюю передачу можно только после остановки
 	if (m_speed < 0 && m_gear == 0 && gear == 1)
 	{
 		return false;
@@ -101,22 +92,17 @@ bool Car::SetSpeed(int speed)
 
 	SpeedRange speedRange = GEAR_SPEED_RANGES.at(m_gear);
 
-	if (speed < speedRange.first || speed > speedRange.second)
+	if (speed < speedRange.first || speedRange.second < speed)
 	{
 		return false;
 	}
 
-	if (m_speed < 0 || m_gear == -1)
+	if (m_gear == -1)
 	{
 		speed = -speed;
 	}
 
-	int dSpeed = speed - m_speed;
-
-	if (m_speed < 0)
-	{
-		dSpeed = -dSpeed;
-	}
+	int dSpeed = std::abs(speed) - std::abs(m_speed);
 	if (dSpeed > 0 && m_gear == 0)
 	{
 		return false;
