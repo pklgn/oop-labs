@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Calculator.h"
-#include "Function.h"
 
 // TODO: перенести из ControlConsole в Calculator IsIdentifier
 bool Calculator::DefineVariable(const std::string& identifier)
@@ -64,6 +63,7 @@ bool Calculator::AssignVariable(const std::string& leftIdentifier, const std::st
 
 bool Calculator::DefineFunction(const std::string& leftIdentifier, const std::string& rightIdentifier)
 {
+	// TODO: раскрыть скобки
 	if (!(IsIdentifier(leftIdentifier) && IsIdentifier(rightIdentifier)))
 	{
 		return false;
@@ -163,6 +163,7 @@ Calculator::Value Calculator::GetFunctionValue(const Identifier& identifier) con
 
 std::optional<Calculator::Value> Calculator::GetOperandValue(const Identifier& identifier) const
 {
+	// TODO: сократить количество поисков по ma
 	if (!(IsFunctionExist(identifier) || IsVariableExist(identifier)))
 	{
 		return std::nullopt;

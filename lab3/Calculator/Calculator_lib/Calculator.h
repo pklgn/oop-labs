@@ -24,6 +24,7 @@ public:
 
 	struct Function
 	{
+		// TODO: использовать std::variant
 		std::optional<Expression> expression;
 		std::optional<Identifier> identifier;
 	};
@@ -40,6 +41,7 @@ public:
 
 	const Variables& GetVariables() const;
 	const Functions& GetFunctions() const;
+	// TODO: rename GetIdentifierValue
 	std::optional<Value> GetOperandValue(const Identifier& identifier) const;
 	bool IsIdentifier(const std::string& string);
 
@@ -52,5 +54,4 @@ private:
 
 	Functions m_functions;
 	Variables m_variables;
-	std::map<Identifier, std::set<Identifier>> m_state;
 };
