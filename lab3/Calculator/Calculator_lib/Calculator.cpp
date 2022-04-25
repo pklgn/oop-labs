@@ -1,81 +1,137 @@
 #include "pch.h"
 #include "Calculator.h"
+#include "Function.h"
 
-// TODO: isidentifier
-bool Calculator::DefineVariable(const Identifier& identifier)
+// TODO: перенести из ControlConsole в Calculator IsIdentifier
+bool Calculator::DefineVariable(const std::string& identifier)
 {
-	if (GetOperandValue(identifier).has_value())
+	if (!IsIdentifier(identifier))
 	{
 		return false;
 	}
+
+	if (IsVariableExist(identifier) || IsFunctionExist(identifier))
+	{
+		return false;
+	}
+
 	m_variables[identifier] = NAN;
 
 	return true;
 }
 
-bool Calculator::AssignVariable(const Identifier& identifier, Value value)
+bool Calculator::AssignVariable(const std::string& identifier, Value value)
 {
-	if (GetFunctionValue(identifier).has_value())
+	if (!IsIdentifier(identifier))
 	{
 		return false;
 	}
 
-	m_variables[identifier] =  value;
+	if (IsFunctionExist(identifier))
+	{
+		return false;
+	}
+
+	m_variables[identifier] = value;
 
 	return true;
 }
+
 // TODO: разделить проверку на существование и получение значение
-bool Calculator::AssignVariable(const Identifier& leftIdentifier, const Identifier& rightIdentifier)
+bool Calculator::AssignVariable(const std::string& leftIdentifier, const std::string& rightIdentifier)
 {
-	if (GetFunctionValue(leftIdentifier).has_value())
+	if (!(IsIdentifier(leftIdentifier) || IsIdentifier(rightIdentifier)))
 	{
 		return false;
 	}
 
-	std::optional<Value> rightOperand = GetOperandValue(rightIdentifier);
-	if (!rightOperand.has_value())
+	if (IsFunctionExist(leftIdentifier))
 	{
 		return false;
 	}
 
-	m_variables[leftIdentifier] = rightOperand.value();
+	auto optRightOperand = GetOperandValue(rightIdentifier);
+
+	if (!optRightOperand.has_value())
+	{
+		return false;
+	}
+
+	m_variables[leftIdentifier] = optRightOperand.value();
 
 	return true;
 }
 
-bool Calculator::DefineFunction(const Identifier& leftIdentifier, const Identifier& rightIdentifier)
+bool Calculator::DefineFunction(const std::string& leftIdentifier, const std::string& rightIdentifier)
 {
-	if (GetVariableValue(leftIdentifier).has_value())
+	if (!(IsIdentifier(leftIdentifier) && IsIdentifier(rightIdentifier)))
 	{
 		return false;
 	}
 
-	auto rightOperand = GetOperandValue(rightIdentifier);
-	if (!rightOperand.has_value())
+	if (IsVariableExist(leftIdentifier))
 	{
 		return false;
 	}
 
-	m_functions[leftIdentifier] = rightOperand.value();
+	m_functions[leftIdentifier].identifier = rightIdentifier;
 
 	return true;
 }
 
-bool Calculator::DefineFunction(const Identifier& leftIdentifier, const Expression& expression)
+bool Calculator::DefineFunction(const std::string& leftIdentifier, const Expression& expression)
 {
-	if (GetVariableValue(leftIdentifier).has_value())
+	if (!IsIdentifier(leftIdentifier))
 	{
 		return false;
 	}
 
-	Value expressionValue = CalculateExpression(expression);
+	if (IsVariableExist(leftIdentifier))
+	{
+		return false;
+	}
 
-	m_functions[leftIdentifier] = expressionValue;
+	if (!(IsIdentifier(expression.operands.first) && IsIdentifier(expression.operands.second)))
+	{
+		return false;
+	}
+
+	if (!(IsVariableExist(expression.operands.first) || IsFunctionExist(expression.operands.first)))
+	{
+		return false;
+	}
+
+	if (!(IsVariableExist(expression.operands.second) || IsFunctionExist(expression.operands.second)))
+	{
+		return false;
+	}
+
+	m_functions[leftIdentifier] = { expression };
 
 	return true;
 }
 
-std::optional<Calculator::Value> Calculator::GetVariableValue(const Identifier& identifier) const
+bool Calculator::IsVariableExist(const Identifier& identifier) const
+{
+	if (m_variables.find(identifier) == m_variables.end())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool Calculator::IsFunctionExist(const Identifier& identifier) const
+{
+	if (m_functions.find(identifier) == m_functions.end())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+Calculator::Value Calculator::GetVariableValue(const Identifier& identifier) const
 {
 	auto variableIt = m_variables.find(identifier);
 
@@ -84,29 +140,37 @@ std::optional<Calculator::Value> Calculator::GetVariableValue(const Identifier& 
 		return variableIt->second;
 	}
 
-	return std::nullopt;
+	return NAN;
 }
 
-std::optional<Calculator::Value> Calculator::GetFunctionValue(const Identifier& identifier) const
+Calculator::Value Calculator::GetFunctionValue(const Identifier& identifier) const
 {
 	// TODO: посчитать значение вместо NAN
 	auto functionIt = m_functions.find(identifier);
 
 	if (functionIt != m_functions.end())
 	{
-		return functionIt->second.value_or(NAN);
+		if (functionIt->second.expression.has_value())
+		{
+			return CalculateExpression(functionIt->second.expression.value());
+		}
+
+		return GetOperandValue(functionIt->second.identifier.value()).value();
 	}
 
-	return std::nullopt;
+	return NAN;
 }
 
 std::optional<Calculator::Value> Calculator::GetOperandValue(const Identifier& identifier) const
 {
-	std::optional<Value> functionValue = GetFunctionValue(identifier);
-	std::optional<Value> variableValue = GetVariableValue(identifier);
-	return variableValue.has_value()
-		? variableValue
-		: functionValue;
+	if (!(IsFunctionExist(identifier) || IsVariableExist(identifier)))
+	{
+		return std::nullopt;
+	}
+
+	return IsFunctionExist(identifier) 
+		? GetFunctionValue(identifier) 
+		: GetVariableValue(identifier);
 }
 
 const Calculator::Variables& Calculator::GetVariables() const
@@ -119,11 +183,12 @@ const Calculator::Functions& Calculator::GetFunctions() const
 	return m_functions;
 }
 
-Calculator::Value Calculator::CalculateExpression(const Expression& expression)
+Calculator::Value Calculator::CalculateExpression(const Expression& expression) const
 {
-	auto leftOperand = GetOperandValue(expression.operands.first);
-	auto rightOperand = GetOperandValue(expression.operands.second);
-	if (!(leftOperand.has_value() && rightOperand.has_value()))
+	auto optLeftOperand = GetOperandValue(expression.operands.first);
+	auto optRightOperand = GetOperandValue(expression.operands.second);
+
+	if (isnan(optLeftOperand.value()) || isnan(optRightOperand.value()))
 	{
 		return NAN;
 	}
@@ -131,18 +196,30 @@ Calculator::Value Calculator::CalculateExpression(const Expression& expression)
 	switch (expression.operation)
 	{
 	case Operation::Add:
-		return leftOperand.value() + rightOperand.value();
+		return optLeftOperand.value() + optRightOperand.value();
 	case Operation::Sub:
-		return leftOperand.value() - rightOperand.value();
+		return optLeftOperand.value() - optRightOperand.value();
 	case Operation::Mul:
-		return leftOperand.value() * rightOperand.value();
+		return optLeftOperand.value() * optRightOperand.value();
 	case Operation::Div:
-		if (rightOperand.value() == 0)
+		if (optRightOperand == 0)
 		{
 			return NAN;
 		}
-		return leftOperand.value() / rightOperand.value();
+		return optLeftOperand.value() / optRightOperand.value();
 	default:
 		return NAN;
 	}
+}
+
+bool Calculator::IsIdentifier(const std::string& string)
+{
+	std::smatch result;
+	std::regex regular(R"(([a-zA-Z_][a-zA-Z0-9_]{0,}))");
+	if (!regex_match(string, result, regular))
+	{
+		return false;
+	}
+
+	return true;
 }

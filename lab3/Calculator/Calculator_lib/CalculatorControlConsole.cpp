@@ -19,7 +19,7 @@ void CalculatorControlConsole::ProcessSession()
 
 	while (isRunning)
 	{
-		const Command command = GetCommand();
+		Command command = GetCommand();
 		switch (command.name)
 		{
 		case CommandName::AssignVariable:
@@ -32,7 +32,7 @@ void CalculatorControlConsole::ProcessSession()
 			DefineVariable(command);
 			break;
 		case CommandName::PrintIdentifier:
-			PrintIdentifier(command.leftIdentifier);
+			PrintIdentifier(command);
 			break;
 		case CommandName::PrintFunctions:
 			PrintFunctions();
@@ -56,9 +56,8 @@ void CalculatorControlConsole::ProcessSession()
 CalculatorControlConsole::Command CalculatorControlConsole::GetCommand()
 {
 	Command command;
-	std::string inputCommand;
-	std::getline(m_inputStream, inputCommand);
-	bool isCorrect = ParseCommand(inputCommand, command);
+	std::getline(m_inputStream, command.string);
+	bool isCorrect = ParseCommand(command.string, command);
 	if (!isCorrect)
 	{
 		return { CommandName::SkipCommand };
@@ -70,81 +69,28 @@ CalculatorControlConsole::Command CalculatorControlConsole::GetCommand()
 // TODO: const params
 bool CalculatorControlConsole::ParseCommand(std::string& inputCommand, Command& command)
 {
-	std::stringstream commandStream(inputCommand);
-	
 	std::string commandName;
-	commandStream >> commandName;
+
+	if (!ReadWord(inputCommand, commandName))
+	{
+		return false;
+	}
 
 	if (commandName == "var")
 	{
 		command.name = CommandName::DefineVariable;
-		commandStream >> command.leftIdentifier;
-		if (!IsIdentifier(command.leftIdentifier))
-		{
-			return false;
-		}
 	}
 	else if (commandName == "let")
 	{
 		command.name = CommandName::AssignVariable;
-		commandStream >> command.leftIdentifier;
-		if (!IsIdentifier(command.leftIdentifier))
-		{
-			return false;
-		}
-		char delimeter;
-		commandStream >> delimeter;
-		std::string operand;
-		commandStream >> operand;
-		if (IsIdentifier(operand))
-		{
-			command.rightIdentifier = operand;
-		}
-		else
-		{
-			command.value = std::stoi(operand);
-		}
 	}
 	else if (commandName == "fn")
 	{
 		command.name = CommandName::DefineFunction;
-		commandStream >> command.leftIdentifier;
-		if (!IsIdentifier(command.leftIdentifier))
-		{
-			return false;
-		}
-		char delimeter;
-		commandStream >> delimeter;
-		std::string operand;
-		commandStream >> operand;
-		if (commandStream.eof())
-		{
-			command.rightIdentifier = operand;
-
-			return true;
-		}
-		Calculator::Expression expression;
-		expression.operands.first = operand;
-		char operationCh;
-		commandStream >> operationCh;
-		auto operation = ParseOperation(operationCh);
-		if (!operation.has_value())
-		{
-			return false;
-		}
-		expression.operation = operation.value();
-		commandStream >> expression.operands.second;
-
-		command.expression = expression;
 	}
 	else if (commandName == "print")
 	{
 		command.name = CommandName::PrintIdentifier;
-		commandStream >> command.leftIdentifier;
-		if (!IsIdentifier(command.leftIdentifier))
-		{
-			return false;
-		}
 	}
 	else if (commandName == "printvars")
 	{
@@ -182,27 +128,25 @@ void CalculatorControlConsole::PrintVariables()
 		m_outputStream << std::endl;
 	}
 }
-// TODO: print operands
+
 void CalculatorControlConsole::PrintFunctions()
 {
 	for (auto& function : m_calculator.GetFunctions())
 	{
 		m_outputStream << function.first << ": ";
 
-		if (isnan(function.second.value()))
-		{
-			m_outputStream << STRING_NAN;
-		}
-		else
-		{
-			m_outputStream << function.second.value();
-		}
-		m_outputStream << std::endl;
+		m_outputStream << m_calculator.GetOperandValue(function.first).value() << std::endl;
 	}
 }
 
-bool CalculatorControlConsole::PrintIdentifier(const Calculator::Identifier& identifier)
+bool CalculatorControlConsole::PrintIdentifier(Command& command)
 {
+	std::string identifier;
+	if (!ReadWord(command.string, identifier))
+	{
+		return false;
+	}
+
 	auto operand = m_calculator.GetOperandValue(identifier);
 	if (!operand.has_value())
 	{
@@ -224,35 +168,97 @@ bool CalculatorControlConsole::PrintIdentifier(const Calculator::Identifier& ide
 	return true;
 }
 
-bool CalculatorControlConsole::DefineVariable(const Command& command)
+bool CalculatorControlConsole::DefineVariable(Command& command)
 {
 	// TODO: получать операнды здесь
-	return m_calculator.DefineVariable(command.leftIdentifier);
+	std::string identifier;
+	if (!ReadWord(command.string, identifier))
+	{
+		return false;
+	}
+	return m_calculator.DefineVariable(identifier);
 }
 
-bool CalculatorControlConsole::AssignVariable(const Command& command)
+bool CalculatorControlConsole::AssignVariable(Command& command)
 {
-	if (IsIdentifier(command.rightIdentifier))
+	std::string leftIdentifier;
+	if (!ReadWord(command.string, leftIdentifier, " ="))
 	{
-		return m_calculator.AssignVariable(command.leftIdentifier, command.rightIdentifier);
+		return false;
 	}
-	
-	return m_calculator.AssignVariable(command.leftIdentifier, command.value);
+	TrimLeft(command.string, "=");
+
+	std::string rightIdentifier;
+
+	if (!ReadWord(command.string, rightIdentifier))
+	{
+		return false;
+	}
+
+	if (m_calculator.IsIdentifier(rightIdentifier))
+	{
+		return m_calculator.AssignVariable(leftIdentifier, rightIdentifier);
+	}
+
+	Calculator::Value value;
+	try
+	{
+		value = std::stod(rightIdentifier);
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	return m_calculator.AssignVariable(leftIdentifier, value);
 }
 
-bool CalculatorControlConsole::DefineFunction(const Command& command)
+bool CalculatorControlConsole::DefineFunction(Command& command)
 {
-	if (IsIdentifier(command.rightIdentifier))
+	std::string leftIdentifier;
+	if (!ReadWord(command.string, leftIdentifier, " ="))
 	{
-		return m_calculator.DefineFunction(command.leftIdentifier, command.rightIdentifier);
+		return false;
+	}
+	TrimLeft(command.string, "=");
+
+	std::string operand;
+	if (!ReadWord(command.string, operand, "+-*/"))
+	{
+		return false;
 	}
 
-	return m_calculator.DefineFunction(command.leftIdentifier, command.expression);
+	size_t operationChPos = command.string.find_first_of("+-*/");
+	std::string rightIdentifier;
+	if (operationChPos == std::string::npos)
+	{
+		return m_calculator.DefineFunction(leftIdentifier, operand);
+	}
+
+	char operationCh = command.string[operationChPos];
+	command.string.erase(0, operationChPos + 1);
+
+	Calculator::Expression expression;
+	expression.operands.first = operand;
+
+	auto operation = ParseOperation(operationCh);
+	if (!operation.has_value())
+	{
+		return false;
+	}
+	expression.operation = operation.value();
+
+	if (!ReadWord(command.string, expression.operands.second))
+	{
+		return false;
+	}
+
+	return m_calculator.DefineFunction(leftIdentifier, expression);
 }
 
 void CalculatorControlConsole::SkipCommand()
 {
-	m_outputStream << "Cannot execute this command.\n";
+	m_outputStream << "Cannot execute this command\n";
 }
 
 std::optional<Calculator::Operation> CalculatorControlConsole::ParseOperation(char operationCh)
@@ -272,14 +278,30 @@ std::optional<Calculator::Operation> CalculatorControlConsole::ParseOperation(ch
 	}
 }
 
-bool CalculatorControlConsole::IsIdentifier(const std::string& string)
+bool CalculatorControlConsole::ReadWord(std::string& sourceString, std::string& result, 
+	const std::string& delimeters)
 {
-	std::smatch result;
-	std::regex regular(R"(([a-zA-Z_][\w_]{0,}))");
-	if (!regex_match(string, result, regular))
+	size_t beginPos = sourceString.find_first_not_of(delimeters);
+	if (beginPos == std::string::npos)
+	{
+		return false;
+	}
+	std::string rawResult = sourceString.substr(beginPos);
+	sourceString.erase(0, beginPos);
+	size_t endPos = sourceString.find_first_of(delimeters);
+	result = sourceString.substr(0, endPos);
+	sourceString.erase(0, endPos);
+
+	if (result.size() == 0)
 	{
 		return false;
 	}
 
 	return true;
+}
+
+void CalculatorControlConsole::TrimLeft(std::string& string, const std::string& delimeters) const
+{
+	size_t beginPos = string.find_first_not_of(delimeters);
+	string.erase(0, beginPos);
 }
