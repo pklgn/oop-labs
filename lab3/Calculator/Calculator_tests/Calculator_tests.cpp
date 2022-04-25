@@ -3,242 +3,291 @@
 #include "../Calculator_lib/CalculatorControlConsole.h"
 #include "../../../catch2/catch.hpp"
 #include <sstream>
-// TODO: переместить isidentifier
-// TODO: убрать Identifier заменить на стринг
+// TODO: переместить IsIdentifier
+// TODO: убрать Identifier заменить на std::string
 // TODO: написать TEST_CASE
-SCENARIO("Calculator class works properly")
+TEST_CASE("Create calculator")
 {
 	Calculator calculator;
-	WHEN("Calculator has been  just created")
+	SECTION("Check the content before declaring new variables and functions")
 	{
-		THEN("Functions and variables size will be equal to zero")
-		{
-			REQUIRE(calculator.GetFunctions().size() == 0);
-			REQUIRE(calculator.GetVariables().size() == 0);
-		}
-	}
-	WHEN("Try to declare variable")
-	{
-		Calculator::Identifier identifier = "identifier";
-		calculator.DefineVariable(identifier);
-		THEN("Variables map size will be equal to 1 and value will be NAN")
-		{
-			REQUIRE(calculator.GetVariables().size() == 1);
-			REQUIRE(isnan(calculator.GetOperandValue(identifier).value()));
-		}
-	}
-	WHEN("Try to declare a new variable with the same id")
-	{
-		Calculator::Identifier identifier = "identifier";
-		calculator.DefineVariable(identifier);
-		THEN("Variable amount will not change")
-		{
-			REQUIRE(!calculator.DefineVariable(identifier));
-			REQUIRE(calculator.GetVariables().size() == 1);
-		}
-	}
-	WHEN("Try to declare a new function with the same id")
-	{
-		Calculator::Identifier identifier = "identifier";
-		calculator.DefineVariable(identifier);
-		THEN("Functions amount will not change")
-		{
-			REQUIRE(!calculator.DefineFunction(identifier, identifier));
-			REQUIRE(calculator.GetVariables().size() == 1);
-			REQUIRE(calculator.GetFunctions().size() == 0);
-		}
-	}
-	WHEN("Try to declare a new function with the different id")
-	{
-		Calculator::Identifier identifier = "identifier";
-		calculator.DefineVariable(identifier);
-		THEN("There will be 2 operands")
-		{
-			REQUIRE(calculator.DefineFunction("fnIdentifier", identifier));
-			REQUIRE(calculator.GetVariables().size() == 1);
-			REQUIRE(calculator.GetFunctions().size() == 1);
-		}
-	}
-	WHEN("Try to declare several variables")
-	{
-		Calculator::Identifier identifier1 = "varIdentifier1";
-		Calculator::Identifier identifier2 = "varIdentifier2";
-		calculator.DefineVariable(identifier1);
-		calculator.DefineVariable(identifier2);
-		THEN("There will be 2 operands")
-		{
-			REQUIRE(calculator.GetVariables().size() == 2);
-		}
-	}
-	WHEN("Try to declare several variables and assign a value to them")
-	{
-		Calculator::Identifier identifier1 = "varIdentifier1";
-		Calculator::Identifier identifier2 = "varIdentifier2";
-		calculator.AssignVariable(identifier1, 1);
-		calculator.AssignVariable(identifier2, 2);
-		THEN("There will be 2 operands")
-		{
-			REQUIRE(calculator.GetVariables().size() == 2);
-			REQUIRE(calculator.GetOperandValue(identifier1).value() == 1);
-			REQUIRE(calculator.GetOperandValue(identifier2).value() == 2);
-		}
-	}
-	WHEN("Try to declare several variables with a value and create function with one of them")
-	{
-		Calculator::Identifier identifier1 = "varIdentifier1";
-		Calculator::Identifier identifier2 = "varIdentifier2";
-		calculator.AssignVariable(identifier1, 1);
-		calculator.AssignVariable(identifier2, 2);
-		THEN("There will be 2 operands")
-		{
-			Calculator::Identifier fnIdentifier = "fnIdentifier";
-			REQUIRE(calculator.DefineFunction(fnIdentifier, identifier1));
-			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == 1);
-		}
-	}
-	WHEN("Try to declare several variables with a value and create function with them with each operation")
-	{
-		Calculator::Identifier identifier1 = "varIdentifier1";
-		Calculator::Identifier identifier2 = "varIdentifier2";
-		calculator.AssignVariable(identifier1, 1);
-		calculator.AssignVariable(identifier2, 2);
-		THEN("There will be 2 operands and their sum")
-		{
-			Calculator::Identifier fnIdentifier = "fnIdentifierAdd";
-			Calculator::Expression expression;
-			expression.operation = Calculator::Operation::Add;
-			expression.operands = { identifier1, identifier2 };
-			REQUIRE(calculator.DefineFunction(fnIdentifier, expression));
-			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == 3);
-		}
-		THEN("There will be 2 operands and their sub")
-		{
-			Calculator::Identifier fnIdentifier = "fnIdentifierAdd";
-			Calculator::Expression expression;
-			expression.operation = Calculator::Operation::Sub;
-			expression.operands = { identifier1, identifier2 };
-			REQUIRE(calculator.DefineFunction(fnIdentifier, expression));
-			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == -1);
-		}
-		THEN("There will be 2 operands and their mul")
-		{
-			Calculator::Identifier fnIdentifier = "fnIdentifierAdd";
-			Calculator::Expression expression;
-			expression.operation = Calculator::Operation::Mul;
-			expression.operands = { identifier1, identifier2 };
-			REQUIRE(calculator.DefineFunction(fnIdentifier, expression));
-			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == 2);
-		}
-		THEN("There will be 2 operands and their div")
-		{
-			Calculator::Identifier fnIdentifier = "fnIdentifierAdd";
-			Calculator::Expression expression;
-			expression.operation = Calculator::Operation::Div;
-			expression.operands = { identifier1, identifier2 };
-			REQUIRE(calculator.DefineFunction(fnIdentifier, expression));
-			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == 0.5);
-		}
-	}
-	// TODO: ƒобавить проверку на 0
-	// TODO: объединить все случаи с повторным id
-	WHEN("Try to define a function with the id that already exists")
-	{
-		Calculator::Identifier identifier1 = "varIdentifier1";
-		calculator.AssignVariable(identifier1, 1);
-
-		THEN("Number of functions will not change")
-		{
-			Calculator::Identifier fnIdentifier = "fnIdentifier";
-			REQUIRE(calculator.DefineFunction(fnIdentifier, identifier1));
-			REQUIRE(calculator.GetFunctions().size() == 1);
-			REQUIRE(!calculator.DefineFunction(identifier1, identifier1));
-			REQUIRE(calculator.GetFunctions().size() == 1);
-		}
-	}
-	WHEN("Change variable value and function will change")
-	{
-		Calculator::Identifier identifier1 = "varIdentifier1";
-		calculator.AssignVariable(identifier1, 1);
-		THEN("Function value will change")
-		{
-			Calculator::Identifier fnIdentifier = "fnIdentifierAdd";
-			Calculator::Expression expression;
-			expression.operation = Calculator::Operation::Add;
-			expression.operands = { identifier1, identifier1 };
-			REQUIRE(calculator.DefineFunction(fnIdentifier, expression));
-			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == 2);
-			REQUIRE(calculator.AssignVariable(identifier1, 2));
-			REQUIRE(calculator.GetOperandValue(fnIdentifier).value() == 4);
-		}
+		REQUIRE(calculator.GetFunctions().size() == 0);
+		REQUIRE(calculator.GetVariables().size() == 0);
 	}
 }
 
-SCENARIO("CalculatorControlConsole works properly")
+TEST_CASE("Define and assign a new variable")
+{
+	Calculator calculator;
+	Calculator::Identifier identifier = "variable";
+	Calculator::Value value = 1.234;
+	SECTION("Add a single variable")
+	{
+		REQUIRE(calculator.DefineVariable(identifier));
+		REQUIRE(calculator.GetVariables().size() == 1);
+		REQUIRE(isnan(calculator.GetOperandValue(identifier).value()));
+	}
+
+	SECTION("Get value of the added variable")
+	{
+		REQUIRE(calculator.DefineVariable(identifier));
+		REQUIRE(calculator.AssignVariable(identifier, value));
+		REQUIRE(calculator.GetOperandValue(identifier).value() == value);
+		REQUIRE(calculator.GetVariables().size() == 1);
+	}
+
+	SECTION("Declare a new variable with the same identifier")
+	{
+		REQUIRE(calculator.DefineVariable(identifier));
+		Calculator::Identifier identifier2 = identifier;
+		REQUIRE(!calculator.DefineVariable(identifier2));
+		REQUIRE(calculator.GetVariables().size() == 1);
+	}
+}
+
+TEST_CASE("Define a new function")
+{
+	Calculator calculator;
+	Calculator::Identifier variableIdentifier = "variable";
+	Calculator::Identifier functionIdentifier = "function";
+
+	SECTION("Function is a nan value of another nan identifier")
+	{
+		REQUIRE(calculator.DefineVariable(variableIdentifier));
+		REQUIRE(calculator.DefineFunction(functionIdentifier, variableIdentifier));
+		REQUIRE(isnan(calculator.GetOperandValue(variableIdentifier).value()));
+		REQUIRE(isnan(calculator.GetOperandValue(functionIdentifier).value()));
+		REQUIRE(calculator.GetVariables().size() == 1);
+		REQUIRE(calculator.GetFunctions().size() == 1);
+	}
+
+	SECTION("Function is a numeric value of another numeric variable identifier")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 1.23));
+		REQUIRE(calculator.DefineFunction(functionIdentifier, variableIdentifier));
+		REQUIRE(calculator.GetOperandValue(variableIdentifier).value() == 1.23);
+		REQUIRE(calculator.GetOperandValue(functionIdentifier).value() == 1.23);
+	}
+
+	SECTION("Function is a numeric value of a math expression")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 1.23));
+		REQUIRE(calculator.DefineFunction(functionIdentifier, 
+			{ {variableIdentifier, variableIdentifier}, Calculator::Operation::Add }));
+		REQUIRE(calculator.GetOperandValue(variableIdentifier).value() == 1.23);
+		REQUIRE(calculator.GetOperandValue(functionIdentifier).value() == 2*1.23);
+	}
+
+	SECTION("Declare a new function with the same identifier")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 1.23));
+		REQUIRE(calculator.DefineFunction(functionIdentifier,
+			{ { variableIdentifier, variableIdentifier }, Calculator::Operation::Add }));
+		REQUIRE(calculator.DefineFunction(functionIdentifier, variableIdentifier));
+	}
+}
+
+TEST_CASE("Update function value with the new variable value")
+{
+	Calculator calculator;
+	SECTION("Update identifier that function represents")
+	{
+		REQUIRE(calculator.AssignVariable("v", 42));
+		REQUIRE(calculator.AssignVariable("variable", "v"));
+		REQUIRE(calculator.DefineFunction("function", "v"));
+		REQUIRE(calculator.AssignVariable("v", 43));
+		REQUIRE(calculator.GetOperandValue("v").value() == 43);
+		REQUIRE(calculator.GetOperandValue("variable").value() == 42);
+		REQUIRE(calculator.GetOperandValue("function").value() == 43);
+	}
+
+	SECTION("Update function expression")
+	{
+		REQUIRE(calculator.DefineVariable("x"));
+		REQUIRE(calculator.DefineVariable("y"));
+		REQUIRE(calculator.DefineFunction("XPlusY", { { "x", "y" } }));
+		REQUIRE(isnan(calculator.GetOperandValue("XPlusY").value()));
+		REQUIRE(calculator.AssignVariable("x", 3));
+		REQUIRE(calculator.AssignVariable("y", 4));
+		REQUIRE(calculator.GetOperandValue("XPlusY").value() == 7);
+		REQUIRE(calculator.AssignVariable("x", 10));
+		REQUIRE(calculator.GetOperandValue("XPlusY").value() == 14);
+	}
+}
+
+TEST_CASE("Define function with all operations of an expression")
+{
+	Calculator calculator;
+	Calculator::Identifier variableIdentifier = "variable";
+	Calculator::Identifier functionIdentifier = "function";
+
+	SECTION("Create function with sum operation")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 1.23));
+		REQUIRE(calculator.DefineFunction(functionIdentifier,
+			{ { variableIdentifier, variableIdentifier }, Calculator::Operation::Add }));
+		REQUIRE(calculator.GetOperandValue(variableIdentifier).value() == 1.23);
+		REQUIRE(calculator.GetOperandValue(functionIdentifier).value() == 1.23 + 1.23);
+	}
+	SECTION("Create function with sub operation")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 1.23));
+		REQUIRE(calculator.DefineFunction(functionIdentifier,
+			{ { variableIdentifier, variableIdentifier }, Calculator::Operation::Sub }));
+		REQUIRE(calculator.GetOperandValue(variableIdentifier).value() == 1.23);
+		REQUIRE(calculator.GetOperandValue(functionIdentifier).value() == 1.23 - 1.23);
+	}
+	SECTION("Create function with mul operation")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 1.23));
+		REQUIRE(calculator.DefineFunction(functionIdentifier,
+			{ { variableIdentifier, variableIdentifier }, Calculator::Operation::Mul }));
+		REQUIRE(calculator.GetOperandValue(variableIdentifier).value() == 1.23);
+		REQUIRE(calculator.GetOperandValue(functionIdentifier).value() == 1.23 * 1.23);
+	}
+	SECTION("Create function with div operation")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 1.23));
+		REQUIRE(calculator.DefineFunction(functionIdentifier,
+			{ { variableIdentifier, variableIdentifier }, Calculator::Operation::Div }));
+		REQUIRE(calculator.GetOperandValue(variableIdentifier).value() == 1.23);
+		REQUIRE(calculator.GetOperandValue(functionIdentifier).value() == 1.23 / 1.23);
+	}
+	SECTION("Create function with div operation dividing by 0")
+	{
+		REQUIRE(calculator.AssignVariable(variableIdentifier, 0));
+		REQUIRE(calculator.DefineFunction(functionIdentifier,
+			{ { variableIdentifier, variableIdentifier }, Calculator::Operation::Div }));
+		REQUIRE(calculator.GetOperandValue(variableIdentifier).value() == 0);
+		REQUIRE(isnan(calculator.GetOperandValue(functionIdentifier).value()));
+	}
+}
+TEST_CASE("Declare same id for operands different types")
+{
+	Calculator calculator;
+	Calculator::Identifier identifier = "identifier";
+	SECTION("Declare a new function with the same identifier")
+	{
+		REQUIRE(calculator.DefineVariable(identifier));
+		REQUIRE(!calculator.DefineFunction(identifier, identifier));
+		REQUIRE(calculator.GetVariables().size() == 1);
+	}
+
+	SECTION("Declare a new variable with the same identifier")
+	{
+		REQUIRE(calculator.DefineVariable(identifier));
+		REQUIRE(calculator.DefineFunction("function", identifier));
+		REQUIRE(!calculator.DefineVariable("function"));
+		REQUIRE(calculator.GetVariables().size() == 1);
+	}
+}
+
+TEST_CASE("Define and assign variable with control console")
 {
 	Calculator calculator;
 	std::istringstream inputStream;
 	std::ostringstream outputStream;
 	CalculatorControlConsole console(inputStream, outputStream, calculator);
 
-	WHEN("Define variable with NAN")
+	SECTION("Define variable with NAN")
 	{
 		inputStream.str("var id1\nprint id1\nexit\n");
 		const std::string response = "id1: NAN\n";
-		THEN("Info will be match to response")
-		{
-			console.ProcessSession();
-			REQUIRE(outputStream.str() == response);
-		}
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == response);
 	}
-	WHEN("Assign variable some value")
+
+	SECTION("Assign variable some value")
 	{
-		inputStream.str("let id1 = 2\nprint id1\nexit\n");
+		inputStream.str("let id1=2\nprint id1\nexit\n");
 		const std::string response = "id1: 2.00\n";
-		THEN("Info will be match to response")
-		{
-			console.ProcessSession();
-			REQUIRE(outputStream.str() == response);
-		}
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == response);
 	}
-	WHEN("Assign function some value")
+}
+
+TEST_CASE("Define function with control console")
+{
+	Calculator calculator;
+	std::istringstream inputStream;
+	std::ostringstream outputStream;
+	CalculatorControlConsole console(inputStream, outputStream, calculator);
+
+	SECTION("Assign function some value")
 	{
-		inputStream.str("let id1 = 2\nfn fnId = id1\nprint fnId\nexit\n");
+		inputStream.str("let id1=2\nfn fnId=id1\nprint fnId\nexit\n");
 		const std::string response = "fnId: 2.00\n";
-		THEN("Info will be match to response")
-		{
-			console.ProcessSession();
-			REQUIRE(outputStream.str() == response);
-		}
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == response);
 	}
-	WHEN("Assign function some expression")
+
+	SECTION("Assign function some expression with addition")
 	{
-		inputStream.str("let id1 = 2\nfn fnId = id1 + id1\nprint fnId\nexit\n");
+		inputStream.str("let id1=2\nfn fnId=id1+id1\nprint fnId\nexit\n");
 		const std::string addResponse = "fnId: 4.00\n";
-		THEN("Info will be match to response")
-		{
-			console.ProcessSession();
-			REQUIRE(outputStream.str() == addResponse);
-		}
-		inputStream.str("let id1 = 3\nfn fnId = id1 * id1\nprint fnId\nexit\n");
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == addResponse);
+	}
+
+	SECTION("Assign function some expression with multiplication")
+	{
+		inputStream.str("let id1=3\nfn fnId=id1*id1\nprint fnId\nexit\n");
 		const std::string mulResponse = "fnId: 9.00\n";
-		THEN("Info will be match to response")
-		{
-			console.ProcessSession();
-			REQUIRE(outputStream.str() == mulResponse);
-		}
-		inputStream.str("let id1 = 3\nfn fnId = id1 - id1\nprint fnId\nexit\n");
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == mulResponse);
+	}
+
+	SECTION("Assign function some expression with subtraction")
+	{
+		inputStream.str("let id1=3\nfn fnId=id1-id1\nprint fnId\nexit\n");
 		const std::string subResponse = "fnId: 0.00\n";
-		THEN("Info will be match to response")
-		{
-			console.ProcessSession();
-			REQUIRE(outputStream.str() == subResponse);
-		}
-		inputStream.str("let id1 = 3\nfn fnId = id1 / id1\nprint fnId\nexit\n");
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == subResponse);
+	}
+
+	SECTION("Assign function some expression with division")
+	{
+		inputStream.str("let id1=3\nfn fnId=id1/id1\nprint fnId\nexit\n");
 		const std::string divResponse = "fnId: 1.00\n";
-		THEN("Info will be match to response")
-		{
-			console.ProcessSession();
-			REQUIRE(outputStream.str() == divResponse);
-		}
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == divResponse);
+	}
+}
+
+TEST_CASE("Give console application wrong commad")
+{
+	Calculator calculator;
+	std::istringstream inputStream;
+	std::ostringstream outputStream;
+	CalculatorControlConsole console(inputStream, outputStream, calculator);
+
+	SECTION("Incomplete command")
+	{
+		inputStream.str("var \nexit\n");
+		const std::string response = "Can't define variable\n";
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == response);
+	}
+	SECTION("Incomplete command")
+	{
+		inputStream.str("let x \nexit\n");
+		const std::string response = "Can't assign variable\n";
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == response);
+	}
+	SECTION("Incomplete command")
+	{
+		inputStream.str("fn func= \nexit\n");
+		const std::string response = "Can't define function\n";
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == response);
+	}
+	SECTION("Incomplete command")
+	{
+		inputStream.str("print func \nexit\n");
+		const std::string response = "Cannot find such identifier\n"
+									 "Can't print value of the specified identifier\n";
+		console.ProcessSession();
+		REQUIRE(outputStream.str() == response);
 	}
 }
