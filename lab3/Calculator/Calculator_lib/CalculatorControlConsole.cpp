@@ -10,6 +10,7 @@ CalculatorControlConsole::CalculatorControlConsole(std::istream& inputStream,
 	, m_calculator(calculator)
 {
 }
+
 // TODO: убрать command и обрабатывать на месте 
 void CalculatorControlConsole::ProcessSession()
 {
@@ -23,16 +24,28 @@ void CalculatorControlConsole::ProcessSession()
 		switch (command.name)
 		{
 		case CommandName::AssignVariable:
-			AssignVariable(command);
+			if (!AssignVariable(command))
+			{
+				m_outputStream << "Can't assign variable\n";
+			}
 			break;
 		case CommandName::DefineFunction:
-			DefineFunction(command);
+			if (!DefineFunction(command))
+			{
+				m_outputStream << "Can't define function\n";
+			}
 			break;
 		case CommandName::DefineVariable:
-			DefineVariable(command);
+			if (!DefineVariable(command))
+			{
+				m_outputStream << "Can't define variable\n";
+			}
 			break;
 		case CommandName::PrintIdentifier:
-			PrintIdentifier(command);
+			if (!PrintIdentifier(command))
+			{
+				m_outputStream << "Can't print value of the specified identifier\n";
+			}
 			break;
 		case CommandName::PrintFunctions:
 			PrintFunctions();
@@ -47,13 +60,13 @@ void CalculatorControlConsole::ProcessSession()
 			SkipCommand();
 			break;
 		default:
-			// TODO: добавить отчет об ошибке
+			m_outputStream << "Internal error was found\n";
 			isRunning = false;
 		}
 	}
 }
 
-CalculatorControlConsole::Command CalculatorControlConsole::GetCommand()
+CalculatorControlConsole::Command CalculatorControlConsole::GetCommand() const
 {
 	Command command;
 	std::getline(m_inputStream, command.string);
@@ -66,12 +79,11 @@ CalculatorControlConsole::Command CalculatorControlConsole::GetCommand()
 	return command;
 }
 
-// TODO: const params
-bool CalculatorControlConsole::ParseCommand(std::string& inputCommand, Command& command)
+bool CalculatorControlConsole::ParseCommand(std::string& inputCommand, Command& command) const
 {
 	std::string commandName;
 
-	if (!ReadWord(inputCommand, commandName))
+	if (!ReadIdentifier(inputCommand, commandName))
 	{
 		return false;
 	}
@@ -142,7 +154,7 @@ void CalculatorControlConsole::PrintFunctions()
 bool CalculatorControlConsole::PrintIdentifier(Command& command)
 {
 	std::string identifier;
-	if (!ReadWord(command.string, identifier))
+	if (!ReadIdentifier(command.string, identifier))
 	{
 		return false;
 	}
@@ -172,7 +184,7 @@ bool CalculatorControlConsole::DefineVariable(Command& command)
 {
 	// TODO: получать операнды здесь
 	std::string identifier;
-	if (!ReadWord(command.string, identifier))
+	if (!ReadIdentifier(command.string, identifier))
 	{
 		return false;
 	}
@@ -182,7 +194,7 @@ bool CalculatorControlConsole::DefineVariable(Command& command)
 bool CalculatorControlConsole::AssignVariable(Command& command)
 {
 	std::string leftIdentifier;
-	if (!ReadWord(command.string, leftIdentifier, " ="))
+	if (!ReadIdentifier(command.string, leftIdentifier, " ="))
 	{
 		return false;
 	}
@@ -190,7 +202,7 @@ bool CalculatorControlConsole::AssignVariable(Command& command)
 
 	std::string rightIdentifier;
 
-	if (!ReadWord(command.string, rightIdentifier))
+	if (!ReadIdentifier(command.string, rightIdentifier))
 	{
 		return false;
 	}
@@ -216,14 +228,14 @@ bool CalculatorControlConsole::AssignVariable(Command& command)
 bool CalculatorControlConsole::DefineFunction(Command& command)
 {
 	std::string leftIdentifier;
-	if (!ReadWord(command.string, leftIdentifier, " ="))
+	if (!ReadIdentifier(command.string, leftIdentifier, " ="))
 	{
 		return false;
 	}
 	TrimLeft(command.string, "=");
 
 	std::string operand;
-	if (!ReadWord(command.string, operand, "+-*/"))
+	if (!ReadIdentifier(command.string, operand, "+-*/"))
 	{
 		return false;
 	}
@@ -248,7 +260,7 @@ bool CalculatorControlConsole::DefineFunction(Command& command)
 	}
 	expression.operation = operation.value();
 
-	if (!ReadWord(command.string, expression.operands.second))
+	if (!ReadIdentifier(command.string, expression.operands.second))
 	{
 		return false;
 	}
@@ -261,7 +273,7 @@ void CalculatorControlConsole::SkipCommand()
 	m_outputStream << "Cannot execute this command\n";
 }
 
-std::optional<Calculator::Operation> CalculatorControlConsole::ParseOperation(char operationCh)
+std::optional<Calculator::Operation> CalculatorControlConsole::ParseOperation(char operationCh) const
 {
 	switch (operationCh)
 	{
@@ -278,8 +290,8 @@ std::optional<Calculator::Operation> CalculatorControlConsole::ParseOperation(ch
 	}
 }
 
-bool CalculatorControlConsole::ReadWord(std::string& sourceString, std::string& result, 
-	const std::string& delimeters)
+bool CalculatorControlConsole::ReadIdentifier(std::string& sourceString, std::string& result, 
+	const std::string& delimeters) const
 {
 	size_t beginPos = sourceString.find_first_not_of(delimeters);
 	if (beginPos == std::string::npos)
