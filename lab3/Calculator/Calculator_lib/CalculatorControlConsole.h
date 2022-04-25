@@ -4,7 +4,6 @@
 class CalculatorControlConsole
 {
 public:
-	// TODO: center | controller
 	CalculatorControlConsole(std::istream& inputStream, std::ostream& outputStream, Calculator& calculator);
 	void ProcessSession();
 
@@ -20,7 +19,6 @@ private:
 		ExitCommand,
 		SkipCommand,
 	};
-	// TODO: 
 
 	struct Command
 	{
@@ -28,8 +26,8 @@ private:
 		std::string string;
 	};
 
-	Command GetCommand();
-	bool ParseCommand(std::string& inputCommand, Command& command);
+	Command GetCommand() const;
+	bool ParseCommand(std::string& inputCommand, Command& command) const;
 	void PrintVariables();
 	void PrintFunctions();
 	bool PrintIdentifier(Command& command);
@@ -37,8 +35,8 @@ private:
 	bool AssignVariable(Command& command);
 	bool DefineFunction(Command& command);
 	void SkipCommand();
-	std::optional<Calculator::Operation> ParseOperation(char operationCh);
-	bool ReadWord(std::string& sourceString, std::string& result, const std::string& delimeters = " \n");
+	std::optional<Calculator::Operation> ParseOperation(char operationCh) const;
+	bool ReadIdentifier(std::string& sourceString, std::string& result, const std::string& delimeters = " \n") const;
 	void TrimLeft(std::string& string, const std::string& delimeters) const;
 
 	std::istream& m_inputStream;
