@@ -16,4 +16,10 @@ public:
 	Point GetRightBottom() const;
 	double GetWidth() const;
 	double GetHeight() const;
+
+private:
+	Point m_leftTop;
+	Point m_rightBottom;
+	uint32_t m_fillColor;
+	uint32_t m_outlineColor;
 };

@@ -9,10 +9,7 @@ double LineSegment::GetArea() const
 
 double LineSegment::GetPerimeter() const
 {
-	double xDistance = m_endPoint.x - m_startPoint.x;
-	double yDistance = m_endPoint.y - m_startPoint.y;
-
-	return sqrt(xDistance * xDistance + yDistance * yDistance);
+	return Point::GetDistance(m_startPoint, m_endPoint);
 }
 
 std::string LineSegment::ToString() const

@@ -13,3 +13,11 @@ std::string Point::ToString(bool isEndLine) const
 
 	return stringStream.str();
 }
+
+double Point::GetDistance(const Point& first, const Point& second)
+{
+	double xDistance = first.x - second.x;
+	double yDistance = first.y - second.y;
+
+	return sqrt(xDistance * xDistance + yDistance * yDistance);
+}
