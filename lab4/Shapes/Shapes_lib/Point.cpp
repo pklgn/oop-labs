@@ -21,3 +21,10 @@ double Point::GetDistance(const Point& first, const Point& second)
 
 	return sqrt(xDistance * xDistance + yDistance * yDistance);
 }
+
+std::istream& operator>>(std::istream& inputStream, Point& point)
+{
+	inputStream >> point.x >> point.y;
+
+	return inputStream;
+}

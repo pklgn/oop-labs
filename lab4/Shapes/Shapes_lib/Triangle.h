@@ -2,9 +2,18 @@
 #include "Point.h"
 #include "ISolidShape.h"
 
-class Triangle : ISolidShape
+class Triangle : public ISolidShape
 {
 public:
+	Triangle(const Point& vertex1, const Point& vertex2, const Point& vertex3, uint32_t fillColor, uint32_t outlineColor)
+		: m_vertex1(vertex1)
+		, m_vertex2(vertex2)
+		, m_vertex3(vertex3)
+		, m_fillColor(fillColor)
+		, m_outlineColor(outlineColor)
+	{
+	}
+
 	double GetArea() const override;
 	double GetPerimeter() const override;
 	std::string ToString() const override;

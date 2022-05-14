@@ -1,6 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "IShape.h"
+#include "Circle.h"
+#include "Triangle.h"
+#include "Rectangle.h"
+#include "LineSegment.h"
+
 class ShapesController
 {
 public:
@@ -13,15 +18,15 @@ public:
 	};
 
 	bool ReadShape(std::istream& inputStream);
-	void PrintShapesInfo(std::ostream& outputStream);
-	IShape* GetMaxAreaShapePtr();
-	IShape* GetMinPerimeterShapePtr();
+	void PrintShapesInfo(IShape& shape, std::ostream& outputStream) const;
+	std::vector<IShape>::const_iterator FindMaxAreaShape() const;
+	std::vector<IShape>::const_iterator FindMinPerimeterShape() const;
 
 private:
-	bool AddCircle(std::ifstream& inputStream);
-	bool AddTriangle(std::ifstream& inputStream);
-	bool AddRectangle(std::ifstream& inputStream);
-	bool AddLineSegment(std::ifstream& inputStream);
+	bool AddCircle(std::istream& inputStream);
+	bool AddTriangle(std::istream& inputStream);
+	bool AddRectangle(std::istream& inputStream);
+	bool AddLineSegment(std::istream& inputStream);
 
-	std::vector<IShape> storage;
+	std::vector<IShape> m_storage;
 };

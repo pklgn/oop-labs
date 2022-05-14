@@ -36,7 +36,7 @@ uint32_t Triangle::GetOutlineColor() const
 	return m_outlineColor;
 }
 
-uint32_t Triangle::GetOutlineColor() const
+uint32_t Triangle::GetFillColor() const
 {
 	return m_fillColor;
 }

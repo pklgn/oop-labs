@@ -32,6 +32,11 @@ uint32_t Circle::GetOutlineColor() const
 	return m_outlineColor;
 }
 
+uint32_t Circle::GetFillColor() const
+{
+	return m_fillColor;
+}
+
 double Circle::GetRadius() const
 {
 	return m_radius;

@@ -5,6 +5,13 @@
 class LineSegment : public IShape
 {
 public:
+	LineSegment(Point& startPoint, Point& endPoint, uint32_t outlineColor)
+		: m_startPoint(startPoint)
+		, m_endPoint(endPoint)
+		, m_outlineColor(outlineColor)
+	{
+	}
+
 	virtual double GetArea() const override;
 	virtual double GetPerimeter() const override;
 	virtual std::string ToString() const override;

@@ -2,9 +2,17 @@
 #include "ISolidShape.h"
 #include "Point.h"
 
-class Circle : ISolidShape
+class Circle : public ISolidShape
 {
 public:
+	Circle(const Point& center, double radius, uint32_t fillColor, uint32_t outlineColor)
+		: m_center(center)
+		, m_radius(radius)
+		, m_fillColor(fillColor)
+		, m_outlineColor(outlineColor)
+	{
+	}
+
 	double GetArea() const override;
 	double GetPerimeter() const override;
 	std::string ToString() const override;

@@ -2,9 +2,17 @@
 #include "Point.h"
 #include "ISolidShape.h"
 
-class Rectangle: ISolidShape
+class Rectangle: public ISolidShape
 {
 public:
+	Rectangle(const Point& leftTop, const Point& rightBottom, uint32_t fillColor, uint32_t outlineColor)
+		: m_leftTop(leftTop)
+		, m_rightBottom(rightBottom)
+		, m_fillColor(fillColor)
+		, m_outlineColor(outlineColor)
+	{
+	}
+
 	double GetArea() const override;
 	double GetPerimeter() const override;
 	std::string ToString() const override;
