@@ -29,24 +29,27 @@ bool ShapesController::ReadShape(std::istream& inputStream)
 	return true;
 }
 
-void ShapesController::PrintShapesInfo(IShape& shape, std::ostream& outputStream) const
+void ShapesController::PrintShapesInfo(std::ostream& outputStream) const
 {
-	outputStream << shape.ToString() << std::endl;
+	for (const auto& shape : m_storage)
+	{
+		outputStream << shape->ToString() << std::endl;
+	}
 
 	return;
 }
 
-std::vector<IShape>::const_iterator ShapesController::FindMaxAreaShape() const
+std::vector<IShape*>::const_iterator ShapesController::FindMaxAreaShape() const
 {
-	return std::max_element(m_storage.begin(), m_storage.end(), [](IShape& first, IShape& second) {
-		return first.GetArea() < second.GetArea();
+	return std::max_element(m_storage.begin(), m_storage.end(), [](IShape* first, IShape* second) {
+		return first->GetArea() < second->GetArea();
 	});
 }
 
-std::vector<IShape>::const_iterator ShapesController::FindMinPerimeterShape() const
+std::vector<IShape*>::const_iterator ShapesController::FindMinPerimeterShape() const
 {
-	return std::min_element(m_storage.begin(), m_storage.end(), [](IShape& first, IShape& second) {
-		return first.GetPerimeter() < second.GetPerimeter();
+	return std::min_element(m_storage.begin(), m_storage.end(), [](IShape* first, IShape* second) {
+		return first->GetPerimeter() < second->GetPerimeter();
 	});
 }
 
@@ -64,7 +67,7 @@ bool ShapesController::AddCircle(std::istream& inputStream)
 	}
 
 	Circle circle(center, radius, fillColor, outlineColor);
-	m_storage.push_back(circle);
+	m_storage.push_back(&circle);
 
 	return true;
 }
@@ -82,7 +85,7 @@ bool ShapesController::AddLineSegment(std::istream& inputStream)
 	}
 
 	LineSegment line(startPoint, endPoint, outlineColor);
-	m_storage.push_back(line);
+	m_storage.push_back(&line);
 
 	return true;
 }
@@ -101,7 +104,7 @@ bool ShapesController::AddRectangle(std::istream& inputStream)
 	}
 
 	Rectangle rectangle(leftTop, rightBottom, fillColor, outlineColor);
-	m_storage.push_back(rectangle);
+	m_storage.push_back(&rectangle);
 
 	return true;
 }
@@ -121,7 +124,7 @@ bool ShapesController::AddTriangle(std::istream& inputStream)
 	}
 
 	Triangle triangle(vertex1, vertex2, vertex3, fillColor, outlineColor);
-	m_storage.push_back(triangle);
+	m_storage.push_back(&triangle);
 
 	return true;
 }
