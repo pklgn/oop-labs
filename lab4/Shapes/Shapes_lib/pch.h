@@ -10,6 +10,8 @@
 // add headers that you want to pre-compile here
 #include <vector>
 #include <string>
+#include <memory>
+#include <iomanip>
 #include <sstream>
 #include <algorithm>
 

@@ -1,32 +1,30 @@
 #include "pch.h"
 #include "Point.h"
+#include "Canvas.h"
 #include "ShapesController.h"
 
 bool ShapesController::ReadShape(std::istream& inputStream)
 {
-	std::string shapeName;
-	if (shapeName == "circle")
+	std::string commandName;
+	inputStream >> commandName;
+	if (commandName == "circle")
 	{
-		AddCircle(inputStream);
+		return AddCircle(inputStream);
 	}
-	else if (shapeName == "line")
+	else if (commandName == "line")
 	{
-		AddLineSegment(inputStream);
+		return AddLineSegment(inputStream);
 	}
-	else if (shapeName == "rectangle")
+	else if (commandName == "rectangle")
 	{
-		AddRectangle(inputStream);
+		return AddRectangle(inputStream);
 	}
-	else if (shapeName == "triangle")
+	else if (commandName == "triangle")
 	{
-		AddTriangle(inputStream);
+		return AddTriangle(inputStream);
 	}
-	else
-	{
-		return false;
-	}
-
-	return true;
+	
+	return false;
 }
 
 void ShapesController::PrintShapesInfo(std::ostream& outputStream) const
@@ -39,18 +37,20 @@ void ShapesController::PrintShapesInfo(std::ostream& outputStream) const
 	return;
 }
 
-std::vector<IShape*>::const_iterator ShapesController::FindMaxAreaShape() const
+std::vector<std::shared_ptr<IShape>>::const_iterator ShapesController::FindMaxAreaShape() const
 {
-	return std::max_element(m_storage.begin(), m_storage.end(), [](IShape* first, IShape* second) {
-		return first->GetArea() < second->GetArea();
-	});
+	return std::max_element(m_storage.begin(), m_storage.end(),
+		[](std::shared_ptr<IShape> first, std::shared_ptr<IShape> second) {
+			return first->GetArea() < second->GetArea();
+		});
 }
 
-std::vector<IShape*>::const_iterator ShapesController::FindMinPerimeterShape() const
+std::vector<std::shared_ptr<IShape>>::const_iterator ShapesController::FindMinPerimeterShape() const
 {
-	return std::min_element(m_storage.begin(), m_storage.end(), [](IShape* first, IShape* second) {
-		return first->GetPerimeter() < second->GetPerimeter();
-	});
+	return std::min_element(m_storage.begin(), m_storage.end(),
+		[](std::shared_ptr<IShape> first, std::shared_ptr<IShape> second) {
+			return first->GetPerimeter() < second->GetPerimeter();
+		});
 }
 
 bool ShapesController::AddCircle(std::istream& inputStream)
@@ -66,8 +66,12 @@ bool ShapesController::AddCircle(std::istream& inputStream)
 		return false;
 	}
 
-	Circle circle(center, radius, fillColor, outlineColor);
-	m_storage.push_back(&circle);
+	if (radius < 0)
+	{
+		return false;
+	}
+
+	m_storage.push_back(std::make_shared<Circle>(center, radius, fillColor, outlineColor));
 
 	return true;
 }
@@ -78,14 +82,13 @@ bool ShapesController::AddLineSegment(std::istream& inputStream)
 	Point endPoint;
 	uint32_t outlineColor;
 
-	inputStream >> startPoint >> endPoint >> outlineColor;
+	inputStream >> startPoint >> endPoint >> std::hex >> outlineColor;
 	if (inputStream.fail())
 	{
 		return false;
 	}
 
-	LineSegment line(startPoint, endPoint, outlineColor);
-	m_storage.push_back(&line);
+	m_storage.push_back(std::make_shared<LineSegment>(startPoint, endPoint, outlineColor));
 
 	return true;
 }
@@ -97,14 +100,13 @@ bool ShapesController::AddRectangle(std::istream& inputStream)
 	uint32_t fillColor;
 	uint32_t outlineColor;
 
-	inputStream >> leftTop >> rightBottom >> fillColor >> outlineColor;
+	inputStream >> leftTop >> rightBottom >> std::hex >> fillColor >> outlineColor;
 	if (inputStream.fail())
 	{
 		return false;
 	}
 
-	Rectangle rectangle(leftTop, rightBottom, fillColor, outlineColor);
-	m_storage.push_back(&rectangle);
+	m_storage.push_back(std::make_shared<Rectangle>(leftTop, rightBottom, fillColor, outlineColor));
 
 	return true;
 }
@@ -117,14 +119,38 @@ bool ShapesController::AddTriangle(std::istream& inputStream)
 	uint32_t fillColor;
 	uint32_t outlineColor;
 
-	inputStream >> vertex1 >> vertex2 >> vertex3 >> fillColor >> outlineColor;
+	inputStream >> vertex1 >> vertex2 >> vertex3 >> std::hex >> fillColor >> outlineColor;
 	if (inputStream.fail())
 	{
 		return false;
 	}
 
-	Triangle triangle(vertex1, vertex2, vertex3, fillColor, outlineColor);
-	m_storage.push_back(&triangle);
+	m_storage.push_back(std::make_shared<Triangle>(vertex1, vertex2, vertex3, fillColor, outlineColor));
 
 	return true;
+}
+
+void ShapesController::DrawShapes(unsigned width, unsigned height, const std::string& windowTitle) const
+{
+	Canvas canvas(width, height, windowTitle);
+	while (canvas.GetRenderWindow().isOpen())
+	{
+		sf::Event event;
+		while (canvas.GetRenderWindow().pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				canvas.GetRenderWindow().close();
+		}
+
+		canvas.GetRenderWindow().clear();
+
+		for (const auto& shape : m_storage)
+		{
+			shape->Draw(canvas);
+		}
+
+		canvas.GetRenderWindow().display();
+	}
+
+	return;
 }

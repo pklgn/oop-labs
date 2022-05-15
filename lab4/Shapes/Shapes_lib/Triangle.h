@@ -1,6 +1,7 @@
 #pragma once
 #include "Point.h"
 #include "ISolidShape.h"
+#include "ICanvas.h"
 
 class Triangle : public ISolidShape
 {
@@ -24,6 +25,8 @@ public:
 	Point GetVertex1() const;
 	Point GetVertex2() const;
 	Point GetVertex3() const;
+
+	void Draw(ICanvas& canvas) const override;
 
 private:
 	Point m_vertex1;

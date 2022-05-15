@@ -1,7 +1,8 @@
 #pragma once
 #include "pch.h"
+#include "ICanvasDrawable.h"
 
-class IShape
+class IShape : public ICanvasDrawable
 {
 public:
 	virtual ~IShape() = default;
@@ -11,4 +12,3 @@ public:
 	virtual std::string ToString() const = 0;
 	virtual uint32_t GetOutlineColor() const = 0;
 };
-	

@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Circle.h"
+#include "ICanvas.h"
 
 double Circle::GetArea() const
 {
@@ -16,11 +17,14 @@ double Circle::GetPerimeter() const
 std::string Circle::ToString() const
 {
 	std::ostringstream stringStream;
+	stringStream << std::fixed;
+	stringStream.precision(3);
+
 	stringStream << "Shape type: circle" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
-				 << "Outline color: " << std::hex << GetOutlineColor() << std::endl
-				 << "Fill color: " << GetFillColor() << std::dec << std::endl
+				 << "Outline color: " << std::setfill('0') << std::setw(6) << std::hex << GetOutlineColor() << std::endl
+				 << "Fill color: " << std::setfill('0') << std::setw(6) << GetFillColor() << std::dec << std::endl
 				 << "Center Point: " << m_center.ToString()
 				 << "Radius: " << m_radius << std::endl;
 
@@ -45,4 +49,10 @@ double Circle::GetRadius() const
 Point Circle::GetCenter() const
 {
 	return m_center;
+}
+
+void Circle::Draw(ICanvas& canvas) const
+{
+	canvas.FillCircle(m_center, m_radius, m_fillColor);
+	canvas.DrawCircle(m_center, m_radius, m_outlineColor);
 }

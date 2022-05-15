@@ -4,6 +4,9 @@
 std::string Point::ToString(bool isEndLine) const
 {
 	std::ostringstream stringStream;
+	stringStream << std::fixed;
+	stringStream.precision(3);
+
 	stringStream << "x: " << x << " y: " << y;
 
 	if (isEndLine)

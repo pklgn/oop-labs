@@ -19,11 +19,14 @@ double Triangle::GetPerimeter() const
 std::string Triangle::ToString() const
 {
 	std::ostringstream stringStream;
+	stringStream << std::fixed;
+	stringStream.precision(3);
+
 	stringStream << "Shape type: triangle" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
-				 << "Outline color: " << std::hex << GetOutlineColor() << std::endl
-				 << "Fill color: " << GetFillColor() << std::dec << std::endl
+				 << "Outline color: " << std::setfill('0') << std::setw(6) << std::hex << GetOutlineColor() << std::endl
+				 << "Fill color: " << std::setfill('0') << std::setw(6) << GetFillColor() << std::dec << std::endl
 				 << "First Vertex: " << m_vertex1.ToString()
 				 << "Second Vertex: " << m_vertex2.ToString()
 				 << "Third Vertex: " << m_vertex3.ToString();
@@ -54,4 +57,14 @@ Point Triangle::GetVertex2() const
 Point Triangle::GetVertex3() const
 {
 	return m_vertex3;
+}
+
+void Triangle::Draw(ICanvas& canvas) const
+{
+	canvas.FillPolygon({ m_vertex1, m_vertex2, m_vertex3 }, m_fillColor);
+	canvas.DrawLine(m_vertex1, m_vertex2, m_outlineColor);
+	canvas.DrawLine(m_vertex2, m_vertex3, m_outlineColor);
+	canvas.DrawLine(m_vertex1, m_vertex3, m_outlineColor);
+
+	return;
 }

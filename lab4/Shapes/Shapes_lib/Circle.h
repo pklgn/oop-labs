@@ -1,6 +1,7 @@
 #pragma once
-#include "ISolidShape.h"
 #include "Point.h"
+#include "ISolidShape.h"
+#include "ICanvas.h"
 
 class Circle : public ISolidShape
 {
@@ -22,6 +23,8 @@ public:
 
 	Point GetCenter() const;
 	double GetRadius() const;
+
+	void Draw(ICanvas& canvas) const override;
 
 private:
 	Point m_center;
