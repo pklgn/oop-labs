@@ -29,6 +29,11 @@ bool ShapesController::ReadShape(std::istream& inputStream)
 
 void ShapesController::PrintShapesInfo(std::ostream& outputStream) const
 {
+	if (m_storage.size() == 0)
+	{
+		outputStream << "There are no shapes" << std::endl;
+	}
+
 	for (const auto& shape : m_storage)
 	{
 		outputStream << shape->ToString() << std::endl;

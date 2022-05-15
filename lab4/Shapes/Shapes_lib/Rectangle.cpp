@@ -20,8 +20,8 @@ std::string Rectangle::ToString() const
 	stringStream << "Shape type: rectangle" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
-				 << "Outline color: " << std::setfill('0') << std::setw(6) << std::hex << GetOutlineColor() << std::endl
-				 << "Fill color: " << std::setfill('0') << std::setw(6) << GetFillColor() << std::dec << std::endl
+				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << GetOutlineColor() << std::endl
+				 << "Fill color: " << std::setfill('0') << std::setw(8) << GetFillColor() << std::dec << std::endl
 				 << "Left top vertex: " << m_leftTop.ToString()
 				 << "Right bottom vertex: " << m_rightBottom.ToString()
 				 << "Width: " << GetWidth() << std::endl

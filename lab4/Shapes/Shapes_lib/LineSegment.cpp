@@ -21,7 +21,7 @@ std::string LineSegment::ToString() const
 	stringStream << "Shape type: line segment" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
-				 << "Outline color: " << std::setfill('0') << std::setw(6) << std::hex << GetOutlineColor() << std::dec << std::endl
+				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << GetOutlineColor() << std::dec << std::endl
 				 << "Start point: " << m_startPoint.ToString()
 				 << "End point: " << m_endPoint.ToString();
 

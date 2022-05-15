@@ -31,3 +31,8 @@ std::istream& operator>>(std::istream& inputStream, Point& point)
 
 	return inputStream;
 }
+
+bool Point::operator==(const Point& other) const
+{
+	return x == other.x && y == other.y;
+}
