@@ -1,24 +1,22 @@
 #pragma once
 #include "Point.h"
-#include "ISolidShape.h"
+#include "SolidShape.h"
 
-class Rectangle: public ISolidShape
+class Rectangle: public SolidShape
 {
 public:
+	//inline static const std::string s_type = "Rectangle";
+
 	Rectangle(const Point& leftTop, const Point& rightBottom, uint32_t fillColor, uint32_t outlineColor)
-		: m_leftTop(leftTop)
+		: SolidShape(fillColor, outlineColor)
+		, m_leftTop(leftTop)
 		, m_rightBottom(rightBottom)
-		, m_fillColor(fillColor)
-		, m_outlineColor(outlineColor)
 	{
 	}
 
 	double GetArea() const override;
 	double GetPerimeter() const override;
 	std::string ToString() const override;
-	uint32_t GetOutlineColor() const override;
-
-	uint32_t GetFillColor() const override;
 
 	Point GetLeftTop() const;
 	Point GetRightBottom() const;
@@ -30,6 +28,4 @@ public:
 private:
 	Point m_leftTop;
 	Point m_rightBottom;
-	uint32_t m_fillColor;
-	uint32_t m_outlineColor;
 };

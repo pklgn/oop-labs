@@ -20,7 +20,7 @@ std::string Rectangle::ToString() const
 	stringStream << "Shape type: rectangle" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
-				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << GetOutlineColor() << std::endl
+				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << Shape::GetOutlineColor() << std::endl
 				 << "Fill color: " << std::setfill('0') << std::setw(8) << GetFillColor() << std::dec << std::endl
 				 << "Left top vertex: " << m_leftTop.ToString()
 				 << "Right bottom vertex: " << m_rightBottom.ToString()
@@ -28,16 +28,6 @@ std::string Rectangle::ToString() const
 				 << "Height: " << GetHeight() << std::endl;
 
 	return stringStream.str();
-}
-
-uint32_t Rectangle::GetOutlineColor() const
-{
-	return m_outlineColor;
-}
-
-uint32_t Rectangle::GetFillColor() const
-{
-	return m_fillColor;
 }
 
 Point Rectangle::GetLeftTop() const

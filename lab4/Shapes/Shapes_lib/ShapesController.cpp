@@ -44,6 +44,8 @@ void ShapesController::PrintShapesInfo(std::ostream& outputStream) const
 
 std::vector<std::shared_ptr<IShape>>::const_iterator ShapesController::FindMaxAreaShape() const
 {
+	// TODO: вернуть нулевой указатель, если не нашли
+	// TODO: принимать shared ptr по конст ссылке, так быстрее, атомарный декремент счетчика?
 	return std::max_element(m_storage.begin(), m_storage.end(),
 		[](std::shared_ptr<IShape> first, std::shared_ptr<IShape> second) {
 			return first->GetArea() < second->GetArea();
@@ -76,7 +78,9 @@ bool ShapesController::AddCircle(std::istream& inputStream)
 		return false;
 	}
 
+	//почему не получается работать с ссылкой как с ссылкой IShape?
 	m_storage.push_back(std::make_shared<Circle>(center, radius, fillColor, outlineColor));
+	//m_storage.push_back(std::static_pointer_cast<IShape, ISolidShape>(std::static_pointer_cast<ISolidShape, Circle>(std::make_shared<Circle>(center, radius, fillColor, outlineColor))));
 
 	return true;
 }
@@ -112,6 +116,7 @@ bool ShapesController::AddRectangle(std::istream& inputStream)
 	}
 
 	m_storage.push_back(std::make_shared<Rectangle>(leftTop, rightBottom, fillColor, outlineColor));
+	//m_storage.push_back(std::static_pointer_cast<IShape, ISolidShape>(std::static_pointer_cast<ISolidShape, Rectangle>(std::make_shared<Rectangle>(leftTop, rightBottom, fillColor, outlineColor))));
 
 	return true;
 }
@@ -131,6 +136,7 @@ bool ShapesController::AddTriangle(std::istream& inputStream)
 	}
 
 	m_storage.push_back(std::make_shared<Triangle>(vertex1, vertex2, vertex3, fillColor, outlineColor));
+	//m_storage.push_back(std::static_pointer_cast<IShape, ISolidShape>(std::static_pointer_cast<ISolidShape, Triangle>(std::make_shared<Triangle>(vertex1, vertex2, vertex3, fillColor, outlineColor))));
 
 	return true;
 }

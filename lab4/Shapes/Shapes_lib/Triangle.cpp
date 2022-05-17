@@ -25,23 +25,13 @@ std::string Triangle::ToString() const
 	stringStream << "Shape type: triangle" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
-				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << GetOutlineColor() << std::endl
+				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << Shape::GetOutlineColor() << std::endl
 				 << "Fill color: " << std::setfill('0') << std::setw(8) << GetFillColor() << std::dec << std::endl
 				 << "First Vertex: " << m_vertex1.ToString()
 				 << "Second Vertex: " << m_vertex2.ToString()
 				 << "Third Vertex: " << m_vertex3.ToString();
 
 	return stringStream.str();
-}
-
-uint32_t Triangle::GetOutlineColor() const
-{
-	return m_outlineColor;
-}
-
-uint32_t Triangle::GetFillColor() const
-{
-	return m_fillColor;
 }
 
 Point Triangle::GetVertex1() const

@@ -23,22 +23,12 @@ std::string Circle::ToString() const
 	stringStream << "Shape type: circle" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
-				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << GetOutlineColor() << std::endl
+				 << "Outline color: " << std::setfill('0') << std::setw(8) << std::hex << Shape::GetOutlineColor() << std::endl
 				 << "Fill color: " << std::setfill('0') << std::setw(8) << GetFillColor() << std::dec << std::endl
 				 << "Center Point: " << m_center.ToString()
 				 << "Radius: " << m_radius << std::endl;
 
 	return stringStream.str();
-}
-
-uint32_t Circle::GetOutlineColor() const
-{
-	return m_outlineColor;
-}
-
-uint32_t Circle::GetFillColor() const
-{
-	return m_fillColor;
 }
 
 double Circle::GetRadius() const

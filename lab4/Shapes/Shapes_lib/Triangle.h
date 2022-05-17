@@ -1,26 +1,24 @@
 #pragma once
 #include "Point.h"
-#include "ISolidShape.h"
+#include "SolidShape.h"
 #include "ICanvas.h"
 
-class Triangle : public ISolidShape
+class Triangle : public SolidShape
 {
 public:
-	Triangle(const Point& vertex1, const Point& vertex2, const Point& vertex3, uint32_t fillColor, uint32_t outlineColor)
-		: m_vertex1(vertex1)
+	//inline static const std::string s_type = "Triangle";
+
+	Triangle(const Point& vertex1, const Point& vertex2, const Point& vertex3, uint32_t fillColor, uint32_t outlineColor) 
+		: SolidShape(fillColor, outlineColor)
+		, m_vertex1(vertex1)
 		, m_vertex2(vertex2)
 		, m_vertex3(vertex3)
-		, m_fillColor(fillColor)
-		, m_outlineColor(outlineColor)
 	{
 	}
 
 	double GetArea() const override;
 	double GetPerimeter() const override;
 	std::string ToString() const override;
-	uint32_t GetOutlineColor() const override;
-
-	uint32_t GetFillColor() const override;
 
 	Point GetVertex1() const;
 	Point GetVertex2() const;
@@ -32,6 +30,4 @@ private:
 	Point m_vertex1;
 	Point m_vertex2;
 	Point m_vertex3;
-	uint32_t m_fillColor;
-	uint32_t m_outlineColor;
 };
