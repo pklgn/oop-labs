@@ -9,6 +9,7 @@ public:
 		: m_renderWindow(sf::RenderWindow(sf::VideoMode(width, height), windowTitle))
 	{
 	}
+	// TODO: лучше передавать ссылку на RenderTarget, сделать агрегацию
 
 	void DrawLine(const Point& from, const Point& to, uint32_t lineColor) override;
 	void FillPolygon(const std::vector<Point>& points, uint32_t fillColor) override;

@@ -14,10 +14,15 @@ double LineSegment::GetPerimeter() const
 
 std::string LineSegment::ToString() const
 {
+	//todo: func streamPrepare
+	//нужно проверить, убирается ли после печати флаг std::fixed или нет? если нет - нужна функция unprepareStream
 	std::ostringstream stringStream;
 	stringStream << std::fixed;
 	stringStream.precision(3);
-
+	
+	//todo: Shape::PrintDefaultInfo()
+	//Then use here Shape::PrintDefaultInfo()
+	//Then print left info
 	stringStream << "Shape type: line segment" << std::endl
 				 << "Area: " << GetArea() << std::endl
 				 << "Perimeter: " << GetPerimeter() << std::endl
@@ -26,11 +31,6 @@ std::string LineSegment::ToString() const
 				 << "End point: " << m_endPoint.ToString();
 
 	return stringStream.str();
-}
-
-uint32_t LineSegment::GetOutlineColor() const
-{
-	return m_outlineColor;
 }
 
 Point LineSegment::GetStartPoint() const
