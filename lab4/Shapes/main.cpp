@@ -32,7 +32,7 @@ int main()
 				  << maxAreaShapeIt->ToString() << std::endl;
 		std::cout << "Min perimeter shape\n"
 				  << minPerimeterShapeIt->ToString() << std::endl;
-
+		// TODO: сделать, чтобы при изменении размеров окна сохранялись пропорции
 		shapesController.DrawShapes(800, 600, "Shapes");
 	}
 
