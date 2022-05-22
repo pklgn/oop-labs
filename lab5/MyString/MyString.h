@@ -40,7 +40,26 @@ public:
 	// очистка строки (строка становится снова нулевой длины)
 	void Clear();
 
+	MyString& operator=(const MyString& other);
+	MyString& operator=(MyString&& other) noexcept;
+	MyString operator+(const MyString& other);
+	MyString& operator+=(const MyString& other);
+	bool operator==(const MyString& other) const;
+	bool operator!=(const MyString& other) const;
+	bool operator<(const MyString& other) const;
+	bool operator>(const MyString& other) const;
+	bool operator<=(const MyString& other) const;
+	bool operator>=(const MyString& other) const;
+	const char& operator[](size_t index) const;
+	char& operator[](size_t index);
+	friend std::istream& operator>>(std::istream& inputStream, MyString& myString);
+	friend std::ostream& operator<<(std::ostream& outputStream, MyString& myString);
+
+
 private:
 	size_t m_length;
 	std::unique_ptr<char[]> m_stringPtr;
 };
+
+MyString operator+(const std::string& stlString, const MyString& myString);
+MyString operator+(const char* cString, const MyString& myString);
