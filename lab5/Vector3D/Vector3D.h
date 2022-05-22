@@ -35,6 +35,6 @@ public:
 
 Vector3D const operator*(double scalar, Vector3D const& vector);
 
-double DotProduct(Vector3D const& vector1, Vector3D const& vector2);
+double DotProduct(Vector3D const&, Vector3D const&);
 Vector3D CrossProduct(Vector3D const& vector1, Vector3D const& vector2);
 Vector3D Normalize(Vector3D const& vector);

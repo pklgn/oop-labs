@@ -145,3 +145,7 @@ Vector3D CrossProduct(Vector3D const& vector1, Vector3D const& vector2)
 		vector1.x * vector2.y - vector1.y * vector2.x);
 }
 
+Vector3D Normalize(Vector3D const& vector)
+{
+	return vector / vector.GetLength();
+}
