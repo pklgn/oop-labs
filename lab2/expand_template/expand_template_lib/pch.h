@@ -8,10 +8,6 @@
 #define PCH_H
 
 // add headers that you want to pre-compile here
-#include <cmath>
-#include <iostream>
-#include <float.h>
-#include <sstream>
-#include <iomanip>
+
 
 #endif //PCH_H

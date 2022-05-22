@@ -56,9 +56,7 @@ Vector3D& Vector3D::operator+=(Vector3D const& vector)
 
 Vector3D& Vector3D::operator-=(Vector3D const& vector)
 {
-	x -= vector.x;
-	y -= vector.y;
-	z -= vector.z;
+	*this += -vector;
 
 	return *this;
 }
@@ -76,6 +74,13 @@ Vector3D const operator*(double scalar, Vector3D const& vector)
 
 Vector3D Vector3D::operator/(double scalar) const
 {
+	if (scalar == 0)
+	{
+		return Vector3D(x > 0 ? INFINITY : -INFINITY,
+			y > 0 ? INFINITY : -INFINITY,
+			z > 0 ? INFINITY : -INFINITY);
+	}
+
 	return Vector3D(x / scalar, y / scalar, z / scalar);
 }
 
@@ -99,7 +104,9 @@ Vector3D& Vector3D::operator/=(double scalar)
 
 bool Vector3D::operator==(Vector3D const& otherVector) const
 {
-	return (x == otherVector.x) && (y == otherVector.y) && (z == otherVector.z);
+	return (std::abs(x - otherVector.x) <= DBL_EPSILON)
+		&& (std::abs(y - otherVector.y) <= DBL_EPSILON)
+		&& (std::abs(z - otherVector.z) <= DBL_EPSILON);
 }
 
 bool Vector3D::operator!=(Vector3D const& otherVector) const
@@ -107,14 +114,20 @@ bool Vector3D::operator!=(Vector3D const& otherVector) const
 	return !(*this == otherVector);
 }
 
+bool Vector3D::IsValid() const
+{
+	return (this->x != -INFINITY &&
+		this->y != -INFINITY &&
+		this->z != -INFINITY);
+}
+
 std::istream& operator>>(std::istream& inputStream, Vector3D& vector)
 {
 	double x, y, z;
-	if ((inputStream.get() == '(') &&
-		(inputStream >> x) && (inputStream.get() == ';') &&
-		(inputStream >> y) && (inputStream.get() == ';') &&
-		(inputStream >> z) &&
-		(inputStream.get() == ')'))
+
+	if ((inputStream >> x) && (inputStream.get() == ',') &&
+		(inputStream >> y) && (inputStream.get() == ',') &&
+		(inputStream >> z))
 	{
 		vector = Vector3D(x, y, z);
 	}
@@ -128,7 +141,7 @@ std::istream& operator>>(std::istream& inputStream, Vector3D& vector)
 
 std::ostream& operator<<(std::ostream& outputStream, Vector3D const& vector)
 {
-	outputStream << "(" << vector.x << "; " << vector.y << "; " << vector.z << ")";
+	outputStream << vector.x << ", " << vector.y << ", " << vector.z;
 
 	return outputStream;
 }
