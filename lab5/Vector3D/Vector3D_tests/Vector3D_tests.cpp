@@ -191,11 +191,96 @@ TEST_CASE("Checks vectors for approximate equality ")
 TEST_CASE("Binary multiplication and division operations")
 {
 	Vector3D vector(-1.32, -4.24, -7.35);
+	Vector3D defaultVector;
 	Vector3D resultVector;
 
 	SECTION("Multiplication")
 	{
 		resultVector = vector * 2;
+		Vector3D doubledVector(-2.64, -8.48, -14.7);
+		REQUIRE(resultVector == doubledVector);
 
+		resultVector = 2 * vector;
+		REQUIRE(resultVector == doubledVector);
+
+
+		resultVector = defaultVector * 3;
+		REQUIRE(resultVector == defaultVector);
+	}
+
+	SECTION("Division")
+	{
+		resultVector = vector / 2;
+		Vector3D halfVector(-0.66, -2.12, -3.675);
+		REQUIRE(resultVector == halfVector);
+
+		resultVector = vector / 0;
+		REQUIRE(!resultVector.IsValid());
+	}
+}
+
+TEST_CASE("Check work with streams")
+{
+	std::istringstream inputStream("4.1, 5, 6\n4, 5, a");
+	Vector3D initialVector(4.1, 5, 6);
+	std::ostringstream outputStream;
+	Vector3D vector;
+	SECTION("Check input operation")
+	{
+		inputStream >> vector;
+		REQUIRE(vector == initialVector);
+
+		inputStream >> vector;
+		REQUIRE(inputStream.fail());
+	}
+
+	SECTION("Check output")
+	{
+		outputStream << initialVector << std::endl << initialVector * 2;
+		REQUIRE(outputStream.str() == "4.1, 5, 6\n8.2, 10, 12");
+	}
+}
+
+TEST_CASE("Check vector functions")
+{
+	SECTION("Check scalar mul")
+	{
+		Vector3D vector1(1.2, 3.2, 3.21);
+		Vector3D vector2(1, 3, 3);
+
+		REQUIRE(DotProduct(vector1, vector2) == 20.43);
+	}
+
+	SECTION("Check vector mul")
+	{
+		Vector3D vector1(1, 2, 3);
+		Vector3D vector2(4, 5, 6);
+		Vector3D resultVectorMul(-3, 6, -3);
+
+		REQUIRE(CrossProduct(vector1, vector2) == resultVectorMul);
+	}
+
+	SECTION("Check vector normalization")
+	{
+		Vector3D vector(5, -2, 7);
+		double vectorLength = std::sqrt(78);
+		Vector3D resultVector(5 / vectorLength, -2 / vectorLength, 7 / vectorLength);
+
+		REQUIRE(Normalize(vector) == resultVector);
+
+		Vector3D defaultVector;
+		REQUIRE(!Normalize(defaultVector).IsValid());
+	}
+
+	SECTION("Check vector length")
+	{
+		Vector3D vector(4, 5, 6);
+		REQUIRE(vector.GetLength() == std::sqrt(77));
+
+		Vector3D defaultVector;
+		REQUIRE(defaultVector.GetLength() == 0);
+
+		Vector3D fractionalVector(1.2, -3.4, -7);
+		REQUIRE(Approx(fractionalVector.GetLength()).margin(0.0001) == std::sqrt(62));
 	}
 }
