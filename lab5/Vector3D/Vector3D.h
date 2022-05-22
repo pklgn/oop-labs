@@ -13,9 +13,6 @@ public:
 	// ¬озвращает длину вектора
 	double GetLength() const;
 
-	// Ќормализует вектор (приводит его к единичной длине)
-	void Normalize();
-
 	// ƒругие методы и операции класса
 	Vector3D const operator-() const;
 	Vector3D const operator+() const;
@@ -23,21 +20,21 @@ public:
 	Vector3D const operator-(Vector3D const& otherVector) const;
 	Vector3D& operator+=(Vector3D const& vector);
 	Vector3D& operator-=(Vector3D const& vector);
-	Vector3D& const operator*(double scalar) const;
-	Vector3D& const operator/(double scalar) const;
+	Vector3D operator*(double scalar) const;
+	Vector3D operator/(double scalar) const;
 	Vector3D& operator*=(double scalar);
 	Vector3D& operator/=(double scalar);
-	bool operator==(Vector3D const&) const;
-	bool operator!=(Vector3D const&) const;
+	bool operator==(Vector3D const& otherVector) const;
+	bool operator!=(Vector3D const& otherVector) const;
 	friend std::istream& operator>>(std::istream& inputStream, Vector3D& vector);
-	friend std::ostream& operator<<(std::ostream& inputStream, Vector3D const& vector);
-	double DotProduct(Vector3D const& vector1, Vector3D const& vector2);
-	Vector3D CrossProduct(Vector3D const& vector1, Vector3D const& vector2);
-	Vector3D Normalize(Vector3D const& vector); 
+	friend std::ostream& operator<<(std::ostream& outputStream, Vector3D const& vector);
 
-		
 	// ¬ данном случае данные можно сделать публичными
 	double x, y, z;
 };
 
 Vector3D const operator*(double scalar, Vector3D const& vector);
+
+double DotProduct(Vector3D const& vector1, Vector3D const& vector2);
+Vector3D CrossProduct(Vector3D const& vector1, Vector3D const& vector2);
+Vector3D Normalize(Vector3D const& vector);
