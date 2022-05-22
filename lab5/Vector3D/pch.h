@@ -11,5 +11,7 @@
 #include <cmath>
 #include <iostream>
 #include <float.h>
+#include <sstream>
+#include <iomanip>
 
 #endif //PCH_H

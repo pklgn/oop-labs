@@ -29,6 +29,8 @@ public:
 	friend std::istream& operator>>(std::istream& inputStream, Vector3D& vector);
 	friend std::ostream& operator<<(std::ostream& outputStream, Vector3D const& vector);
 
+	bool IsValid() const;
+
 	// ¬ данном случае данные можно сделать публичными
 	double x, y, z;
 };

@@ -114,14 +114,20 @@ bool Vector3D::operator!=(Vector3D const& otherVector) const
 	return !(*this == otherVector);
 }
 
+bool Vector3D::IsValid() const
+{
+	return (this->x != -INFINITY &&
+		this->y != -INFINITY &&
+		this->z != -INFINITY);
+}
+
 std::istream& operator>>(std::istream& inputStream, Vector3D& vector)
 {
 	double x, y, z;
-	if ((inputStream.get() == '(') &&
-		(inputStream >> x) && (inputStream.get() == ';') &&
-		(inputStream >> y) && (inputStream.get() == ';') &&
-		(inputStream >> z) &&
-		(inputStream.get() == ')'))
+
+	if ((inputStream >> x) && (inputStream.get() == ',') &&
+		(inputStream >> y) && (inputStream.get() == ',') &&
+		(inputStream >> z))
 	{
 		vector = Vector3D(x, y, z);
 	}
@@ -135,7 +141,7 @@ std::istream& operator>>(std::istream& inputStream, Vector3D& vector)
 
 std::ostream& operator<<(std::ostream& outputStream, Vector3D const& vector)
 {
-	outputStream << "(" << vector.x << "; " << vector.y << "; " << vector.z << ")";
+	outputStream << vector.x << ", " << vector.y << ", " << vector.z;
 
 	return outputStream;
 }
