@@ -1,4 +1,5 @@
-rectangle 1 400 500 1 ffff00 00ffff
-circle 7 5 2 0eeaa0 0abcde
-line -2.5 -2 -4 -1 00bbbb
-triangle -5 7 -7 2 -2 6 ff0000 00ffff
+rectangle 0 4 5 0 ffff00ff 00ffffff
+circle 7 5 2 0eeaa0ff 0abcdeff
+line -2.5 -2 -4 -1 00bbbbff
+triangle -5 7 -7 2 -2 6 ff0000ff 00ffffff
+trianlge 0 0 0 3 4 0 ff0000ff 00ffffff

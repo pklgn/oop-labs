@@ -69,6 +69,30 @@ TEST_CASE("Create basic line")
 	}
 }
 
+TEST_CASE("Work with Point class")
+{
+	SECTION("Create point")
+	{
+		Point point = { 0.5, 3.21 };
+		REQUIRE(point.x == 0.5);
+		REQUIRE(point.y == 3.21);
+	}
+
+	SECTION("Calculate the distance between two points")
+	{
+		Point firstPoint = { 0, 3 };
+		Point secondPoint = { 4, 0 };
+		REQUIRE(Point::GetDistance(firstPoint, secondPoint) == 5);
+	}
+
+	SECTION("Check comparsion")
+	{
+		Point firstPoint = { 0.321, 3.45 };
+		Point secondPoint = { 4, 0 };
+		REQUIRE(!(firstPoint == secondPoint));
+		REQUIRE(firstPoint == firstPoint);
+	}
+}
 
 TEST_CASE("Read from stream")
 {
