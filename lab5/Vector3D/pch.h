@@ -9,6 +9,7 @@
 
 // add headers that you want to pre-compile here
 #include <cmath>
-#include "iostream"
+#include <iostream>
+#include <float.h>
 
 #endif //PCH_H
