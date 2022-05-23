@@ -39,7 +39,10 @@ MyString::MyString(std::string const& stlString)
 	: m_length(stlString.size())
 	, m_stringPtr(std::make_unique<char[]>(m_length + 1))
 {
-	memmove(m_stringPtr.get(), &stlString, m_length);
+	for (size_t i = 0; i < m_length; ++i)
+	{
+		m_stringPtr[i] = stlString[i];
+	}
 }
 
 size_t MyString::GetLength() const
@@ -205,17 +208,17 @@ char& MyString::operator[](size_t index)
 std::istream& operator>>(std::istream& inputStream, MyString& myString)
 {
 	char ch;
-	
+	inputStream >> std::noskipws;
 	do
 	{
 		inputStream >> ch;
-		if (inputStream.good())
+		if (inputStream.good() && !std::isspace(ch))
 		{
 			MyString tempString(&ch, 1);
 			myString += tempString;
 		}
 	}
-	while (ch != ' ' || inputStream.eof());
+	while (ch != ' ' && !inputStream.eof());
 
 	return inputStream;
 }

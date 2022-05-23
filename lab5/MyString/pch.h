@@ -12,5 +12,6 @@
 #include <string>
 #include <memory>
 #include <cstring>
+#include <string.h>
 
 #endif //PCH_H
