@@ -32,7 +32,7 @@ TEST_CASE("Construct parametrized object")
 
 	SECTION("Use pointer to char with length")
 	{
-		// TODO: добавить тест с substr не с нулевого символа и потом исправить; тесты писать сначала
+		// TODO: добавить тест с substr не с нулевого символа
 		std::string cStr("quite a long string for the test");
 		MyString str(cStr.c_str(), 31);
 		REQUIRE(str.GetLength() == 31);
@@ -231,14 +231,35 @@ TEST_CASE("Check MyString methods")
 
 	SECTION("Use substring")
 	{
-		std::string resultStr("str");
+		MyString resultStr1("str");
 		MyString testStr("string");
-		MyString subStr = testStr.SubString(0, 3);
+		MyString subStr1 = testStr.SubString(0, 3);
 
 		// TODO: Отобразить все 4 кейса копирования 
 
-		REQUIRE(subStr.GetLength() == 3);
-		REQUIRE(subStr.GetStringData() == resultStr);
+		REQUIRE(subStr1.GetLength() == 3);
+		REQUIRE(subStr1 == resultStr1);
+
+		MyString subStr2 = testStr.SubString(1, 2);
+		MyString resultStr2("tr");
+		REQUIRE(subStr2.GetLength() == 2);
+		REQUIRE(subStr2 == resultStr2);
+
+		MyString subStr3 = testStr.SubString(1, 10);
+		MyString resultStr3("tring");
+		REQUIRE(subStr3.GetLength() == 5);
+		REQUIRE(subStr3 == resultStr3);
+
+		MyString subStr4 = testStr.SubString(10, 1);
+		MyString resultStr4;
+		REQUIRE(subStr4.GetLength() == 0);
+		REQUIRE(subStr4 == resultStr4);
+
+		MyString subStr5 = testStr.SubString(10, 0);
+		MyString resultStr5;
+		REQUIRE(subStr5.GetLength() == 0);
+		REQUIRE(subStr5 == resultStr5);
+
 	}
 }
 // TODO: добавить except range
