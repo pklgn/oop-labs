@@ -5,13 +5,15 @@ MyString::MyString()
 	: m_stringPtr(std::make_unique<char[]>(1))
 	, m_length(0)
 {
+	// TODO: проиницициалзировать нуль символом здесь и в остальных местах
+	m_stringPtr[m_length] = '\0';
 }
 
 MyString::MyString(const char* pString)
-	: m_length(strlen(pString))
-	, m_stringPtr(std::make_unique<char[]>(m_length + 1))
+	: MyString(pString, std::strlen(pString))
 {
-	std::strcpy(m_stringPtr.get(), pString);
+	// TODO: memmove(); или
+	// TODO: использовать делегирование конструкторов
 }
 
 MyString::MyString(const char* pString, size_t length)
@@ -19,30 +21,26 @@ MyString::MyString(const char* pString, size_t length)
 	, m_stringPtr(std::make_unique<char[]>(length + 1))
 {
 	std::memmove(m_stringPtr.get(), pString, length);
+	m_stringPtr[m_length] = '\0';
 }
 
 MyString::MyString(MyString const& other)
-	: m_length(other.GetLength())
-	, m_stringPtr(std::make_unique<char[]>(other.GetLength() + 1))
+	: MyString(other.GetStringData(), other.GetLength())
 {
-	memmove(m_stringPtr.get(), other.GetStringData(), m_length);
 }
 
-MyString::MyString(MyString&& other)
+MyString::MyString(MyString&& other) noexcept
 	: m_length(0)
 {
+	// TODO: проверить ситуацию с move того же экземлпяра
 	m_stringPtr = std::move(other.m_stringPtr);
 	std::swap(m_length, other.m_length);
 }
 
 MyString::MyString(std::string const& stlString)
-	: m_length(stlString.size())
-	, m_stringPtr(std::make_unique<char[]>(m_length + 1))
+	: MyString(stlString.c_str(), stlString.length())
 {
-	for (size_t i = 0; i < m_length; ++i)
-	{
-		m_stringPtr[i] = stlString[i];
-	}
+	// TODO: либо делегировать конструктор либо memmove c_str()
 }
 
 size_t MyString::GetLength() const
@@ -59,22 +57,23 @@ MyString MyString::SubString(size_t start, size_t length) const
 {
 	if (m_length < start + length)
 	{
-		return MyString(m_stringPtr.get(), m_length - start);
+		// TODO: + start
+		return MyString(m_stringPtr.get() + start, m_length - start);
 	}
 
 	if (m_length - 1 < start)
 	{
 		return MyString();
 	}
-
-	return MyString(m_stringPtr.get(), length);
+	// TODO: + start
+	return MyString(m_stringPtr.get() + start, length);
 }
 
 void MyString::Clear()
 {
-	m_stringPtr.reset();
 	m_length = 0;
-	m_stringPtr = std::make_unique<char[]>(1);
+	m_stringPtr = std::make_unique<char[]>(m_length + 1);
+	// TODO: добавить символ конца строки или делегировать MyString()
 }
 
 MyString& MyString::operator=(const MyString& other)
@@ -91,12 +90,14 @@ MyString& MyString::operator=(const MyString& other)
 
 MyString& MyString::operator=(MyString&& other) noexcept
 {
-	if (&other != this)
+	// TODO: добавить addressof()
+	// TODO: сделать swap()
+	if (std::addressof(other) != this)
 	{
-		m_stringPtr = std::move(other.m_stringPtr);
-		m_length = other.m_length;
-		other.m_length = 0;
-		other.m_stringPtr.reset();
+		m_length = 0;
+		m_stringPtr = nullptr;
+		std::swap(m_length, other.m_length);
+		std::swap(m_stringPtr, other.m_stringPtr);
 	}
 
 	return *this;
@@ -104,20 +105,49 @@ MyString& MyString::operator=(MyString&& other) noexcept
 
 MyString MyString::operator+(const MyString& other)
 {
-	MyString tempString(this->m_stringPtr.get(), this->m_length + other.m_length);
+	// TODO: копирование данных за пределами строки
+	MyString tempString(this->GetStringData());
 
 	return tempString += other;
 }
 
+MyString MyString::operator+(const std::string& stlString)
+{
+	MyString tempString(stlString);
+
+	return *this + tempString;
+}
+
+MyString MyString::operator+(const char* cString)
+{
+	MyString tempString(cString);
+
+	// TODO: узнать можно ли делегировать
+
+	return *this + tempString;
+}
+
 MyString& MyString::operator+=(const MyString& other)
 {
+	// TODO: добавить поддержку нулевых символов
 	MyString tempString(this->GetStringData());
 
-	m_length = tempString.GetLength() + other.GetLength();
-	m_stringPtr = std::make_unique<char[]>(tempString.GetLength() + other.GetLength() + 1);
+	// TODO: добавить try/catch
+	try
+	{
+		m_length = tempString.GetLength() + other.GetLength();
+		m_stringPtr = std::make_unique<char[]>(tempString.GetLength() + other.GetLength() + 1);
+		memmove(m_stringPtr.get(), tempString.GetStringData(), tempString.GetLength());
+		memmove(m_stringPtr.get() + tempString.GetLength(), other.GetStringData(), other.GetLength());
+	}
+	catch (...)
+	{
+		m_stringPtr = std::make_unique<char[]>(tempString.GetLength() + 1);
 
-	memmove(m_stringPtr.get(), tempString.GetStringData(), tempString.GetLength());
-	memmove(m_stringPtr.get() + tempString.GetLength(), other.GetStringData(), other.GetLength());
+		throw;
+	}
+
+	m_stringPtr[m_length] = '\0';
 
 	return *this;
 }
@@ -128,16 +158,10 @@ bool MyString::operator==(const MyString& other) const
 	{
 		return false;
 	}
+	// TODO: использовать strcmp или memcmp версия 
+	int cmpResult = std::memcmp(this->GetStringData(), other.GetStringData(), other.GetLength());
 
-	for (size_t i = 0; i < other.GetLength(); ++i)
-	{
-		if (this->m_stringPtr[i] != other.m_stringPtr[i])
-		{
-			return false;
-		}
-	}
-
-	return true;
+	return cmpResult == 0;
 }
 
 bool MyString::operator!=(const MyString& other) const
@@ -151,17 +175,19 @@ bool MyString::operator<(const MyString& other) const
 	{
 		return false;
 	}
+	// TODO: использовать strcmp или memcmp здесь и дальше
+	size_t minLength = this->GetLength();
+	int cmpResult = std::memcmp(this->GetStringData(), other.GetStringData(), minLength);
 
-	size_t minLength = other.GetLength();
-	for (size_t i = 0; i < minLength; ++i)
+	if (this->GetLength() == other.GetLength())
 	{
-		if (this->m_stringPtr[i] > other.m_stringPtr[i])
+		if (cmpResult == 0)
 		{
 			return false;
 		}
 	}
 	
-	return true;
+	return cmpResult <= 0;
 }
 
 bool MyString::operator>(const MyString& other) const
@@ -172,15 +198,18 @@ bool MyString::operator>(const MyString& other) const
 	}
 
 	size_t minLength = other.GetLength();
-	for (size_t i = 0; i < minLength; ++i)
+	int cmpResult = std::memcmp(this->GetStringData(), other.GetStringData(), minLength);
+
+	if (this->GetLength() == other.GetLength())
 	{
-		if (this->m_stringPtr[i] < other.m_stringPtr[i])
+		if (cmpResult == 0)
 		{
 			return false;
 		}
 	}
+	// TODO: делегировать операторам != и <
 
-	return true;
+	return cmpResult >= 0;
 }
 
 bool MyString::operator<=(const MyString& other) const
@@ -195,41 +224,60 @@ bool MyString::operator>=(const MyString& other) const
 
 const char& MyString::operator[](size_t index) const
 {
-	//assert(index < m_length);
+	if (index >= m_length)
+	{
+		throw std::out_of_range("Index out of range");
+	}
+
 	return m_stringPtr[index];
 }
 
 char& MyString::operator[](size_t index)
 {
-	// TODO: check range
+	if (index >= m_length)
+	{
+		throw std::out_of_range("Index out of range");
+	}
+
 	return m_stringPtr[index];
 }
 
 std::istream& operator>>(std::istream& inputStream, MyString& myString)
 {
 	char ch;
+	if (inputStream.fail())
+	{
+		return inputStream;
+	}
+
+	size_t length = 0;
 	inputStream >> std::noskipws;
 	do
 	{
 		inputStream >> ch;
 		if (inputStream.good() && !std::isspace(ch))
 		{
-			MyString tempString(&ch, 1);
-			myString += tempString;
+			++length;
 		}
 	}
 	while (ch != ' ' && !inputStream.eof());
+
+	if (length > 0)
+	{
+		inputStream.clear();
+		inputStream.seekg(0);
+		char* buffer = new char[length];
+		inputStream.read(buffer, length);
+		myString += MyString(buffer, length);
+	}
 
 	return inputStream;
 }
 
 std::ostream& operator<<(std::ostream& outputStream, MyString& myString)
 {
-	size_t length = myString.GetLength();
-	for (size_t i = 0; i < length; ++i)
-	{
-		outputStream << myString[i];
-	}
+	// TODO: использовать outputStream.write()
+	outputStream.write(myString.GetStringData(), myString.GetLength());
 
 	return outputStream;
 }
@@ -238,12 +286,12 @@ MyString operator+(const std::string& stlString, const MyString& myString)
 {
 	MyString tempString(stlString);
 
-	return tempString += myString;
+	return tempString + myString;
 }
 
 MyString operator+(const char* cString, const MyString& myString)
 {
 	MyString tempString(cString, strlen(cString) + myString.GetLength());
 
-	return tempString += myString;
+	return tempString + myString;
 }

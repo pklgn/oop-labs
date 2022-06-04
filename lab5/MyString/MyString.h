@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "MyStringIterator.h"
 
 class MyString
 {
@@ -20,7 +21,7 @@ public:
 
 	// перемещающий конструктор (для компиляторов, совместимых с C++11)
 	//  реализуется совместно с перемещающим оператором присваивания
-	MyString(MyString&& other);
+	MyString(MyString&& other) noexcept;
 
 	// конструктор, инициализирующий строку данными из
 	// строки стандартной библиотеки C++
@@ -43,6 +44,8 @@ public:
 	MyString& operator=(const MyString& other);
 	MyString& operator=(MyString&& other) noexcept;
 	MyString operator+(const MyString& other);
+	MyString operator+(const std::string& stlString);
+	MyString operator+(const char* cString);
 	MyString& operator+=(const MyString& other);
 	bool operator==(const MyString& other) const;
 	bool operator!=(const MyString& other) const;
@@ -54,7 +57,6 @@ public:
 	char& operator[](size_t index);
 	friend std::istream& operator>>(std::istream& inputStream, MyString& myString);
 	friend std::ostream& operator<<(std::ostream& outputStream, MyString& myString);
-
 
 private:
 	size_t m_length;
