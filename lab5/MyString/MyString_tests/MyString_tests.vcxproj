@@ -145,6 +145,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MyStringIterator_tests.cpp" />
     <ClCompile Include="MyString_tests.cpp" />
   </ItemGroup>
   <ItemGroup>
