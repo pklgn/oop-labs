@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "MyStringIterator.h"
+#include "MyStringIterator.hpp"
 
 class MyString
 {
@@ -57,6 +57,24 @@ public:
 	char& operator[](size_t index);
 	friend std::istream& operator>>(std::istream& inputStream, MyString& myString);
 	friend std::ostream& operator<<(std::ostream& outputStream, MyString& myString);
+
+	using iterator = MyStringIterator<char>;
+    using const_iterator = MyStringIterator<const char>;
+
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+	using reverse_iterator = std::reverse_iterator<iterator>;
+
+	iterator begin();
+	iterator end();
+
+	const_iterator begin() const;
+	const_iterator end() const;
+
+	reverse_iterator rbegin();
+	reverse_iterator rend();
+
+	const_reverse_iterator rbegin() const;
+	const_reverse_iterator rend() const;
 
 private:
 	size_t m_length;

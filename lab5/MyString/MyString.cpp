@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "MyString.h"
+#include "MyStringIterator.hpp"
 
 MyString::MyString()
 	: m_stringPtr(std::make_unique<char[]>(1))
@@ -40,7 +41,7 @@ MyString::MyString(MyString&& other) noexcept
 }
 
 MyString::MyString(std::string const& stlString)
-	: MyString(stlString.c_str(), stlString.length())
+	: MyString(stlString.c_str(), stlString.size())
 {
 	// TODO: либо делегировать конструктор либо memmove c_str()
 }
@@ -291,3 +292,51 @@ MyString operator+(const char* cString, const MyString& myString)
 
 	return tempString + myString;
 }
+
+using iterator = MyStringIterator<char>;
+using const_iterator = MyStringIterator<const char>;
+
+using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+using reverse_iterator = std::reverse_iterator<iterator>;
+
+iterator MyString::begin()
+{
+	return iterator(m_stringPtr.get());
+}
+
+iterator MyString::end()
+{
+	return iterator(m_stringPtr.get() + m_length);
+}
+
+const_iterator MyString::begin() const
+{
+	return const_iterator(m_stringPtr.get());
+}
+
+const_iterator MyString::end() const
+{
+	return const_iterator(m_stringPtr.get() + m_length);
+}
+
+reverse_iterator MyString::rbegin()
+{
+	return std::make_reverse_iterator(end());
+}
+
+reverse_iterator MyString::rend()
+{
+	return std::make_reverse_iterator(begin());
+}
+
+const_reverse_iterator MyString::rbegin() const
+{
+	return std::make_reverse_iterator(end());
+}
+
+const_reverse_iterator MyString::rend() const
+{
+	return std::make_reverse_iterator(begin());
+}
+
+

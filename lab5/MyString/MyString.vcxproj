@@ -152,12 +152,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="MyString.h" />
-    <ClInclude Include="MyStringIterator.h" />
+    <ClInclude Include="MyStringIterator.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyString.cpp" />
-    <ClCompile Include="MyStringIterator.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

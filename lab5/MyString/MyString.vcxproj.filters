@@ -21,7 +21,7 @@
     <ClInclude Include="MyString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyStringIterator.h">
+    <ClInclude Include="MyStringIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -30,9 +30,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MyString.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MyStringIterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
