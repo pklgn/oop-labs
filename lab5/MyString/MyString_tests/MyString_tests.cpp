@@ -147,6 +147,8 @@ TEST_CASE("Use string operator")
 		MyString quadMyStr2 = testString.c_str() + tripleMyStr;
 		REQUIRE(quadMyStr2.GetLength() == testString.size() * 4);
 		REQUIRE(quadMyStr2.GetStringData() == testString + testString + testString + testString);
+
+		// TODO: проверить добавление другой строки
 	}
 
 	SECTION("Use operator == or !=")
@@ -159,7 +161,7 @@ TEST_CASE("Use string operator")
 		REQUIRE(string1 == string3);
 		REQUIRE(string1 != string2);
 
-		MyString stringDivided("string\0divided");
+		MyString stringDivided("string1\0divided");
 		REQUIRE(stringDivided == stringDivided);
 		REQUIRE(stringDivided != string1);
 	}
@@ -182,11 +184,13 @@ TEST_CASE("Use string operator")
 		REQUIRE(s2 >= s1);
 
 		REQUIRE(s1 <= s3);
+		REQUIRE(s1 < s3);
 		REQUIRE(s2 > s3);
 	}
 
 	SECTION("Use operator []")
 	{
+		// TODO: добавить на \0
 		std::string stlString("test string");
 		MyString str(stlString.c_str());
 		REQUIRE(str[0] == 't');
@@ -235,7 +239,8 @@ TEST_CASE("Check MyString methods")
 		MyString testStr("string");
 		MyString subStr1 = testStr.SubString(0, 3);
 
-		// TODO: Отобразить все 4 кейса копирования 
+		// FIXED: Отобразить все 4 кейса копирования  
+		// TODO: добавить \0 тесты
 
 		REQUIRE(subStr1.GetLength() == 3);
 		REQUIRE(subStr1 == resultStr1);
