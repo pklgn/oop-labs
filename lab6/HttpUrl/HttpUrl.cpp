@@ -2,6 +2,9 @@
 #include "HttpUrl.h"
 #include "UrlParsingError.h"
 
+void ParseURL(std::string const& url, HttpUrl::Protocol& protocol, HttpUrl::Port& port, std::string& host, std::string& document);
+bool IsValidDomain(const std::string& domain);
+
 HttpUrl::HttpUrl(std::string const& url)
 {
 	Protocol protocol;
@@ -11,10 +14,6 @@ HttpUrl::HttpUrl(std::string const& url)
 	try
 	{
 		ParseURL(url, protocol, port, domain, document);
-		m_document = PreformatDocument(document);
-		m_domain = domain;
-		m_port = port;
-		m_protocol = protocol;
 	}
 	catch (std::exception& e)
 	{
@@ -22,6 +21,16 @@ HttpUrl::HttpUrl(std::string const& url)
 
 		throw UrlParsingError("Can't construct invalid url object");
 	}
+
+	if (!IsValidDomain(domain))
+	{
+		throw UrlParsingError("Invalid domain value");
+	}
+
+	m_document = PreformatDocument(document);
+	m_domain = domain;
+	m_port = port;
+	m_protocol = protocol;
 }
 
 HttpUrl::HttpUrl(std::string const& domain, std::string const& document, Protocol protocol)
@@ -99,23 +108,23 @@ HttpUrl::Port HttpUrl::GetPort() const
 	return m_port;
 }
 
-HttpUrl::Protocol HttpUrl::ParseProtocol(const std::string& protocolName) const
+HttpUrl::Protocol ParseProtocol(const std::string& protocolName)
 {
 	std::string protocol = TextToLower(protocolName);
 
 	if (protocol == "http")
 	{
-		return Protocol::HTTP;
+		return HttpUrl::Protocol::HTTP;
 	}
 	else if (protocol == "https")
 	{
-		return Protocol::HTTPS;
+		return HttpUrl::Protocol::HTTPS;
 	}
 	
 	throw UrlParsingError("Invalid protocol value");
 }
 
-HttpUrl::Port HttpUrl::ParsePort(const Protocol& protocol, const std::string& port) const
+HttpUrl::Port ParsePort(const HttpUrl::Protocol& protocol, const std::string& port)
 {
 	if (port.empty())
 	{
@@ -132,7 +141,7 @@ HttpUrl::Port HttpUrl::ParsePort(const Protocol& protocol, const std::string& po
 		throw UrlParsingError("Invalid port value");
 	}
 
-	if (portNumber < MIN_PORT || portNumber >= MAX_PORT)
+	if (portNumber < HttpUrl::MIN_PORT || portNumber > HttpUrl::MAX_PORT)
 	{
 		throw UrlParsingError("Port value out of range");
 	}
@@ -140,12 +149,12 @@ HttpUrl::Port HttpUrl::ParsePort(const Protocol& protocol, const std::string& po
 	return portNumber;
 }
 
-bool HttpUrl::IsValidDomain(const std::string& domain) const
+bool IsValidDomain(const std::string& domain)
 {
-	return domain.length() > 63;
+	return domain.length() < 63;
 }
 
-std::string HttpUrl::TextToLower(const std::string& str) const
+std::string TextToLower(const std::string& str)
 {
 	std::string result = str;
 	std::transform(result.begin(), result.end(), result.begin(),
@@ -154,26 +163,24 @@ std::string HttpUrl::TextToLower(const std::string& str) const
 	return result;
 }
 
-HttpUrl::Port HttpUrl::GetDefaultPort(const Protocol& protocol) const
+HttpUrl::Port GetDefaultPort(const HttpUrl::Protocol& protocol)
 {
 	switch (protocol)
 	{
-	case Protocol::HTTP:
-		return DEFAULT_HTTP_PORT;
-	case Protocol::HTTPS:
-		return DEFAULT_HTTPS_PORT;
+	case HttpUrl::Protocol::HTTP:
+		return HttpUrl::DEFAULT_HTTP_PORT;
+	case HttpUrl::Protocol::HTTPS:
+		return HttpUrl::DEFAULT_HTTPS_PORT;
 	}
 
-	return DEFAULT_NO_PORT;
+	return HttpUrl::DEFAULT_NO_PORT;
 }
 
-std::string HttpUrl::PreformatDocument(std::string const& document) const
+std::string PreformatDocument(std::string const& document)
 {
-	std::regex documentRegex(R"(^[\/][a-zA-Z0-9.,$;]{0,}$)");
-	std::smatch result;
-
+	// FIXED: упростить
 	std::string tempDocument = document;
-	if (!std::regex_match(document, result, documentRegex))
+	if (document[0] != '/')
 	{
 		tempDocument.insert(0, 1, '/');
 	}
@@ -181,27 +188,31 @@ std::string HttpUrl::PreformatDocument(std::string const& document) const
 	return tempDocument;
 }
 
-void HttpUrl::ParseURL(std::string const& url, Protocol& protocol, Port& port, std::string& host, std::string& document) const
+void ParseURL(std::string const& url, HttpUrl::Protocol& protocol, HttpUrl::Port& port, std::string& host, std::string& document)
 {
-	std::regex urlRegex(R"((https?)://([\w\-\.]+)(?::(\d+))?(?:/(.+))?)");
+	std::regex preIpRegex(R"((https?)://(\d{1,}\.\d{1,}\.\d{1,}\.\d{1,})(?::(\d+))?(?:/(.{0,}))?)");
+	std::regex ipRegex(R"((https?)://((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(?::(\d+))?(?:/(.{0,}))?)");
+	std::regex urlRegex(R"((https?)://([\w\-\.]+)(?::(\d+))?(?:/(.{0,}))?)");
 	std::smatch result;
 
-	if (!std::regex_match(url, result, urlRegex))
+	std::string reformatUrl = TextToLower(url);
+
+	if (std::regex_match(reformatUrl, result, preIpRegex))
 	{
-		throw UrlParsingError("Invalid Url value");
+		if (!std::regex_match(reformatUrl, result, ipRegex))
+		{
+			throw UrlParsingError("Invalid ip value");
+		}
+	}
+	else if (!std::regex_match(reformatUrl, result, urlRegex))
+	{
+		throw UrlParsingError("Invalid url value");
 	}
 
-	try
-	{
-		protocol = ParseProtocol(result[1].str());
-		host = result[2].str();
-		port = ParsePort(protocol, result[3].str());
-		document = result[4].str();
-	}
-	catch (std::invalid_argument& e)
-	{
-		throw;
-	}
+	protocol = ParseProtocol(result[1].str());
+	host = result[2].str();
+	port = ParsePort(protocol, result[3].str());
+	document = result[4].str();
 
 	return;
 }
