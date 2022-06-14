@@ -7,9 +7,9 @@ template <typename T, size_t SIZE>
 class MyArray
 {
 public:
-	MyArray():
+	MyArray()
 		: m_itemsPtr(std::make_unique<T[]>(SIZE))
-		, m_length(SIZE)
+		, m_size(SIZE)
 	{
 	}
 
@@ -35,7 +35,7 @@ public:
 	}
 
 	template <typename T2, size_t SIZE2>
-	MyArray::MyArray(MyArray<T2, SIZE2>&& other) noexcept
+	MyArray(MyArray<T2, SIZE2>&& other) noexcept
 		: MyArray()
 	{
 		try
@@ -97,12 +97,12 @@ public:
 			size_t const minSize = (SIZE < SIZE1) ? SIZE : SIZE1;
 			for (size_t i = 0; i < minSize; ++i)
 			{
-				m_items[i] = static_cast<T const&>(other[i]);
+				m_itemsPtr[i] = static_cast<T const&>(other[i]);
 			}
 			
 			for (size_t i = SIZE1; i < SIZE; ++i)
 			{
-				m_items[i] = T();
+				m_itemsPtr[i] = T();
 			}
 
 			m_size = SIZE1;
@@ -119,12 +119,12 @@ public:
 			size_t const minSize = (SIZE < SIZE2) ? SIZE : SIZE2;
 			for (size_t i = 0; i < minSize; ++i)
 			{
-				m_items[i] = static_cast<T const&>(other[i]);
+				m_itemsPtr[i] = static_cast<T const&>(other[i]);
 			}
 
 			for (size_t i = SIZE2; i < SIZE; ++i)
 			{
-				m_items[i] = T();
+				m_itemsPtr[i] = T();
 			}
 
 			m_size = SIZE2;
@@ -169,7 +169,7 @@ public:
 
 	iterator end()
 	{
-		return iterator(m_itemsPtr.get() + m_length);
+		return iterator(m_itemsPtr.get() + m_size);
 	}
 
 	const_iterator begin() const
@@ -179,7 +179,7 @@ public:
 
 	const_iterator end() const
 	{
-		return const_iterator(m_itemsPtr.get() + m_length);
+		return const_iterator(m_itemsPtr.get() + m_size);
 	}
 
 	reverse_iterator rbegin()
