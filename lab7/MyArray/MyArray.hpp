@@ -35,7 +35,7 @@ public:
 	}
 
 	template <typename T2, size_t SIZE2>
-	MyArray::MyArray(MyArray&& other) noexcept
+	MyArray::MyArray(MyArray<T2, SIZE2>&& other) noexcept
 		: MyArray()
 	{
 		try
