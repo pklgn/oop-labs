@@ -12,7 +12,6 @@ int main()
 
 void ProcessURLParsing(std::istream& inputStream, std::ostream& outputStream)
 {
-	bool isCorrect;
 	std::string url;
 	while (std::getline(inputStream, url))
 	{

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "pch.h"
 
 class HttpUrl
@@ -12,30 +12,36 @@ public:
 	static const Port MIN_PORT = 1;
 	static const Port MAX_PORT = 65535;
 
+	// FIXED: РЅРµРІР°Р»РёРґРЅР°СЏ СЃРёС‚СѓР°С†РёСЏ Р±РµР· document
+
+	// FIXED: РїРѕРјРµРЅСЏС‚СЊ СѓСЃР»РѕРІРёРµ РґР»СЏ РґРёР°РїР°Р·РѕРЅР° + С‚РµСЃС‚С‹ РґР»СЏ РіСЂР°РЅРёС‡РЅС‹С… СѓСЃР»РѕРІРёР№
+
+	// FIXED: Р»СЋР±РѕР№ СЂРµРіРёСЃС‚СЂ
+
 	enum class Protocol
 	{
 		HTTP,
 		HTTPS
 	};
 
-	// выполняет парсинг строкового представления URL-а, в случае ошибки парсинга
-	// выбрасыват исключение CUrlParsingError, содержащее текстовое описание ошибки
+	// РІС‹РїРѕР»РЅСЏРµС‚ РїР°СЂСЃРёРЅРі СЃС‚СЂРѕРєРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ URL-Р°, РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё РїР°СЂСЃРёРЅРіР°
+	// РІС‹Р±СЂР°СЃС‹РІР°С‚ РёСЃРєР»СЋС‡РµРЅРёРµ CUrlParsingError, СЃРѕРґРµСЂР¶Р°С‰РµРµ С‚РµРєСЃС‚РѕРІРѕРµ РѕРїРёСЃР°РЅРёРµ РѕС€РёР±РєРё
 	HttpUrl(std::string const& url);
 
-	/* инициализирует URL на основе переданных параметров.
-		При недопустимости входных параметров выбрасывает исключение
+	/* РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ URL РЅР° РѕСЃРЅРѕРІРµ РїРµСЂРµРґР°РЅРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ.
+		РџСЂРё РЅРµРґРѕРїСѓСЃС‚РёРјРѕСЃС‚Рё РІС…РѕРґРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РІС‹Р±СЂР°СЃС‹РІР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёРµ
 		std::invalid_argument
-		Если имя документа не начинается с символа /, то добавляет / к имени документа
+		Р•СЃР»Рё РёРјСЏ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ СЃРёРјРІРѕР»Р° /, С‚Рѕ РґРѕР±Р°РІР»СЏРµС‚ / Рє РёРјРµРЅРё РґРѕРєСѓРјРµРЅС‚Р°
 	*/
 	HttpUrl(
 		std::string const& domain,
 		std::string const& document,
 		Protocol protocol = Protocol::HTTP);
 
-	/* инициализирует URL на основе переданных параметров.
-		При недопустимости входных параметров выбрасывает исключение
+	/* РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ URL РЅР° РѕСЃРЅРѕРІРµ РїРµСЂРµРґР°РЅРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ.
+		РџСЂРё РЅРµРґРѕРїСѓСЃС‚РёРјРѕСЃС‚Рё РІС…РѕРґРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РІС‹Р±СЂР°СЃС‹РІР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёРµ
 		std::invalid_argument
-		Если имя документа не начинается с символа /, то добавляет / к имени документа
+		Р•СЃР»Рё РёРјСЏ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ СЃРёРјРІРѕР»Р° /, С‚Рѕ РґРѕР±Р°РІР»СЏРµС‚ / Рє РёРјРµРЅРё РґРѕРєСѓРјРµРЅС‚Р°
 	*/
 	HttpUrl(
 		std::string const& domain,
@@ -43,39 +49,38 @@ public:
 		Protocol protocol,
 		Port port);
 
-	// возвращает строковое представление URL-а. Порт, являющийся стандартным для
-	// выбранного протокола (80 для http и 443 для https) в эту строку
-	// не должен включаться
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєРѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ URL-Р°. РџРѕСЂС‚, СЏРІР»СЏСЋС‰РёР№СЃСЏ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рј РґР»СЏ
+	// РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїСЂРѕС‚РѕРєРѕР»Р° (80 РґР»СЏ http Рё 443 РґР»СЏ https) РІ СЌС‚Сѓ СЃС‚СЂРѕРєСѓ
+	// РЅРµ РґРѕР»Р¶РµРЅ РІРєР»СЋС‡Р°С‚СЊСЃСЏ
 	std::string GetURL() const;
 
-	// возвращает доменное имя
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РґРѕРјРµРЅРЅРѕРµ РёРјСЏ
 	std::string GetDomain() const;
 
 	/*
-		Возвращает имя документа. Примеры:
+		Р’РѕР·РІСЂР°С‰Р°РµС‚ РёРјСЏ РґРѕРєСѓРјРµРЅС‚Р°. РџСЂРёРјРµСЂС‹:
 			/
 			/index.html
 			/images/photo.jpg
 	*/
 	std::string GetDocument() const;
 
-	// возвращает тип протокола
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ С‚РёРї РїСЂРѕС‚РѕРєРѕР»Р°
 	Protocol GetProtocol() const;
 
-	// возвращает номер порта
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ РїРѕСЂС‚Р°
 	Port GetPort() const;
 
 private:
-	Protocol ParseProtocol(const std::string& protocolName) const;
-	Port ParsePort(const Protocol& protocol, const std::string& port) const;
-	bool IsValidDomain(const std::string& domain) const;
-	std::string TextToLower(const std::string& str) const;
-	Port GetDefaultPort(const Protocol& protocol) const;
-	std::string PreformatDocument(std::string const& domain) const;
-	void ParseURL(std::string const& url, Protocol& protocol, Port& port, std::string& host, std::string& document) const;
-
 	std::string m_domain;
 	Protocol m_protocol;
 	Port m_port;
 	std::string m_document;
 };
+
+// TODO: РІС‹РЅРµСЃС‚Рё РІ Р±РµР·С‹РјСЏРЅРЅС‹Р№ namespace
+HttpUrl::Protocol ParseProtocol(const std::string& protocolName);
+HttpUrl::Port ParsePort(const HttpUrl::Protocol& protocol, const std::string& port);
+std::string TextToLower(const std::string& str);
+HttpUrl::Port GetDefaultPort(const HttpUrl::Protocol& protocol);
+std::string PreformatDocument(std::string const& domain);
