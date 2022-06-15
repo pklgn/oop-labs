@@ -140,6 +140,8 @@ MyString& MyString::operator+=(const MyString& other)
 {
 	// TODO: добавить поддержку нулевых символов
 	// TODO: добавить try/catch
+
+	// TODO: покрыть тестами +=
 	try
 	{
 		auto tempStringPtr = std::make_unique<char[]>(GetLength() + other.GetLength() + 1);
@@ -152,6 +154,7 @@ MyString& MyString::operator+=(const MyString& other)
 	}
 	catch (...)
 	{
+		// TODO: подумать над try catch
 		return *this;
 	}
 
@@ -184,7 +187,8 @@ bool MyString::operator<(const MyString& other) const
 	size_t minLength = GetLength() < other.GetLength() ? GetLength() : other.GetLength();
 	int cmpResult = memcmp(GetStringData(), other.GetStringData(), minLength);
 
-	if (GetLength() >= other.GetLength() && cmpResult == 0)
+	// TODO: проверить условие сравнения + тесты сначала прогнать
+	if (GetLength() > other.GetLength() && cmpResult == 0)
 	{
 		return false;
 	}
