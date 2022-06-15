@@ -33,18 +33,14 @@ public:
 		}
 	}
 
-	template <typename T2, size_t SIZE2>
-	MyArray(MyArray<T2, SIZE2>&& other) noexcept
+	MyArray(MyArray&& other) noexcept
 		: MyArray()
 	{
 		try
 		{
 			Resize(other.m_size);
 
-			for (size_t i = 0; i < other.m_size; ++i)
-			{
-				m_itemsPtr[i] = static_cast<T const&>(other[i]);
-			}
+			m_itemsPtr = std::move(other.m_itemsPtr);
 
 			other.m_size = 0;
 			other.m_itemsPtr = nullptr;
@@ -64,11 +60,6 @@ public:
 	{
 		Resize(m_size + 1);
 		m_itemsPtr[m_size - 1] = item;
-	}
-
-	const T* GetArrayData() const
-	{
-		return m_itemsPtr.get();
 	}
 
 	void Resize(size_t newSize)
