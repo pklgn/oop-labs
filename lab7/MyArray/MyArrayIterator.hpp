@@ -56,10 +56,20 @@ public:
 		return *this;
 	}
 
-	difference_type operator-(const MyArrayIterator& it) const { return this->ptr - it.ptr; }
+	difference_type operator-(const MyArrayIterator& it) const
+	{
+		return this->ptr - it.ptr;
+	}
 
-	MyArrayIterator operator+(const difference_type& diff) const { return MyArrayIterator(ptr + diff); }
-	MyArrayIterator operator-(const difference_type& diff) const { return MyArrayIterator(ptr - diff); }
+	MyArrayIterator operator+(const difference_type& diff) const
+	{
+		return MyArrayIterator(ptr + diff);
+	}
+
+	MyArrayIterator operator-(const difference_type& diff) const
+	{
+		return MyArrayIterator(ptr - diff);
+	}
 
 	MyArrayIterator operator++(int)
 	{
@@ -79,14 +89,40 @@ public:
 		return temp;
 	}
 
-	reference operator[](const difference_type& offset) const { return *(*this + offset); }
+	reference operator[](const difference_type& offset) const
+	{
+		return *(*this + offset);
+	}
 
-	bool operator==(const MyArrayIterator& it) const { return this->ptr == it.ptr; }
-	bool operator!=(const MyArrayIterator& it) const { return this->ptr != it.ptr; }
-	bool operator<(const MyArrayIterator& it) const { return this->ptr < it.ptr; }
-	bool operator>(const MyArrayIterator& it) const { return this->ptr > it.ptr; }
-	bool operator>=(const MyArrayIterator& it) const { return !(this->ptr < it.ptr); }
-	bool operator<=(const MyArrayIterator& it) const { return !(this->ptr > it.ptr); }
+	bool operator==(const MyArrayIterator& it) const
+	{
+		return ptr == it.ptr;
+	}
+
+	bool operator!=(const MyArrayIterator& it) const
+	{
+		return ptr != it.ptr;
+	}
+
+	bool operator<(const MyArrayIterator& it) const
+	{
+		return ptr < it.ptr;
+	}
+
+	bool operator>(const MyArrayIterator& it) const
+	{
+		return ptr > it.ptr;
+	}
+
+	bool operator>=(const MyArrayIterator& it) const
+	{
+		return !(ptr < it.ptr);
+	}
+
+	bool operator<=(const MyArrayIterator& it) const
+	{
+		return !(ptr > it.ptr);
+	}
 
 	operator MyArrayIterator<const T>() const { return MyArrayIterator<const T>(ptr); }
 };
