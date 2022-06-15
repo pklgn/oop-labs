@@ -13,8 +13,7 @@ public:
 	{
 	}
 
-	template <typename T1, size_t SIZE1>
-	MyArray(MyArray<T1, SIZE1> const& other)
+	MyArray(MyArray const& other)
 		: MyArray()
 	{
 		try
@@ -30,7 +29,7 @@ public:
 
 		for (size_t i = 0; i < other.m_size; ++i)
 		{
-			m_itemsPtr[i] = static_cast<T const&>(other[i]);
+			m_itemsPtr[i] = other[i];
 		}
 	}
 
@@ -64,24 +63,26 @@ public:
 	void PushBack(T const& item)
 	{
 		Resize(m_size + 1);
-		m_itemsPtr[m_size] = item;
+		m_itemsPtr[m_size - 1] = item;
 	}
 
-	void Resize(size_t size)
+	const T* GetArrayData() const
 	{
-		size_t reachableSize = (m_size < size) ? m_size : size; 
-		MyArray<T, size> tempArray;
+		return m_itemsPtr.get();
+	}
+
+	void Resize(size_t newSize)
+	{
+		size_t reachableSize = (m_size < newSize) ? m_size : newSize; 
+		std::unique_ptr<T[]> tempItemsPtr = std::make_unique<T[]>(newSize);
 
 		for (size_t i = 0; i < reachableSize; ++i)
 		{
-			tempArray[i] = m_itemsPtr[i];
+			tempItemsPtr[i] = m_itemsPtr[i];
 		}
 
-		m_size = 0;
-		m_itemsPtr = nullptr;
-
-		std::swap(m_size, tempArray.m_size);
-		std::swap(m_itemsPtr, tempArray.m_itemsPtr);
+		m_size = newSize;
+		m_itemsPtr = std::move(tempItemsPtr);
 	}
 
 	void Clear()
@@ -89,54 +90,39 @@ public:
 		Resize(0);
 	}
 
-	template <typename T1, size_t SIZE1>
-	MyArray<T, SIZE>& operator=(const MyArray<T1, SIZE1>& other)
+	MyArray<T, SIZE>& operator=(const MyArray& other)
 	{
-		if (std::addressof(other) != this)
+		if (this != std::addressof(other))
 		{
-			size_t const minSize = (SIZE < SIZE1) ? SIZE : SIZE1;
-			for (size_t i = 0; i < minSize; ++i)
+			MyArray tempArray;
+			tempArray.Resize(other.m_size);
+			for (size_t i = 0; i < other.m_size; ++i)
 			{
-				m_itemsPtr[i] = static_cast<T const&>(other[i]);
-			}
-			
-			for (size_t i = SIZE1; i < SIZE; ++i)
-			{
-				m_itemsPtr[i] = T();
+				tempArray[i] = other[i];
 			}
 
-			m_size = SIZE1;
+			std::swap(m_size, tempArray.m_size);
+			std::swap(m_itemsPtr, tempArray.m_itemsPtr);
 		}
 
 		return *this;
 	}
 
-	template <typename T2, size_t SIZE2>
-	MyArray& operator=(MyArray<T2, SIZE2>&& other) noexcept
+	MyArray& operator=(MyArray&& other) noexcept
 	{
 		if (std::addressof(other) != this)
 		{
-			size_t const minSize = (SIZE < SIZE2) ? SIZE : SIZE2;
-			for (size_t i = 0; i < minSize; ++i)
-			{
-				m_itemsPtr[i] = static_cast<T const&>(other[i]);
-			}
+			m_size = 0;
+			m_itemsPtr = nullptr;
 
-			for (size_t i = SIZE2; i < SIZE; ++i)
-			{
-				m_itemsPtr[i] = T();
-			}
-
-			m_size = SIZE2;
-
-			other.m_size = 0;
-			other.m_itemsPtr = nullptr;
+			std::swap(m_size, other.m_size);
+			std::swap(m_itemsPtr, other.m_itemsPtr);
 		}
 
 		return *this;
 	}
 
-	const char& operator[](size_t index) const
+	const T& operator[](size_t index) const
 	{
 		if (index >= m_size)
 		{
@@ -146,7 +132,7 @@ public:
 		return m_itemsPtr[index];
 	}
 
-	char& operator[](size_t index)
+	T& operator[](size_t index)
 	{
 		if (index >= m_size)
 		{
@@ -156,8 +142,8 @@ public:
 		return m_itemsPtr[index];
 	}
 
-	using iterator = MyArrayIterator<char>;
-	using const_iterator = MyArrayIterator<const char>;
+	using iterator = MyArrayIterator<T>;
+	using const_iterator = MyArrayIterator<const T>;
 
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 	using reverse_iterator = std::reverse_iterator<iterator>;
