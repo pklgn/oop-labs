@@ -373,7 +373,6 @@ SCENARIO("Construct url using constructor with all separate params")
 		url = "https://www.mysite.com:65535/docs/document1.html?page=30&lang=en#title";
 		REQUIRE_NOTHROW(HttpUrl(url));
 	}
-
 }
 
 SCENARIO("Reading incorrect input data")

@@ -1,10 +1,9 @@
 #include "pch.h"
 #include "StringStack.h"
 
-StringStack::StringStack()
-	: m_size(0)
-	, m_ptrTop(nullptr)
+StringStack::~StringStack()
 {
+	Clear();
 }
 
 StringStack::StringStack(const StringStack& other)
@@ -13,7 +12,7 @@ StringStack::StringStack(const StringStack& other)
 	{
 		if (other.m_size > 0)
 		{
-			DfsPush(*this, other.GetTopItem());
+			DeepCopy(*this, other.GetTopItem());
 		}
 	}
 	catch (...)
@@ -36,11 +35,7 @@ StringStack& StringStack::operator=(const StringStack& other)
 {
 	if (this != std::addressof(other))
 	{
-		StringStack tempStack;
-		if (other.m_size > 0)
-		{
-			DfsPush(tempStack, other.GetTopItem());
-		}
+		auto tempStack = other; 
 		
 		*this = std::move(tempStack);
 	}
@@ -50,25 +45,15 @@ StringStack& StringStack::operator=(const StringStack& other)
 
 StringStack& StringStack::operator=(StringStack&& other) noexcept
 {
-	if (this != std::addressof(other))
-	{
-		m_size = other.m_size;
-		m_ptrTop = std::move(other.m_ptrTop);
-
-		other.m_size = 0;
-	}
+	std::swap(m_size, other.m_size);
+	std::swap(m_ptrTop, other.m_ptrTop);
 
 	return *this;
 }
 
 bool StringStack::IsEmpty() const
 {
-	if (m_size == 0)
-	{
-		return true;
-	}
-
-	return false;
+	return m_size == 0;
 }
 
 void StringStack::Pop()
@@ -105,8 +90,10 @@ size_t StringStack::GetSize() const
 
 void StringStack::Clear()
 {
-	m_size = 0;
-	m_ptrTop = nullptr;
+	while (!IsEmpty())
+	{
+		Pop();
+	}
 }
 
 StringStack::Item& StringStack::GetTopItem() const
@@ -119,13 +106,12 @@ StringStack::Item& StringStack::GetTopItem() const
 	return *m_ptrTop.get();
 }
 
-void StringStack::DfsPush(StringStack& resultStack, Item& itemPtr) const
+void StringStack::DeepCopy(StringStack& resultStack, Item& itemPtr) const
 {
 	if (itemPtr.ptrNext != nullptr)
 	{
-		DfsPush(resultStack, *itemPtr.ptrNext);
+		DeepCopy(resultStack, *itemPtr.ptrNext);
 	}
 
 	resultStack.Push(itemPtr.value);
 }
-
