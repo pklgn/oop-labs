@@ -26,29 +26,18 @@ public:
 
 			throw;
 		}
-
-		for (size_t i = 0; i < other.m_size; ++i)
-		{
-			m_itemsPtr[i] = other[i];
-		}
+		
+		std::copy(std::begin(other), std::end(other), std::begin(*this));
 	}
 
 	MyArray(MyArray&& other) noexcept
 		: MyArray()
 	{
-		try
-		{
-			Resize(other.m_size);
+		m_size = other.m_size;
+		m_itemsPtr = std::move(other.m_itemsPtr);
 
-			m_itemsPtr = std::move(other.m_itemsPtr);
-
-			other.m_size = 0;
-			other.m_itemsPtr = nullptr;
-		}
-		catch (...)
-		{
-			Clear();
-		}
+		other.m_size = 0;
+		other.m_itemsPtr = nullptr;
 	}
 
 	size_t GetSize() const
@@ -64,7 +53,7 @@ public:
 
 	void Resize(size_t newSize)
 	{
-		size_t reachableSize = (m_size < newSize) ? m_size : newSize; 
+		size_t reachableSize = std::min(m_size, newSize);
 		std::unique_ptr<T[]> tempItemsPtr = std::make_unique<T[]>(newSize);
 
 		for (size_t i = 0; i < reachableSize; ++i)
@@ -78,19 +67,15 @@ public:
 
 	void Clear()
 	{
-		Resize(0);
+		m_size = 0;
+		m_itemsPtr.reset();
 	}
 
-	MyArray<T, SIZE>& operator=(const MyArray& other)
+	MyArray& operator=(const MyArray& other)
 	{
 		if (this != std::addressof(other))
 		{
-			MyArray tempArray;
-			tempArray.Resize(other.m_size);
-			for (size_t i = 0; i < other.m_size; ++i)
-			{
-				tempArray[i] = other[i];
-			}
+			MyArray tempArray(other);
 
 			std::swap(m_size, tempArray.m_size);
 			std::swap(m_itemsPtr, tempArray.m_itemsPtr);

@@ -16,7 +16,7 @@ bool StringLessThan(const char* first, const char* second)
 
 TEST_CASE("Compare vector of simple data")
 {
-	SECTION("Empty vector")
+	SECTION("Empty vector of integers")
 	{
 		std::vector<int> intVector;
 
@@ -25,9 +25,10 @@ TEST_CASE("Compare vector of simple data")
 
 		REQUIRE_FALSE(wasFound);
 		REQUIRE(result == -1);
+		REQUIRE(intVector.size() == 0);
 	}
 
-	SECTION("Vector of integers")
+	SECTION("Not empty vector of integers")
 	{
 		std::vector<int> intVector;
 		for (int i = 1; i < 10; ++i)
