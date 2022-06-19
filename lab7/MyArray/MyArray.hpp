@@ -51,11 +51,6 @@ public:
 		m_itemsPtr[m_size - 1] = item;
 	}
 
-	const T* GetArrayData() const
-	{
-		return m_itemsPtr.get();
-	}
-
 	void Resize(size_t newSize)
 	{
 		size_t reachableSize = std::min(m_size, newSize);

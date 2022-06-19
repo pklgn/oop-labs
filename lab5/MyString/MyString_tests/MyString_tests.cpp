@@ -32,7 +32,7 @@ TEST_CASE("Construct parametrized object")
 
 	SECTION("Use pointer to char with length")
 	{
-		// TODO: добавить тест с substr не с нулевого символа
+		// TODO: РґРѕР±Р°РІРёС‚СЊ С‚РµСЃС‚ СЃ substr РЅРµ СЃ РЅСѓР»РµРІРѕРіРѕ СЃРёРјРІРѕР»Р°
 		std::string cStr("quite a long string for the test");
 		MyString str(cStr.c_str(), 31);
 		REQUIRE(str.GetLength() == 31);
@@ -51,7 +51,7 @@ TEST_CASE("Construct parametrized object")
 		REQUIRE(emptyStr.GetLength() == 0);
 		REQUIRE(emptyStr.GetStringData() == emptyCStr);
 
-		// TODO: добавить в тесты каждого метода тесты с нулевыми символами
+		// TODO: РґРѕР±Р°РІРёС‚СЊ РІ С‚РµСЃС‚С‹ РєР°Р¶РґРѕРіРѕ РјРµС‚РѕРґР° С‚РµСЃС‚С‹ СЃ РЅСѓР»РµРІС‹РјРё СЃРёРјРІРѕР»Р°РјРё
 		std::string zeroCStr("zero\0symbol\0among\0text");
 		MyString zeroStr(zeroCStr.c_str(), 22);
 		REQUIRE(zeroStr.GetLength() == 22);
@@ -124,7 +124,7 @@ TEST_CASE("Use string operator")
 
 	SECTION("Use operator +")
 	{
-		// TODO: Дописать тест для выявления выхода за границы строки
+		// TODO: Р”РѕРїРёСЃР°С‚СЊ С‚РµСЃС‚ РґР»СЏ РІС‹СЏРІР»РµРЅРёСЏ РІС‹С…РѕРґР° Р·Р° РіСЂР°РЅРёС†С‹ СЃС‚СЂРѕРєРё
 		std::string testString("abc\0e");
 		MyString myStr(testString);
 		MyString doubleMyStr = myStr + myStr;
@@ -148,7 +148,7 @@ TEST_CASE("Use string operator")
 		REQUIRE(quadMyStr2.GetLength() == testString.size() * 4);
 		REQUIRE(quadMyStr2.GetStringData() == testString + testString + testString + testString);
 
-		// TODO: проверить добавление другой строки
+		// TODO: РїСЂРѕРІРµСЂРёС‚СЊ РґРѕР±Р°РІР»РµРЅРёРµ РґСЂСѓРіРѕР№ СЃС‚СЂРѕРєРё
 	}
 
 	SECTION("Use operator == or !=")
@@ -190,7 +190,7 @@ TEST_CASE("Use string operator")
 
 	SECTION("Use operator []")
 	{
-		// TODO: добавить на \0
+		// TODO: РґРѕР±Р°РІРёС‚СЊ РЅР° \0
 		std::string stlString("test string");
 		MyString str(stlString.c_str());
 		REQUIRE(str[0] == 't');
@@ -239,8 +239,8 @@ TEST_CASE("Check MyString methods")
 		MyString testStr("string");
 		MyString subStr1 = testStr.SubString(0, 3);
 
-		// FIXED: Отобразить все 4 кейса копирования  
-		// TODO: добавить \0 тесты
+		// FIXED: РћС‚РѕР±СЂР°Р·РёС‚СЊ РІСЃРµ 4 РєРµР№СЃР° РєРѕРїРёСЂРѕРІР°РЅРёСЏ  
+		// TODO: РґРѕР±Р°РІРёС‚СЊ \0 С‚РµСЃС‚С‹
 
 		REQUIRE(subStr1.GetLength() == 3);
 		REQUIRE(subStr1 == resultStr1);
@@ -267,4 +267,4 @@ TEST_CASE("Check MyString methods")
 
 	}
 }
-// TODO: добавить except range
+// TODO: РґРѕР±Р°РІРёС‚СЊ except range

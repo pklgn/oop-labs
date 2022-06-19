@@ -12,7 +12,7 @@ public:
 	using value_type = T;
 	using reference = T&;
 	using pointer = T*;
-	using difference_type = unsigned long long;
+	using difference_type = ptrdiff_t;
 
 	MyStringIterator(T* ptr)
 		: ptr(ptr)
