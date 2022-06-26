@@ -3,9 +3,14 @@
 #include "IAdvancedStudent.h"
 #include "StudentImpl.hpp"
 
-class AdvancedStudent : StudentImpl<IAdvancedStudent>
+class AdvancedStudent : public StudentImpl<IAdvancedStudent>
 {
 public:
+	AdvancedStudent(std::string name, std::string surname, std::string patronymic, std::string address, std::string universityName, std::string ID, std::string dissertationTheme)
+		: StudentImpl(name, surname, patronymic, address, universityName, ID)
+		, m_dissertationTheme(dissertationTheme)
+	{
+	}
 	~AdvancedStudent() = default;
 
 	virtual std::string GetDissertationTheme() const override

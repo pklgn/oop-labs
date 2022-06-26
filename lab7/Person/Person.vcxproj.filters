@@ -47,19 +47,19 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Pupil.cpp">
+    <ClCompile Include="Pupil.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Teacher.cpp">
+    <ClCompile Include="Teacher.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Student.cpp">
+    <ClCompile Include="Student.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Worker.cpp">
+    <ClCompile Include="Worker.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AdvancedStudent.cpp">
+    <ClCompile Include="AdvancedStudent.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

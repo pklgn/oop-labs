@@ -5,7 +5,7 @@
 class IWorker : public IPerson
 {
 public:
-	virtual ~IWorker();
+	virtual ~IWorker() = default;
 
 	virtual std::string GetProfession() const = 0;
 

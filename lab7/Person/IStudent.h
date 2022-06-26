@@ -5,7 +5,7 @@
 class IStudent : public IPerson
 {
 public:
-	virtual ~IStudent();
+	virtual ~IStudent() = default;
 
 	virtual std::string GetUniversityName() const = 0;
 	virtual std::string GetID() const = 0;

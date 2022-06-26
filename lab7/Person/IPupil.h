@@ -5,11 +5,11 @@
 class IPupil : public IPerson
 {
 public:
-	virtual ~IPupil();
+	virtual ~IPupil() = default;
 
 	virtual std::string GetSchoolName() const = 0;
-	virtual std::string GetClassName() const = 0;
+	virtual std::string GetSchoolClass() const = 0;
 
 	virtual void SetSchoolName(std::string const& schoolName) = 0;
-	virtual void SetClassName(std::string const& className) = 0;
+	virtual void SetSchoolClass(std::string const& schoolClass) = 0;
 };

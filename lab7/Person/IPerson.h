@@ -4,7 +4,7 @@
 class IPerson
 {
 public:
-	virtual ~IPerson();
+	virtual ~IPerson() = default;
 
 	virtual std::string GetName() const = 0;
 	virtual std::string GetSurname() const = 0;

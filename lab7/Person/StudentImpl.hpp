@@ -6,6 +6,13 @@ template <typename Base>
 class StudentImpl : public PersonImpl<Base>
 {
 public:
+	StudentImpl(std::string name, std::string surname, std::string patronymic, std::string address, std::string universityName, std::string ID)
+		: PersonImpl<Base>(name, surname, patronymic, address)
+		, m_universityName(universityName)
+		, m_ID(ID)
+	{
+	}
+
 	~StudentImpl() = default;
 
 	virtual std::string GetUniversityName() const override

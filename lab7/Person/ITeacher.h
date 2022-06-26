@@ -5,7 +5,7 @@
 class ITeacher : public IPerson
 {
 public:
-	virtual ~ITeacher();
+	virtual ~ITeacher() = default;
 
 	virtual std::string GetSubjectName() const = 0;
 

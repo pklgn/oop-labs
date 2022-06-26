@@ -5,7 +5,7 @@
 class IAdvancedStudent : public IStudent
 {
 public:
-	virtual ~IAdvancedStudent();
+	virtual ~IAdvancedStudent() = default;
 
 	virtual std::string GetDissertationTheme() const = 0;
 
