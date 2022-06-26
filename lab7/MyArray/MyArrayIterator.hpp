@@ -124,5 +124,8 @@ public:
 		return !(ptr > it.ptr);
 	}
 
-	operator MyArrayIterator<const T>() const { return MyArrayIterator<const T>(ptr); }
+	operator MyArrayIterator<const T>() const
+	{
+		return MyArrayIterator<const T>(ptr);
+	}
 };

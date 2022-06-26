@@ -179,6 +179,8 @@ TEST_CASE("Work with std::string")
 		copyStringArr.PushBack("");
 		REQUIRE(stringArr.GetSize() == 0);
 		REQUIRE(copyStringArr.GetSize() == 3);
+
+		REQUIRE_NOTHROW(stringArr.PushBack(""));
 	}
 
 	SECTION("Check move operator")

@@ -37,7 +37,6 @@ public:
 		m_itemsPtr = std::move(other.m_itemsPtr);
 
 		other.m_size = 0;
-		other.m_itemsPtr = nullptr;
 	}
 
 	size_t GetSize() const
@@ -75,7 +74,20 @@ public:
 	{
 		if (this != std::addressof(other))
 		{
-			MyArray tempArray(other);
+			MyArray tempArray;
+			try
+			{
+				for (size_t i = 0; i < other.m_size; ++i)
+				{
+					tempArray.PushBack(other[i]);
+				}
+			}
+			catch (...)
+			{
+				Clear();
+
+				throw;
+			}
 
 			std::swap(m_size, tempArray.m_size);
 			std::swap(m_itemsPtr, tempArray.m_itemsPtr);
